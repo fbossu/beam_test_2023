@@ -6,7 +6,7 @@
 cd decode
 make
 ./decode filename.fdf
-'''
+```
 
 
 ## reconstruction
@@ -15,4 +15,4 @@ make
 cd reco
 make
 ./reco *root
-'''
+```
