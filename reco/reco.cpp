@@ -121,34 +121,43 @@ void reco( string name) {
     // sort hits, probably not needed, but just in case
     sort( hits->begin(), hits->end(), compareHits );
 
-    //for( auto it = hits->begin(); it < hits->end(); it++ ) cout << it->channel << ":" << it->maxamp << " ";
-    //cout << endl;
-
     cls->clear();
     int oldch = -1;
+    uint16_t clId = 1;
     for( auto it = hits->begin() ; it < hits->end(); ){
-      
+     
+      // start a new cluster
       if( oldch < 0 ){
         oldch = it->channel;
         int num = 0;
         int den = 0;
         int size = 0;
+
+        // loop over the hits
         while( oldch >= 0 ){
 
+          // compute the numerator and the denumerator for the centroid  
           num += it->channel * it->maxamp;
           den += it->maxamp;
 
+          // assign the cluster Id to the hit. 
+          it->clusterId = clId; 
+
+          // increase the size of the cluster
           size++;
-          //cout << "it " << it->channel << endl;
+
+          // look for the next hit
           it++;
           if( it == hits->end() || (it->channel - oldch) > 1 ){
+            // if here, the cluster is finished. reset oldch and increase the clId for the next one
             oldch = -1;
+            clId++;
           }
           else {
             oldch = it->channel;
           }
 
-        }
+        } // here the cluster is found
 
         // make a cluster
         cluster cl;
@@ -156,13 +165,9 @@ void reco( string name) {
         cl.centroid = (float) num / den;
         cls->push_back( cl );
 
-      }
+      }// this was a cluster
 
-    }
-
-    //for( auto &c : *cls ) cout << c.centroid << ":" << c.size << " ";
-    //cout << endl;
-    
+    } // end loop over hits
 
 
     outnt.Fill();
