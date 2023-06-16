@@ -8,9 +8,20 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <iomanip>
 using namespace std;
 
-    bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
+bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
+
+void niceBar( int tot, int i, int N=50 ){
+  cout << "[ ";
+  for( int j=0; j < (float)i/tot*N; j++)
+    cout << "-";
+  for( int j=(float)i/tot*N; j < N; j++)
+    cout << " ";
+  cout << " ]\r";
+  cout << flush;
+}
 
 void reco( string name) {
 
@@ -18,6 +29,7 @@ void reco( string name) {
   if( !infile ){
     return;
   }
+  cout << "reading " << name << endl;
 
   TTree *nt = (TTree*)infile->Get("nt");
 
@@ -57,6 +69,8 @@ void reco( string name) {
   // loop over the events
   // --------------------
   for ( int iev=0; iev<nt->GetEntries() ; iev++){
+    if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
+
     nt->GetEntry(iev);
 
     map<uint16_t,uint16_t> maxamp;
@@ -149,9 +163,8 @@ void reco( string name) {
           // look for the next hit
           it++;
           if( it == hits->end() || (it->channel - oldch) > 1 ){
-            // if here, the cluster is finished. reset oldch and increase the clId for the next one
-            oldch = -1;
-            clId++;
+            // TODO add here some conditions to skip missing strips and so on
+            break;
           }
           else {
             oldch = it->channel;
@@ -163,7 +176,12 @@ void reco( string name) {
         cluster cl;
         cl.size     = size;
         cl.centroid = (float) num / den;
+        cl.id       = clId;
         cls->push_back( cl );
+
+        // if here, the cluster is finished. reset oldch and increase the clId for the next one
+        oldch = -1;
+        clId++;
 
       }// this was a cluster
 
@@ -179,6 +197,8 @@ void reco( string name) {
   fout->Close();
   infile->Close();
 
+  cout << setw(100) << "  \r"<< flush;
+  cout << "finished processing " << name << endl;
 }
 
 int main( int argc, char **argv ){
