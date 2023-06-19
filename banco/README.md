@@ -6,7 +6,7 @@ To visualize the data from BANCO, make sure you have two types of files: a Noise
 
 ## Coordinates
 
-In this implementation, the coordinates used are the pixels from the ladder, considering the (0,0) coordinate as the (0,0) of the first chip of the first ladder. We have also modified the coordinates from 3 coordinates (chipId, row, col) to row and col, where $col=col+(chipId-4)* \times 1024$.
+In this implementation, the coordinates used are the pixels from the ladder, considering the (0,0) coordinate as the (0,0) of the first chip of the first ladder. We have also modified the coordinates from 3 coordinates (chipId, row, col) to row and col, where $col=col+(chipId-4) \times 1024$.
 
 
 ## Clustering
