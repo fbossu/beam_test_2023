@@ -9,6 +9,7 @@
 #include <map>
 #include <iostream>
 #include <iomanip>
+#include "../map/DetectorTable.h"
 using namespace std;
 
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
@@ -23,7 +24,7 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
-void reco( string name) {
+void reco( string name, DetectorTable det) {
 
   TFile *infile = TFile::Open(name.data());
   if( !infile ){
@@ -143,16 +144,31 @@ void reco( string name) {
       // start a new cluster
       if( oldch < 0 ){
         oldch = it->channel;
-        int num = 0;
-        int den = 0;
         int size = 0;
+        int numCh = 0;
+        int denCh = 0;
+        int numSt = 0;
+        int denSt = 0;
+
+        int pitch = det.getPitch(it->channel);
+        int inter = det.getInter(it->channel);
+        char axis = det.getAxis(it->channel);
+
+        // to keep track of neighbouring channel to the hit being processed, and check if th first hit is on the edge of a region
+        std::vector<int> ngh = det.getNeighbours(it->channel);
+        bool edge = ngh.size() < 2;
 
         // loop over the hits
         while( oldch >= 0 ){
 
           // compute the numerator and the denumerator for the centroid  
-          num += it->channel * it->maxamp;
-          den += it->maxamp;
+          numCh += it->channel * it->maxamp;
+          denCh += it->maxamp;
+
+          numSt += det.getStripNb(it->channel) * it->maxamp;  
+          denSt += it->maxamp;
+
+          ngh = det.getNeighbours(it->channel);
 
           // assign the cluster Id to the hit. 
           it->clusterId = clId; 
@@ -160,10 +176,11 @@ void reco( string name) {
           // increase the size of the cluster
           size++;
 
-          // look for the next hit
+          // look for the next hit, check that the next hit is a neighbourg
           it++;
-          if( it == hits->end() || (it->channel - oldch) > 1 ){
+          if( it == hits->end() || (it->channel - oldch) > 1 || std::find(ngh.begin(), ngh.end(), it->channel) == ngh.end() ){
             // TODO add here some conditions to skip missing strips and so on
+            edge = edge || (ngh.size() < 2);
             break;
           }
           else {
@@ -175,8 +192,12 @@ void reco( string name) {
         // make a cluster
         cluster cl;
         cl.size     = size;
-        cl.centroid = (float) num / den;
+        cl.centroid = (float) numCh / denCh;
         cl.id       = clId;
+        cl.stripCentroid = (float) numSt / denCh;
+        cl.pitch = pitch;
+        cl.inter = inter;
+        cl.axis = axis;
         cls->push_back( cl );
 
         // if here, the cluster is finished. reset oldch and increase the clId for the next one
@@ -208,13 +229,15 @@ int main( int argc, char **argv ){
     return 1;
   }
 
+  DetectorTable det("ASA_map.txt", 4, 5, 6, 7); 
+
   for( int i=1; i< argc; i++){
     string name = argv[i];
     if( name.find( ".root" ) > name.size() ){
       cerr << " warning : " << name << " is not a root file; we'll ignore it" << endl;
       continue;
     }
-    reco( argv[i] );
+    reco( argv[i], det );
   }
   return 0;
 }

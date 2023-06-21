@@ -15,11 +15,11 @@ void DetectorTable::buildTable(){
 	std::ifstream infile(detFile.c_str());
 
 	std::string line, fcnt, fch, fstripNb, faxis, fpitch, finter, fngh;
-	// double inter = 0;
-	double pitch = 0;
+	// float inter = 0;
+	float pitch = 0;
 	char axis = 'n';
 	std::vector<int> ngh;
-	std::vector<double> inter;
+	std::vector<float> inter;
 	int cnt = 0, ch=0, stripNb = 0;
 
 	std::getline(infile, line);
@@ -60,7 +60,7 @@ void DetectorTable::buildTable(){
 	}
 }
 
-double DetectorTable::getInter(int channel, int channelPerp){
+float DetectorTable::getInter(int channel, int channelPerp){
 	if(detFile == "inter_map.txt" && this->getConnector(channel) < 2){
 		if(channelPerp==-1 or this->getConnector(channelPerp) < 2) throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the channel of the cluster in x in order to find the interstrip value of y strips (the interstrip changes along one vertical (y) strip)");
 		else{
@@ -73,17 +73,17 @@ double DetectorTable::getInter(int channel, int channelPerp){
 }
 
 
-int main(int argc, char const *argv[])
-{
-	DetectorTable det = DetectorTable("inter_map.txt", 4, 5, 6, 7);
+// int main(int argc, char const *argv[])
+// {
+// 	DetectorTable det = DetectorTable("inter_map.txt", 4, 5, 6, 7);
 
-	for(int i=4*64; i<8*64; i++){
-		// std::cout<<"DreamCh: "<<i<<" Connector: "<<det.getConnector(i)<<" Axis: "<<det.getAxis(i)<<" StripNb "<<det.getStripNb(i)<<" Pitch: "<<det.getPitch(i)<< " DreamCh_Neighbours: ";
-		// for(int j=0; j<det.getNeighbours(i).size(); j++) std::cout << det.getNeighbours(i)[j] <<" ";
-		// std::cout<<std::endl;
+// 	for(int i=4*64; i<8*64; i++){
+// 		// std::cout<<"DreamCh: "<<i<<" Connector: "<<det.getConnector(i)<<" Axis: "<<det.getAxis(i)<<" StripNb "<<det.getStripNb(i)<<" Pitch: "<<det.getPitch(i)<< " DreamCh_Neighbours: ";
+// 		// for(int j=0; j<det.getNeighbours(i).size(); j++) std::cout << det.getNeighbours(i)[j] <<" ";
+// 		// std::cout<<std::endl;
 
-		std::cout<<"DreamCh: "<<i<<" Connector: "<<det.getConnector(i)<<" Axis: "<<det.getAxis(i)<<" StripNb "<<det.getStripNb(i)<<" Pitch: "<<det.getPitch(i);
-		std::cout<< " Inter: "<<det.getInter(i,435)<<std::endl;
-	}
-	return 0;
-}
+// 		std::cout<<"DreamCh: "<<i<<" Connector: "<<det.getConnector(i)<<" Axis: "<<det.getAxis(i)<<" StripNb "<<det.getStripNb(i)<<" Pitch: "<<det.getPitch(i);
+// 		std::cout<< " Inter: "<<det.getInter(i,435)<<std::endl;
+// 	}
+// 	return 0;
+// }
