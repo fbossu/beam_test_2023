@@ -229,7 +229,7 @@ int main( int argc, char **argv ){
     return 1;
   }
 
-  DetectorTable det("ASA_map.txt", 4, 5, 6, 7); 
+  DetectorTable det("../map/ASA_map.txt", 4, 5, 6, 7); 
 
   for( int i=1; i< argc; i++){
     string name = argv[i];
