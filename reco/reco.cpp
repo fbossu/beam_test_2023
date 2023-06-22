@@ -228,8 +228,9 @@ void reco( string name, DetectorTable det) {
 
 int main( int argc, char **argv ){
 
-  if( argc < 2 ) {
-    cerr << " no file name specified \n";
+  if( argc < 3 ) {
+    // cerr << " no file name specified \n";
+    cerr << " At least two arguments need to be specified \n file name and FEU number (from 1 to 5)";
     return 1;
   }
 
@@ -238,20 +239,21 @@ int main( int argc, char **argv ){
 
   if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
 
-  size_t posFeu = fname.find("FEU");
-  if(posFeu > fname.size()){
-    std::cout << "Filename doesn't contain FEU info" << std::endl;
-    return 1;
-  }
+  // size_t posFeu = fname.find("FEU");
+  // if(posFeu > fname.size()){
+  //   std::cout << "Filename doesn't contain FEU info" << std::endl;
+  //   return 1;
+  // }
+  // int nbFeu = std::stoi(fname.substr(posFeu+3, 1));
 
-  int nbFeu = std::stoi(fname.substr(posFeu+3, 1));
+  int nbFeu = atoi(argv[2]);
 
   if(nbFeu == 1){
-    if( argc < 3 ){
+    if( argc < 4 ){
       cerr << " Feu 1 is is connnected to two detectors, input the detector number as second argument :\n 1=MUR_strip \n 2=MUR_inter\n";
       return 1;
     }
-    int nbDet = atoi(argv[2]);
+    int nbDet = atoi(argv[3]);
     if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
     else if(nbDet=2) det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
     else {cerr << "detector number invalid \n"; return 1; }
