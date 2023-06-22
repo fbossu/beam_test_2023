@@ -2,16 +2,22 @@
 
 DetectorTable::DetectorTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3){
 	detFile = idetFile;
-	if(dreamConnect0 > 0) dreamConnect.push_back(dreamConnect0);
-	if(dreamConnect1 > 0) dreamConnect.push_back(dreamConnect1);
-	if(dreamConnect2 > 0) dreamConnect.push_back(dreamConnect2);
-	if(dreamConnect3 > 0) dreamConnect.push_back(dreamConnect3);
+	if(dreamConnect0 > -1) dreamConnect.push_back(dreamConnect0);
+	if(dreamConnect1 > -1) dreamConnect.push_back(dreamConnect1);
+	if(dreamConnect2 > -1) dreamConnect.push_back(dreamConnect2);
+	if(dreamConnect3 > -1) dreamConnect.push_back(dreamConnect3);
 	this->buildTable();
+}
+
+bool DetectorTable::isConnected(int channel){
+	int dream = channel/64;
+	return ( std::find(dreamConnect.begin(), dreamConnect.end(), dream) != dreamConnect.end() );
 }
 
 
 void DetectorTable::buildTable(){
 
+	std::cout<< "Building detector table "<<detFile<<std::endl;
 	std::ifstream infile(detFile.c_str());
 
 	std::string line, fcnt, fch, fstripNb, faxis, fpitch, finter, fngh;
@@ -61,6 +67,7 @@ void DetectorTable::buildTable(){
 }
 
 float DetectorTable::getInter(int channel, int channelPerp){
+	if(!this->isConnected(channel)) return 0;
 	if(detFile == "inter_map.txt" && this->getConnector(channel) < 2){
 		if(channelPerp==-1 or this->getConnector(channelPerp) < 2) throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the channel of the cluster in x in order to find the interstrip value of y strips (the interstrip changes along one vertical (y) strip)");
 		else{
@@ -70,6 +77,31 @@ float DetectorTable::getInter(int channel, int channelPerp){
 		}
 	}
 	return (mapInter[channel])[0];
+}
+
+int DetectorTable::getConnector(int channel){
+	if(!this->isConnected(channel)) return 0;
+	return mapConnector[channel];
+}
+
+char DetectorTable::getAxis(int channel){
+	if(!this->isConnected(channel)) return 'o';
+	return mapAxis[channel];
+}
+
+float DetectorTable::getPitch(int channel){
+	if(!this->isConnected(channel)) return 0;
+	return mapPitch[channel];
+}
+
+int DetectorTable::getStripNb(int channel){
+	if(!this->isConnected(channel)) return 0;
+	return mapStripNb[channel];
+}
+
+std::vector<int> DetectorTable::getNeighbours(int channel){
+	if(!this->isConnected(channel)) return std::vector<int>();
+	return mapNgh[channel];
 }
 
 

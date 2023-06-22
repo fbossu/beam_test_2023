@@ -9,7 +9,9 @@
 #include <map>
 #include <iostream>
 #include <iomanip>
+
 #include "../map/DetectorTable.h"
+
 using namespace std;
 
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
@@ -66,7 +68,6 @@ void reco( string name, DetectorTable det) {
   outnt.Branch( "delta_timestamp", &delta_timestamp);
   outnt.Branch( "ftst", &ftst );
 
-
   // loop over the events
   // --------------------
   for ( int iev=0; iev<nt->GetEntries() ; iev++){
@@ -85,6 +86,7 @@ void reco( string name, DetectorTable det) {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
+      if(!det.isConnected(jch)) continue;
          
       amplitudes[jch].push_back( ampl->at(j));
 
@@ -140,7 +142,7 @@ void reco( string name, DetectorTable det) {
     int oldch = -1;
     uint16_t clId = 1;
     for( auto it = hits->begin() ; it < hits->end(); ){
-     
+      // std::cout<<"channel: "<<it->channel<<std::endl;
       // start a new cluster
       if( oldch < 0 ){
         oldch = it->channel;
@@ -222,6 +224,8 @@ void reco( string name, DetectorTable det) {
   cout << "finished processing " << name << endl;
 }
 
+
+
 int main( int argc, char **argv ){
 
   if( argc < 2 ) {
@@ -229,16 +233,37 @@ int main( int argc, char **argv ){
     return 1;
   }
 
-  DetectorTable det("../map/ASA_map.txt", 4, 5, 6, 7); 
+  string fname = argv[1];
+  DetectorTable det;
 
-  for( int i=1; i< argc; i++){
-    string name = argv[i];
-    if( name.find( ".root" ) > name.size() ){
-      cerr << " warning : " << name << " is not a root file; we'll ignore it" << endl;
-      continue;
-    }
-    reco( argv[i], det );
+  if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
+
+  size_t posFeu = fname.find("FEU");
+  if(posFeu > fname.size()){
+    std::cout << "Filename doesn't contain FEU info" << std::endl;
+    return 1;
   }
+
+  int nbFeu = std::stoi(fname.substr(posFeu+3, 1));
+
+  if(nbFeu == 1){
+    if( argc < 3 ){
+      cerr << " Feu 1 is is connnected to two detectors, input the detector number as second argument :\n 1=MUR_strip \n 2=MUR_inter\n";
+      return 1;
+    }
+    int nbDet = atoi(argv[2]);
+    if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
+    else if(nbDet=2) det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
+    else {cerr << "detector number invalid \n"; return 1; }
+  }
+  // std::cout<<"cc\n";
+  else if(nbFeu == 2) det = DetectorTable("../map/ASA_map.txt", 4, 5, 6, 7);
+  else if(nbFeu == 3) det = DetectorTable("../map/pitch_map.txt", 4, 5, 6, 7);
+  else if(nbFeu == 4) det = DetectorTable("../map/ASA_map.txt", 4, 5, 6, 7);
+  else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
+  else {cerr << "Feu number is invalid \n"; return 1;}
+  reco( fname, det );
+
   return 0;
 }
 

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 class DetectorTable
 {
@@ -11,14 +12,16 @@ public:
 	DetectorTable() = default;
 	~DetectorTable() = default;
 	DetectorTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3);
-	
+
+	bool isConnected(int channel);
 	void buildTable();
-	int getConnector(int channel){return mapConnector[channel];}
-	char getAxis(int channel){return mapAxis[channel];};
-	float getPitch(int channel){return mapPitch[channel];};
+	
+	int getConnector(int channel);
+	char getAxis(int channel);
+	float getPitch(int channel);
 	float getInter(int channel, int channelPerp = -1);   //{return mapInter[channel];};
-	int getStripNb(int channel){return mapStripNb[channel];};
-	std::vector<int> getNeighbours(int channel){return mapNgh[channel];};
+	int getStripNb(int channel);
+	std::vector<int> getNeighbours(int channel);
 
 private:
 	std::string detFile;

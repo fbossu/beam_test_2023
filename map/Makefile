@@ -1,10 +1,10 @@
-all: inter strip asa DetectorTable
+all: inter pitch asa DetectorTable
 
 asa: factory_asa.cpp
 	g++ factory_asa.cpp -o factory_asa
 
-strip: factory_strip.cpp
-	g++ factory_strip.cpp -o factory_strip
+pitch: factory_pitch.cpp
+	g++ factory_pitch.cpp -o factory_pitch
 
 inter: factory_inter.cpp
 	g++ factory_inter.cpp -o factory_inter
