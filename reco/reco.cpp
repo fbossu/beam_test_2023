@@ -86,7 +86,6 @@ void reco( string name, DetectorTable det) {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
-      std::cout<<"cc\n";
       if(!det.isConnected(jch)) continue;
          
       amplitudes[jch].push_back( ampl->at(j));
