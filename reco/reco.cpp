@@ -88,7 +88,7 @@ void reco( string name, DetectorTable det) {
       int jch = channel->at(j);
       std::cout<<"c\n";
       if(!det.isConnected(jch)) continue;
-      std::cout<<"cc\n";
+      std::cout<<"cc"<<jch<<std::endl;
          
       amplitudes[jch].push_back( ampl->at(j));
 
