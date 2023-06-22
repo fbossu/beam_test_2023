@@ -230,7 +230,7 @@ int main( int argc, char **argv ){
 
   if( argc < 3 ) {
     // cerr << " no file name specified \n";
-    cerr << " At least two arguments need to be specified \n file name and FEU number (from 1 to 5)";
+    cerr << " At least two arguments need to be specified \n file name and FEU number (from 1 to 5)\n";
     return 1;
   }
 

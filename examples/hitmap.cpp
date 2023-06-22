@@ -26,6 +26,8 @@
 
 void hitmap(std::string fname) {
 
+  std::string graphname = fname.substr(0, fname.size()-5)+"_hitmap.png";
+
   TFile *inf = TFile::Open( fname.c_str() );
 
   TTreeReader reader("events", inf);
@@ -130,7 +132,7 @@ void hitmap(std::string fname) {
   // p3->Draw();
   // // h2c->Draw("colz");
 
-  c->Print("test.png", "png");
+  c->Print(graphname.c_str(), "png");
 
   inf->Close();
 
