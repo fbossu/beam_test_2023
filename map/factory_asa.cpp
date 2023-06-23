@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-// all strip are counted from top to botom in y direction and from left to right in x. Counted from 0.64 for each of the 4 active regions
+// all strip are counted from top to botom in y direction and from left to right in x. Counted from 0-127 over all 4 active region 
 
 int main(int argc, char const *argv[])
 {
