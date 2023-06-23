@@ -65,7 +65,7 @@ void hitmap(std::string fname) {
     clY.clear();
 
     for (auto h : *hits){
-      dreamID->Fill(int(hits->Channel/64));
+      dreamID->Fill(int(hits->channel/64));
     }
 
     for( auto c : *cls ){
