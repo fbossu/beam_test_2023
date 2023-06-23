@@ -254,7 +254,8 @@ int main( int argc, char **argv ){
       return 1;
     }
     int nbDet = atoi(argv[3]);
-    if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
+    // if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
+    if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 3, 2, 1, 0);
     else if(nbDet=2) det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
     else {cerr << "detector number invalid \n"; return 1; }
   }

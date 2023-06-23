@@ -2,10 +2,10 @@
 
 DetectorTable::DetectorTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3){
 	detFile = idetFile;
-	if(dreamConnect0 > -1) dreamConnect.push_back(dreamConnect0);
-	if(dreamConnect1 > -1) dreamConnect.push_back(dreamConnect1);
-	if(dreamConnect2 > -1) dreamConnect.push_back(dreamConnect2);
-	if(dreamConnect3 > -1) dreamConnect.push_back(dreamConnect3);
+	dreamConnect.push_back(dreamConnect0);
+	dreamConnect.push_back(dreamConnect1);
+	dreamConnect.push_back(dreamConnect2);
+	dreamConnect.push_back(dreamConnect3);
 	this->buildTable();
 }
 
