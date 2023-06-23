@@ -51,7 +51,7 @@ void hitmap(std::string fname) {
 
   TH2F *h2c = new TH2F("h2c", "cluster map", 100,0,128,100,0,128);
   h2c->SetXTitle("centroid in x");
-  h2c->SetYTitle("centroid in y");
+  h2c->SetYTitle("centroid in y (strip nb inverted)");
 
   std::vector<cluster> clX, clY;
 
@@ -77,7 +77,7 @@ void hitmap(std::string fname) {
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        h2c->Fill(x->stripCentroid, y->stripCentroid);
+        h2c->Fill(x->stripCentroid, 127-y->stripCentroid);
       }
     }
   }
