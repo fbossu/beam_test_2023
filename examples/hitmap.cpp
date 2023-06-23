@@ -27,6 +27,7 @@
 void hitmap(std::string fname) {
 
   std::string graphname = fname.substr(0, fname.size()-5)+"_hitmap.png";
+  std::string graphname2 = fname.substr(0, fname.size()-5)+"_dreamID.png";
 
   TFile *inf = TFile::Open( fname.c_str() );
 
@@ -35,6 +36,7 @@ void hitmap(std::string fname) {
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
   TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
 
+  TH1F *dreamID = new TH1F("dreamID", "dream ID", 8, 0, 7);
 
   TH1F *hcentroidX = new TH1F("hcentroidX", "Strip centroid x", 100,0,128);
   hcentroidX->SetXTitle("centroid");
@@ -61,6 +63,10 @@ void hitmap(std::string fname) {
     if( hits->size() == 0 ) continue;
     clX.clear();
     clY.clear();
+
+    for (auto h : *hits){
+      dreamID->Fill(int(hits->Channel/64));
+    }
 
     for( auto c : *cls ){
 
@@ -136,6 +142,10 @@ void hitmap(std::string fname) {
 
   inf->Close();
 
+
+  TCanvas *c2 = new TCanvas("c2", "c2", 1000,1000);
+  dreamID->Draw();
+  c2->Print(graphname2.c_str(), "png");
 }
 
 int main(int argc, char const *argv[])
