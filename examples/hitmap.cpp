@@ -145,6 +145,7 @@ void hitmap(std::string fname) {
 
   TCanvas *c2 = new TCanvas("c2", "c2", 1000,1000);
   dreamID->Draw();
+  gPad->SetLogy();
   c2->Print(graphname2.c_str(), "png");
 }
 
