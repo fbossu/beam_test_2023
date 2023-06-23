@@ -66,6 +66,7 @@ void hitmap(std::string fname) {
 
     for (auto h : *hits){
       dreamID->Fill(int(h.channel/64));
+      // std::cout<<int(h.channel/64)<<std::endl;
     }
 
     for( auto c : *cls ){
@@ -140,13 +141,13 @@ void hitmap(std::string fname) {
 
   c->Print(graphname.c_str(), "png");
 
-  inf->Close();
-
 
   TCanvas *c2 = new TCanvas("c2", "c2", 1000,1000);
   dreamID->Draw();
-  gPad->SetLogy();
+  c2->SetLogy();
   c2->Print(graphname2.c_str(), "png");
+
+  inf->Close();
 }
 
 int main(int argc, char const *argv[])
