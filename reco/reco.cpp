@@ -259,9 +259,9 @@ int main( int argc, char **argv ){
     else {cerr << "detector number invalid \n"; return 1; }
   }
   // std::cout<<"cc\n";
-  else if(nbFeu == 2) det = DetectorTable("../map/ASA_map.txt", 4, 5, 6, 7);
+  else if(nbFeu == 2) det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
   else if(nbFeu == 3) det = DetectorTable("../map/pitch_map.txt", 4, 5, 6, 7);
-  else if(nbFeu == 4) det = DetectorTable("../map/ASA_map.txt", 4, 5, 6, 7);
+  else if(nbFeu == 4) det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
   else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
   else {cerr << "Feu number is invalid \n"; return 1;}
   reco( fname, det );

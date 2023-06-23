@@ -10,7 +10,7 @@ int main(int argc, char const *argv[])
 {
 	//Output 
 	std::ofstream outfile;
-	outfile.open("ASA_map.txt");
+	outfile.open("asa_map.txt");
 	outfile << "connector,conectorChannel,stripNb,axis,pitch(mm),interpitch(mm),neighbours(:separated)" << std::endl;
 
 	double pitch = 0, inter = 0;
@@ -53,11 +53,11 @@ int main(int argc, char const *argv[])
 
 	  	if(i<32){
 	  		axis = 'y';
-	  		stripNb = i;
+	  		stripNb = 32 + i;
 	  	}
 	  	else{
 	  		axis = 'x';
-	  		stripNb = 63 - i;
+	  		stripNb = 95 - i;
 	  	}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
@@ -80,11 +80,13 @@ int main(int argc, char const *argv[])
 
 	  	if(i<32){
 	  		axis = 'x';
-	  		stripNb = 31-i;
+	  		// stripNb = 31-i;
+	  		stripNb = 95-i;
 	  	}
 	  	else{
 	  		axis = 'y';
-	  		stripNb = 63-i;
+	  		// stripNb = 63-i;
+	  		stripNb = 127-i;
 	  	}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
@@ -106,11 +108,13 @@ int main(int argc, char const *argv[])
 
 	  	if(i<32){
 	  		axis = 'x';
-	  		stripNb = 31-i;
+	  		// stripNb = 31-i;
+	  		stripNb = 127-i;
 	  	}
 	  	else{
 	  		axis = 'y';
-	  		stripNb = 63-i;
+	  		// stripNb = 63-i;
+	  		stripNb = 159-i;
 	  	}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
