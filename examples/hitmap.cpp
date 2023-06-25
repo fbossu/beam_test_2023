@@ -148,11 +148,11 @@ void hitmap(std::string fname) {
   c2->Divide(2, 1);
   c2->cd(1);
   dreamID->Draw();
-  c2->SetLogy();
+  gPad->SetLogy();
 
   c2->cd(2);
   channels->Draw();
-  c2->SetLogy();
+  gPad->SetLogy();
 
   c2->Print(graphname2.c_str(), "png");
 
