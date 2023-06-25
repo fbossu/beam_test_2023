@@ -39,22 +39,22 @@ void hitmap(std::string fname) {
   TH1F *dreamID = new TH1F("dreamID", "dream ID", 8, 0, 7);
   TH1F *channels = new TH1F("channels", "channels", 256, 0, 256);
 
-  TH1F *hcentroidX = new TH1F("hcentroidX", "Strip centroid x", 128,0,128);
+  TH1F *hcentroidX = new TH1F("hcentroidX", "Centroid strips in x direction", 128,0,128);
   hcentroidX->SetXTitle("centroid");
-  TH1F *hcentroidY = new TH1F("hcentroidY", "Strip centroid y", 128,0,128);
+  TH1F *hcentroidY = new TH1F("hcentroidY", "Centroid strips in y direction", 128,0,128);
   hcentroidY->SetXTitle("centroid");
 
-  TH2F *hsizeX = new TH2F("hsizeX", "cluster size in x", 128,0,128, 20,0,20);
+  TH2F *hsizeX = new TH2F("hsizeX", "cluster size in x strips", 128,0,128, 20,0,20);
   hsizeX->SetXTitle("centroid");
   hsizeX->SetYTitle("cluster size");
 
-  TH2F *hsizeY = new TH2F("hsizeY", "cluster size in y", 128,0,128, 20,0,20);
+  TH2F *hsizeY = new TH2F("hsizeY", "cluster size in y strips", 128,0,128, 20,0,20);
   hsizeY->SetXTitle("centroid");
   hsizeY->SetYTitle("cluster size");
 
   TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
-  h2c->SetXTitle("centroid in x");
-  h2c->SetYTitle("centroid in y (strip nb inverted)");
+  h2c->SetXTitle("centroid on y direction strips");
+  h2c->SetYTitle("centroid on x direction strips");
 
   std::vector<cluster> clX, clY;
 
@@ -86,7 +86,7 @@ void hitmap(std::string fname) {
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        h2c->Fill(x->stripCentroid, y->stripCentroid);
+        h2c->Fill(y->stripCentroid, x->stripCentroid);
       }
     }
   }
