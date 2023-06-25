@@ -37,21 +37,22 @@ void hitmap(std::string fname) {
   TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
 
   TH1F *dreamID = new TH1F("dreamID", "dream ID", 8, 0, 7);
+  TH1F *channels = new TH1F("channels", "channels", 256, 0, 256);
 
-  TH1F *hcentroidX = new TH1F("hcentroidX", "Strip centroid x", 100,0,128);
+  TH1F *hcentroidX = new TH1F("hcentroidX", "Strip centroid x", 128,0,128);
   hcentroidX->SetXTitle("centroid");
-  TH1F *hcentroidY = new TH1F("hcentroidY", "Strip centroid y", 100,0,128);
+  TH1F *hcentroidY = new TH1F("hcentroidY", "Strip centroid y", 128,0,128);
   hcentroidY->SetXTitle("centroid");
 
-  TH2F *hsizeX = new TH2F("hsizeX", "cluster size in x", 100,0,128, 20,0,20);
+  TH2F *hsizeX = new TH2F("hsizeX", "cluster size in x", 128,0,128, 20,0,20);
   hsizeX->SetXTitle("centroid");
   hsizeX->SetYTitle("cluster size");
 
-  TH2F *hsizeY = new TH2F("hsizeY", "cluster size in y", 100,0,128, 20,0,20);
+  TH2F *hsizeY = new TH2F("hsizeY", "cluster size in y", 128,0,128, 20,0,20);
   hsizeY->SetXTitle("centroid");
   hsizeY->SetYTitle("cluster size");
 
-  TH2F *h2c = new TH2F("h2c", "cluster map", 100,0,128,100,0,128);
+  TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
   h2c->SetXTitle("centroid in x");
   h2c->SetYTitle("centroid in y (strip nb inverted)");
 
@@ -65,6 +66,7 @@ void hitmap(std::string fname) {
     clY.clear();
 
     for (auto h : *hits){
+      channels->Fill(h.channel);
       dreamID->Fill(int(h.channel/64));
       // std::cout<<int(h.channel/64)<<std::endl;
     }
@@ -143,8 +145,15 @@ void hitmap(std::string fname) {
 
 
   TCanvas *c2 = new TCanvas("c2", "c2", 1000,1000);
+  c2->Divide(2, 1);
+  c2->cd(1);
   dreamID->Draw();
   c2->SetLogy();
+
+  c2->cd(2);
+  channels->Draw();
+  c2->SetLogy();
+
   c2->Print(graphname2.c_str(), "png");
 
   inf->Close();
