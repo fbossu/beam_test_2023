@@ -5,6 +5,10 @@
 #include <fstream>
 
 // all strip are counted from top to botom in y direction and from left to right in x. Counted from 0-127 over all 4 active region 
+// 0-31 in x and y is the pad connected to connector 0
+// 32-63 in x and y is the pad connected to connector 1
+// 64-95 in x and y is the pad connected to connector 2
+// 96-127 in x and y is the pad connected to connector 3
 
 int main(int argc, char const *argv[])
 {
@@ -27,7 +31,7 @@ int main(int argc, char const *argv[])
 
 		if(i<32){
 			axis = 'x';
-			stripNb = i;
+			stripNb = 31 - i;
 		}
 		else{
 			axis = 'y';
@@ -57,7 +61,7 @@ int main(int argc, char const *argv[])
 	  	}
 	  	else{
 	  		axis = 'x';
-	  		stripNb = 95 - i;
+	  		stripNb = i;
 	  	}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
@@ -81,7 +85,7 @@ int main(int argc, char const *argv[])
 	  	if(i<32){
 	  		axis = 'x';
 	  		// stripNb = 31-i;
-	  		stripNb = 95-i;
+	  		stripNb = 64 + i;
 	  	}
 	  	else{
 	  		axis = 'y';
@@ -109,7 +113,7 @@ int main(int argc, char const *argv[])
 	  	if(i<32){
 	  		axis = 'x';
 	  		// stripNb = 31-i;
-	  		stripNb = 127-i;
+	  		stripNb = 96+i;
 	  	}
 	  	else{
 	  		axis = 'y';
