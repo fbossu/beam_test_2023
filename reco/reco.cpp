@@ -141,7 +141,7 @@ void reco( string name, DetectorTable det) {
     cls->clear();
     int oldch = -1;
     uint16_t clId = 1;
-    for( auto it = hits->begin() ; it < hits->end(); ){
+    for( auto it = hits->begin(); it < hits->end(); ){
       // std::cout<<"channel: "<<it->channel<<std::endl;
       // start a new cluster
       if( oldch < 0 ){
@@ -171,6 +171,8 @@ void reco( string name, DetectorTable det) {
           denSt += it->maxamp;
 
           ngh = det.getNeighbours(it->channel);
+
+          std::cout<<det.getAll(it->channel)<<std::endl;
 
           // assign the cluster Id to the hit. 
           it->clusterId = clId; 
@@ -255,7 +257,7 @@ int main( int argc, char **argv ){
     }
     int nbDet = atoi(argv[3]);
     // if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
-    if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 1, 0, 2, 3);
+    if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
     else if(nbDet=2) det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
     else {cerr << "detector number invalid \n"; return 1; }
   }

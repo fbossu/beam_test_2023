@@ -23,6 +23,9 @@ public:
 	int getStripNb(int channel);
 	std::vector<int> getNeighbours(int channel);
 
+	// for debug purposes
+	std::string getAll(int channel);
+
 private:
 	std::string detFile;
 	std::vector<int> dreamConnect;
