@@ -106,7 +106,7 @@ std::vector<int> DetectorTable::getNeighbours(int channel){
 
 std::string DetectorTable::getAll(int channel){
 	std::string out = "ch: " + std::to_string(channel) + " cnt: " + std::to_string(this->getConnector(channel)) + " cntChannel: " + 
-		std::to_string(dreamConnect[channel - this->getConnector(channel)]*64) + " axis: " + std::to_string(this->getPitch(channel)) +
+		std::to_string(channel - dreamConnect[this->getConnector(channel)]*64) + " axis: " + this->getPitch(channel) +
 		" pitch: " + std::to_string(this->getPitch(channel));
 	return out;
 }
