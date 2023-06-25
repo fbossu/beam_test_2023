@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-// all strip are counted from top to botom in y direction and from left to right in x. Strips numbered from 0-127
+// all strip are counted from bottom to top in y direction and from left to right in x. Strips numbered from 0-127
 
 int main(int argc, char const *argv[])
 {
@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
 	for(int i=0; i<64; i++){
 	  	ngh.clear();
 	  	cnt = 2;
-	  	stripNb = 127 - i;
+	  	stripNb = i;
 	  	axis = 'x';
 	  	pitch = 1.;
 	  	inter = 0.1;
@@ -90,7 +90,7 @@ int main(int argc, char const *argv[])
 	  	ngh.clear();
 	  	cnt = 3;
 	  	axis = 'x';
-	  	stripNb = 63 - i;
+	  	stripNb = 64 + i;
 
 	  	if(i<32){
 	  		pitch = 1.5;  
