@@ -122,6 +122,15 @@ int DetectorTable::getStripNb(int channel){
 	return mapStripNb[this->toGB(channel)];
 }
 
+bool DetectorTable::isNeighbour(int ch1, int ch2){
+	std::vector<int> ngh = mapNgh[this->toGB(ch1)];
+	return std::find(ngh.begin(), ngh.end(), this->toGB(ch2)) != ngh.end();
+}
+
+bool DetectorTable::isEdge(int channel){
+	return mapNgh[this->toGB(channel)].size() < 2;
+}
+
 std::vector<int> DetectorTable::getNeighbours(int channel){
 	if(!this->isConnected(channel)) return std::vector<int>();
 	return mapNgh[this->toGB(channel)];

@@ -156,9 +156,8 @@ void reco( string name, DetectorTable det) {
         int inter = det.getInter(it->channel);
         char axis = det.getAxis(it->channel);
 
-        // to keep track of neighbouring channel to the hit being processed, and check if th first hit is on the edge of a region
-        std::vector<int> ngh = det.getNeighbours(it->channel);
-        bool edge = ngh.size() < 2;
+        // check if th first hit is on the edge of a region
+        bool edge =det.isEdge(oldch);
 
         // loop over the hits
         while( oldch >= 0 ){
@@ -170,8 +169,6 @@ void reco( string name, DetectorTable det) {
           numSt += det.getStripNb(it->channel) * it->maxamp;  
           denSt += it->maxamp;
 
-          ngh = det.getNeighbours(it->channel);
-
           std::cout<<det.getAll(it->channel)<<std::endl;
 
           // assign the cluster Id to the hit. 
@@ -182,9 +179,9 @@ void reco( string name, DetectorTable det) {
 
           // look for the next hit, check that the next hit is a neighbourg
           it++;
-          if( it == hits->end() || (it->channel - oldch) > 1 || std::find(ngh.begin(), ngh.end(), it->channel) == ngh.end() ){
+          if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
             // TODO add here some conditions to skip missing strips and so on
-            edge = edge || (ngh.size() < 2);
+            edge = edge || det.isEdge(it->channel);
             break;
           }
           else {

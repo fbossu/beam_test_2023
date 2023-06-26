@@ -19,6 +19,8 @@ public:
 	int toGB(int channel);  // convert real channel to gerber channnel
 
 	bool isConnected(int channel);
+	bool isNeighbour(int ch1, int ch2);
+	bool isEdge(int channel);
 	void buildTable();
 	
 	int getConnector(int channel);
