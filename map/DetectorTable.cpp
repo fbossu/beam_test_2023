@@ -27,7 +27,7 @@ int DetectorTable::toGB(int channel){
 	int ch = channel%64;
 	int cntNb = std::find(dreamConnect.begin(), dreamConnect.end(), dreamNb) - dreamConnect.begin();
 	if(inv[cntNb]){
-		return (cntNb+1)*64 - ch;
+		return (cntNb+1)*64 - 1 - ch;
 	}
 	else{
 		return cntNb*64 + ch;
