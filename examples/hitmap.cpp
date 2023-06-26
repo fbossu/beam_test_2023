@@ -158,7 +158,7 @@ void hitmap(std::string fname) {
   c2->Print(graphname2.c_str(), "png");
 
   TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
-  h2c->Draw();
+  h2c->Draw("cloz");
   gPad->SetLogz();
   c3->Print(graphname3.c_str(), "png");
 
