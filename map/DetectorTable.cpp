@@ -71,8 +71,8 @@ float DetectorTable::getInter(int channel, int channelPerp){
 	if(detFile == "inter_map.txt" && this->getConnector(channel) < 2){
 		if(channelPerp==-1 or this->getConnector(channelPerp) < 2) throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the channel of the cluster in x in order to find the interstrip value of y strips (the interstrip changes along one vertical (y) strip)");
 		else{
-			if(this->getConnector(channelPerp) == 3) return mapInter[channel][0];  // the cluster is in the connector 3 horizontal region
-			if(this->getConnector(channelPerp) == 2) return mapInter[channel][1];  // the cluster is in the connector 2 horizontal region
+			if(this->getConnector(channelPerp) == 3) return mapInter[channel][1];  // the cluster is in the connector 3 horizontal region
+			if(this->getConnector(channelPerp) == 2) return mapInter[channel][0];  // the cluster is in the connector 2 horizontal region
 			else throw std::runtime_error("ERROR: In DetectorTable::getInter(int, int) the cluster x channel position doesn't match a dream connected to connectors 2 or 3 ");
 		}
 	}

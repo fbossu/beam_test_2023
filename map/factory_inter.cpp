@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
 		ngh.clear();
 		cnt = 0;
 		pitch = 1.;    //mm
-		inter = "0.75:0.9";  //from top to botom along y axis
+		inter = "0.9:0.75";  //from botom to top along y axis
 		axis = 'y';
 		stripNb = i;
 
@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
 	  	axis = 'y';
 	  	stripNb = 64 + i;
 	  	pitch = 1.;
-	  	inter = "0.5:0.67";  //mm
+	  	inter = "0.67:0.5";  //mm
 
 	  	if(i!=0) ngh.push_back(i-1);
 	  	if(i!=63) ngh.push_back(i+1);
@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
 	for(int i=0; i<64; i++){
 	  	ngh.clear();
 	  	cnt = 2;
-	  	stripNb = 127 - i;
+	  	stripNb = i;
 	  	axis = 'x';
 	  	pitch = 1.;
 	  	inter = "0.1";
@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
 	  	ngh.clear();
 	  	cnt = 3;
 	  	axis = 'x';
-	  	stripNb = 63 - i;
+	  	stripNb = 64 + i;
 	  	pitch = 1.;
 	  	inter = "0.1";
 
