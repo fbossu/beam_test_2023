@@ -28,6 +28,7 @@ void hitmap(std::string fname) {
 
   std::string graphname = fname.substr(0, fname.size()-5)+"_hitmap.png";
   std::string graphname2 = fname.substr(0, fname.size()-5)+"_dreamID.png";
+  std::string graphname3 = fname.substr(0, fname.size()-5)+"_map.png";
 
   TFile *inf = TFile::Open( fname.c_str() );
 
@@ -155,6 +156,11 @@ void hitmap(std::string fname) {
   gPad->SetLogy();
 
   c2->Print(graphname2.c_str(), "png");
+
+  TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
+  h2c->Draw();
+  gPad->SetLogz();
+  c3->Print(graphname3.c_str(), "png");
 
   inf->Close();
 }
