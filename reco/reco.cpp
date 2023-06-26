@@ -172,7 +172,7 @@ void reco( string name, DetectorTable det) {
 
           ngh = det.getNeighbours(it->channel);
 
-          // std::cout<<det.getAll(it->channel)<<std::endl;
+          std::cout<<det.getAll(it->channel)<<std::endl;
 
           // assign the cluster Id to the hit. 
           it->clusterId = clId; 
@@ -256,15 +256,29 @@ int main( int argc, char **argv ){
       return 1;
     }
     int nbDet = atoi(argv[3]);
-    // if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
-    if(nbDet=1) det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
-    else if(nbDet=2) det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
+    if(nbDet=1){
+      det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
+      det.setInversion(true, true, false, false);
+    }
+    else if(nbDet=2){
+      det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
+      det.setInversion(true, true, false, true);
+    }
     else {cerr << "detector number invalid \n"; return 1; }
   }
-  // std::cout<<"cc\n";
-  else if(nbFeu == 2) det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
-  else if(nbFeu == 3) det = DetectorTable("../map/pitch_map.txt", 4, 5, 6, 7);
-  else if(nbFeu == 4) det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
+
+  else if(nbFeu == 2){
+    det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
+    det.setInversion(true, true, false, false);
+  }
+  else if(nbFeu == 3){
+    det = DetectorTable("../map/pitch_map.txt", 4, 5, 6, 7);
+    det.setInversion(true, true, false, false);
+  }
+  else if(nbFeu == 4){
+    det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
+    det.setInversion(true, true, false, false);
+  }
   else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
   else {cerr << "Feu number is invalid \n"; return 1;}
   reco( fname, det );

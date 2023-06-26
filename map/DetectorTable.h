@@ -6,12 +6,17 @@
 #include <sstream>
 #include <algorithm>
 
+// the maps are indexed with the gerber (GB) channel number which are defined as: connectorNb*64 + connectorCh 
+
 class DetectorTable
 {
 public:
 	DetectorTable() = default;
 	~DetectorTable() = default;
 	DetectorTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3);
+
+	void setInversion(bool iC0, bool iC1, bool iC2, bool iC3);
+	int toGB(int channel);  // convert real channel to gerber channnel
 
 	bool isConnected(int channel);
 	void buildTable();
@@ -29,6 +34,7 @@ public:
 private:
 	std::string detFile;
 	std::vector<int> dreamConnect;
+	std::vector<bool> inv = {false, false, false, false}; 
 
 	std::map<int, int> mapConnector;
 	std::map<int, char> mapAxis;
