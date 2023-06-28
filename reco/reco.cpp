@@ -169,7 +169,7 @@ void reco( string name, DetectorTable det) {
           numSt += det.getStripNb(it->channel) * it->maxamp;  
           denSt += it->maxamp;
 
-          std::cout<<det.getAll(it->channel)<<std::endl;
+          // std::cout<<det.getAll(it->channel)<<std::endl;
 
           // assign the cluster Id to the hit. 
           it->clusterId = clId; 
