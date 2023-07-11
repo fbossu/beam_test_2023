@@ -15,7 +15,7 @@ The clustering is performed using the AgglomerativeClustering from the sklearn l
 
 ## Alignment
 
-This version of the code implements two alignment techniques. The first one uses the mean coordinates and a 2-point track, while the second one uses residuals from a 3-point fitting.
+This version of the code implements two alignment techniques. The first one uses residuals from a 3-point fitting, whereas the second compute the derivative according to the different rotations and translations. It computes it in a CSV and it has then to be converted to a mille file using th C++ repository then, one can try using pede to compute misalignments.
 
 ## Tracking
 
