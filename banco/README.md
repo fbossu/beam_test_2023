@@ -21,7 +21,7 @@ This version of the code implements two alignment techniques. The first one uses
 
 Tracking has not been implemented yet, but there are some basic code to do track but not with a good resolution.
 
-##Type of Dataframe (VERY IMPORTANT)
+## Type of Dataframe (VERY IMPORTANT)
 
 Data: It's a dataframe representing all the hits in the (x,y,z) space (be sure to add the Z value which is not there by default) and on which ladder
 
