@@ -30,7 +30,8 @@ Tracks : It's all the computation of four hits (cluster) on four different plane
 
 • One having the global information : 'trgNum','Mean_Residuals_X','Mean_Residuals_Y','slope_X','intercept_X','slope_Y','intercept_Y'
 
-• The other being more specific to a ladder 'trgNum','Mean_Residuals_X','Mean_Residuals_Y','slope_X','intercept_X','slope_Y','intercept_Y','ldr','Residual_X_ldr_id','Residual_Y_ldr_id','Residual_Z_ldr_id','z_inter_ldr_id', with the intersection of the track with the plane and the specific residual. 
+• The other being more specific to a ladder
+ 'trgNum','Mean_Residuals_X','Mean_Residuals_Y','slope_X','intercept_X','slope_Y','intercept_Y','ldr','Residual_X_ldr_id','Residual_Y_ldr_id','Residual_Z_ldr_id','z_inter_ldr_id', with the intersection of the track with the plane and the specific residual. 
 
 
 Ladder : This object define the ladder with it's given coordinates (x,y,z) of the origin and rotation
@@ -42,60 +43,78 @@ Ladder : This object define the ladder with it's given coordinates (x,y,z) of th
 
 To create a filtered data file please follow those operation within the notebook :
 
-$Noise1=open_noise('../Noise1')  
+*Noise1=open_noise('../Noise1')  
 Noise2=open_noise('../Noise2')
 Noise3=open_noise('../Noise3')
-Noise4=open_noise('../Noise4')$
+Noise4=open_noise('../Noise4')*
 
 Please be sure to enter the relative path of your Noise file in the parenteses. 
 
 Then :
 
-$data=open_file("../Data1")
+*data=open_file("../Data1")
 data2=open_file("../Data2")
 data3=open_file("../Data3")
 data4=open_file("../Data4")
 
 data=pd.concat([data,data2])
 data=pd.concat([data,data3])
-data=pd.concat([data,data4])$
+data=pd.concat([data,data4])*
 
 It enables to create a big data file with all the hits. 
 
 Then, one can filter the given data :
 
-$data_filtered=remove_noise(Noise1,data[data.ldr==1])
+*data_filtered=remove_noise(Noise1,data[data.ldr==1])
 data_filtered=pd.concat([data_filtered,remove_noise(Noise2,data[data.ldr==2])])
 data_filtered=pd.concat([data_filtered,remove_noise(Noise2,data[data.ldr==3])])
-data_filtered=pd.concat([data_filtered,remove_noise(Noise2,data[data.ldr==4])])$
+data_filtered=pd.concat([data_filtered,remove_noise(Noise2,data[data.ldr==4])])*
 
 This has to be upgrade to avoid those concatenation and make them inside the different functions. 
 
 Be careful then to flip your data (the odd ladder are flipped comapred to the even one (recto/verso)) :
 
-$data_filtered[(data_filtered.ldr==2)]=flip_data_row(data_filtered[(data_filtered.ldr==2)])
-data_filtered[(data_filtered.ldr==4)]=flip_data_row(data_filtered[(data_filtered.ldr==4)])$
+*data_filtered[(data_filtered.ldr==2)]=flip_data_row(data_filtered[(data_filtered.ldr==2)])
+data_filtered[(data_filtered.ldr==4)]=flip_data_row(data_filtered[(data_filtered.ldr==4)])*
 
 ## Reducing 
 
 Before, doing any clusterization and recution it is better to start by a manual focusing on the interest chip (with a given chipId) with :
 
-$data_focused=data_filtered[data_filtered.chipId==chipId]$
+*data_focused=data_filtered[data_filtered.chipId==chipId]*
 
 And then clustering and reducing :
 
-$do_clusters(data_focused)
-data_reduced=reduce_by_barycenter_new (data_clusterized)$
+*do_clusters(data_focused)
+data_reduced=reduce_by_barycenter_new (data_clusterized)*
 
 ## Analysing 
 
 To compute the distribution of a cluster size within your data. You can run :
 
-$cluster_size(data_clusterized)$
+*cluster_size(data_clusterized)*
 
 And it will retrieve the length of a each cluster in a list (it can then be plotted on an histogram) : there are few useful function in cell 13 and 14. and Efficiency in cell 16.
 
 ## Alignment 
 
+
+### Align with residuals
+
+Run : *Distances=precise_alignement(data_reduced,Z)* 
+
+And it will give you the misalignments according to this technic, you then just want to move your planes with *move(data,Distances['dx'],Distances['dy])*.
+
+### Align with Millepede
+
+Run *make_mille(data,"name")* , data with a Z column, to compute in a CSV all the derivatives needed for Millepede of ladder 2 to 4 for 1000 events. Be sure to merge to this CSV a CSV corresponding to a fixed ladder 1 (Basically all the global derivatives will be 0 and the residual will just change). An example is given in cell 32.
+You then, want to merge it with the one for 2 to 4, by triggerNum. 
+Basically, ther should be 8 lines for a given trgNum, 2 lines for each laddeer, 1 for the derviatives of the X residual and one for Y residual derivatives. 
+Then, in the folder Millepede $\rightarrow$ bin, put the updated CSV, modify the *main.cpp* function with the name of the CSV, compile and run ./program. Then, follow the instrutions to use Pede with your created binary. 
+
+
+### Performances
+
+To see the performances of your alignment, one can use the function *make_track* to compute the residual in X in Y and the total Residual. It also compute all the tracks that can be use to extrapolate a position. 
 
 
