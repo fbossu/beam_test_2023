@@ -27,12 +27,12 @@ Data: It's a dataframe representing all the hits in the (x,y,z) space (be sure t
 
 Tracks : It's all the computation of four hits (cluster) on four different planes, the information given are the slope and intersect in X and Y, and the different residuals. To be changed, is that for the moment there are two type of tracks :
 
-• One having the global information : 'trgNum':[],'Mean_Residuals_X':[],'Mean_Residuals_Y':[],'slope_X':[],'intercept_X':[],'slope_Y':[],'intercept_Y':[]; 
+• One having the global information : 'trgNum','Mean_Residuals_X','Mean_Residuals_Y','slope_X','intercept_X','slope_Y','intercept_Y'
 
-• The other being more specific to a ladder 'trgNum':[],'Mean_Residuals_X':[],'Mean_Residuals_Y':[],'slope_X':[],'intercept_X':[],'slope_Y':[],'intercept_Y':[],'ldr':[],'Residual_X_'+str(ldr['id'][0]):[],'Residual_Y_'+str(ldr['id'][0]):[],'Residual_Z_'+str(ldr['id'][0]):[],'z_inter':[],'Residual_tot'+ldr['id'][0]):[], with the intersection of the track with the plane and the specific residual. 
+• The other being more specific to a ladder 'trgNum','Mean_Residuals_X','Mean_Residuals_Y','slope_X','intercept_X','slope_Y','intercept_Y','ldr','Residual_X_ldr_id','Residual_Y_ldr_id','Residual_Z_ldr_id','z_inter_ldr_id', with the intersection of the track with the plane and the specific residual. 
 
 
 Ladder : This object define the ladder with it's given coordinates (x,y,z) of the origin and rotation
-({'id':[],'theta':[],'phi':[],'psi':[],'x':[],'y':[],'z':[]})
+({'id','theta','phi','psi','x','y','z'})
 
 
