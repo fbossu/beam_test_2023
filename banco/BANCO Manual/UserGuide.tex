@@ -112,7 +112,45 @@ The main characteristics  of the device are :
     
         \subsubsection{The MOSAIC Board}
     The MOSAIC boards are the DAC system associated with the BANCO telescope, for each ladder there is an intermediate card (ICL ) which is linked to another intermediate card (ICM, which mostly enables the power supply), and then to the MOSAIC board (one for each ladder), (see \ref{fig:2}). The MOSAICs are configured in a Master/Slave mode : the trigger and the clock are sent to the slaves by the Master and then all the MOSAICs are sending their busy to the external trigger if it's working with another system (See each config \ref{fig:5})
-\begin{center}
+
+Each MOSAIC board has an unique IP address, in order to communicate with the computer used for the acquisition. There is a config file for each ladder and so each MOSAIC board, to set up those addresses and their role in the acquisition. Furthermore, the config file enables the acquisition to be on an internal constant trigger (1MHz) or depending on an external trigger.
+
+\subsubsection{With an external system}
+The main goal of the BANCO system is to be synchronized with other acquisition system. To do so, the BANCO system has to send back a common busy to the triggering system. Here is an overview of the logic used :
+\begin{figure}[h]
+\hspace*{-2cm}
+        \centering
+        \includegraphics[scale =0.8]{figures/Triggering.jpeg}
+        \caption{Triggering system, source : Irakli Mandjavidze}
+        \label{fig:8}
+\end{figure}
+
+
+\newpage
+\section{Getting started}
+    \subsection{Wiring the system}
+The wiring of BANCO comes in two parts, first wiring the ladders with their respective MOSAIC boards and the MOSAIC boards with the computer, and then linking the system with the other electronics in a given experiment.
+        \subsubsection{Alone}
+        \begin{figure}[h]
+        \centering
+        \includegraphics[scale =0.5]{figures/Wiring_ladder.png}
+        \caption{Wiring of a ladder}
+        \label{fig:6}
+    \end{figure}
+    
+To ensure a good power supply to the ICM, the supply must be connected as on \ref{fig:7}, and te power supply set on 5V and 0,6A per ladder (if two ladders are on the same output put 1,2A). Then, powering on the 5V supply, it is important to check the value of the DVDD, and that the current is at 0,17 A per ladder (if no ongoing test). To do so, place a multimeter on the capacity C5 of the ICL (you can also measure it on the ICM, but there is a voltage drop to take into account). Make sure, it is over 1,83V and below 1,89V, to adjust the value there is a potentiometer on the ICM (see \ref{fig:7})
+
+\begin{figure}[h]
+        \centering
+        \includegraphics[scale =0.8]{figures/Alimentation.png}
+        \caption{Intermediate Cards wiring}
+        \label{fig:7}
+\end{figure}
+
+Then, power on the cooling system and proceed to the wiring of the MOSAIC boards. To do so, follow the configuration on \ref{fig:5}. This table summarizes the configuration for the IP address of the MOSAIC and the different NIM ports.
+
+
+        \begin{center}
 \begin{figure}[h]
 
 \small
@@ -120,7 +158,7 @@ The main characteristics  of the device are :
  \hline
  Ladder : & 1 (162) & 2 (157) & 3 (163) & 4 (160) \\ [0.5ex] 
  \hline\hline
- IP : & 192.168.168.250 & 192.168.168.20 & 192.168.168.30 & 192.168.168.40 \\ 
+ IP MOSAIC : & 192.168.168.250 & 192.168.168.20 & 192.168.168.30 & 192.168.168.40 \\ 
  \hline
  Function : & Master & Slave & Slave & Slave \\
  \hline
@@ -136,56 +174,26 @@ The main characteristics  of the device are :
 \end{figure}
 \end{center}
 
-Each MOSAIC board has an unique IP address, in order to communicate with the computer used for the acquisition. There is a config file for each ladder and so each MOSAIC board, to set up those addresses and their role in the acquisition. Furthermore, the config file enables the acquisition to be on an internal constant trigger (1MHz) or depending on an external trigger.
+After all those connections, one can power on the MOSAIC boards and get ready to qualify the system and then make measurements.
 
-
-
-\newpage
-\section{Getting started}
-    \subsection{Wiring the system}
-The wiring of BANCO comes in two parts, first wiring the ladders with their respective MOSAIC boards and the MOSAIC boards with the computer, and then linking the system with the other electronics in a given experiment.
-        \subsubsection{Alone}
-        \begin{figure}[h]
-        \centering
-        \includegraphics[scale =0.5]{figures/Wiring_ladder.png}
-        \caption{Wiring of a ladder}
-        \label{fig:6}
-    \end{figure}
-    
-To ensure a good power supply to the ICM, the supply must be connected as on \ref{fig:7}. Then, powering on the 5V supply, it is important to check the value of the DVDD. To do so, place a multimeter on the resistance C5 of the ICL (you can also measure it on the ICM, but there is a voltage drop to take into account). Make sure, it is over 1,83V, to adjust the value there is a potentiometer on the ICM (see \ref{fig:7})
-
-\begin{figure}[h]
-        \centering
-        \includegraphics[scale =0.8]{figures/Alimentation.png}
-        \caption{Intermediate Cards wiring}
-        \label{fig:7}
-\end{figure}
-
-
-        \subsubsection{With an external system}
-The main goal of the BANCO system is to be synchronized with other acquisition system. To do so, the BANCO system has to send back a common busy to the triggering system. Here is an overview of the logic used :
-\begin{figure}[h]
-\hspace*{-2cm}
-        \centering
-        \includegraphics[scale =0.8]{figures/Triggering.jpeg}
-        \caption{Triggering system, source : Irakli Mandjavidze}
-        \label{fig:8}
-\end{figure}
-
-    \subsection{Qualification}\label{Qualification}
+\subsection{Qualification}\label{Qualification}
 After those different steps of wiring,  each ladder needs to be qualified for the acquisition, especially to tune the values of VCASN and ITHR, that will ensure a threshold of 100 electrons recorded. For this part, we use a first software : the SingleLadderQualification \cite{SingleLadderQualification} (installed on the computer connected to the MOSAIC boards).
 
 A GUI is used to manage the tests, to open it, one should first set the root environment and open the GUI, with the following commands in the shell :
 
 \begin{verbatim}
-$setup-o2-root
+$setup-o2-root //you will get an error message of two lines, it is normal
 $cd SingleLadderQualification/build
 $./GUI/GUI
 \end{verbatim}
 
-To test a specific ladder and get the values of ITHR and VCASN, in the menu for a test, one should input the IP address of the corresponding MOSAIC board, and the number of chips (5) (NB : chips that are not working anymore can be disabled, especially \textbf{on ladder 160 the chip 6 should be disabled}, during the qualification as during an acquisition).
 
-Then, in the GUI, on the top left, one can launch a test. Especially, in this case we want to do a threshold tuning. After the test, the result with the different values for each chip of a ladder is in the shell. There are important, and will be used for the measurement as a config input.
+Then, in the GUI, on the top left, one can set up a test (top picture on \ref{fig:9}. Especially, in this case we want to do a threshold tuning, and get the values of ITHR and VCASN for a given ladder.
+
+In the menu for a test (bottom picture \ref{fig:9}, one should input the IP address of the corresponding MOSAIC board,  the number of chips (5) (NB : chips that are not working anymore can be disabled, especially \textbf{on ladder 160 the chip 6 should be disabled}, during the qualification as during an acquisition). Be sure to set the correct Ladder Id according to \ref{fig:5}. Click apply settings. Then a new window will appear, press Load pre-selected settings. 
+Then, it will display the different chips on the ladder rather in green or red. If there are any red chip be sure to check all the wiring, if it is only one chip you can basically disable it. 
+
+After the test, the result with the different values (VCASN, ITHR) for each chip of a ladder is in the shell. There are important, and will be used for the measurement as a config input.
 
 There are other tests that can be done to qualify the ladder, it can be useful for debugging combined with the internal note about the soft (see \cite{Note}).
 
@@ -199,11 +207,41 @@ There are other tests that can be done to qualify the ladder, it can be useful f
 
 \section{Making Measurements}
     \subsection{Software presentation}
-To do a measurement, the user has to run the C++ program in the \textbf{Test\textunderscore Beam} folder (the working repository is \textbf{MultiLadderOperation}). The data are stored in the data folder whereas the config file and the C++ macro are in the framework one.
-To launch the test from banco home folder (be sure to have the right config see \ref{Config File presentation} :
+The working repository to make modifications on the program is \textit{MultiLadderOperation}. To do your own measurement, be sure to create a new working directory and to copy the compile executable and the given con fig files as on \ref{fig:14}.
+
+\begin{figure}[h]
+        \centering
+        \includegraphics[scale =0.3]{figures/Repository.png}
+        \caption{Structure of the working directory}
+        \label{fig:9}
+\end{figure}
+
+You will then, have to set up the config file, in framework$\rightarrow$config$\rightarrow$multiboard.
+
+ \subsubsection{Config File presentation}\label{Config File presentation}
+There is a configuration file for each ladder in BANCO (Test\textunderscore Beam$\rightarrow$framework$\rightarrow$config$\rightarrow$multiboard
+$\rightarrow$ConfigMFTladder\textunderscore NoiseOccScan\textunderscore ladderX.cfg). 
+
+\bigskip
+
+They have all the same structure and the main settings are the following (NB : Here the chip labelling is different 0 corresponds to chipId=4 and 4 to chipId=8):
+\begin{itemize}
+    \item ENABLED\textunderscore 0  (Line 36) : when set to 0 it will disabled a chip. This can be useful to exclude a noisy chip or a non working one. (\textbf{chip 6 on 160}
+    \item NTRGPERTRAIN and NTRIGGERS (Line 75,76), this command enables to set the number of triggers before the acquisition end and the number of triggers per train (important for the multi threading).
+    \item ADDRESS (Line 88) : the IP address of the MOSAIC see \ref{fig:5}
+    \item TRIGGERSOURCE : to set the trigger internal(1) or external (0)
+    \item MASTERSLAVEMODEON, MASTERSLAVEMODE, DEVICEID (Line 129-131) : the first is to work in mastersalve mode (1 On 0 Off), the second is to configure the role of the ladder (1 Master 2 Slave) and the last is to set the ID of the ladder.
+    \item ITHR, VCASN, VCASN2 (Line 165-180) these parameters are there to set the value of the threshold, it has to be an integer and adding an underscore enables to set the value for a specific chip (ex : ITHR 54\textunderscore 0 fix a value of 54mA on the chip 4 for ITHR)  
+\end{itemize}
+
+If you want to remove a ladder from the measurement, it is another procedure to follow. You have to modify the main function in  MultiLadderOperation$\rightarrow$framework$\rightarrow$exe. You want to modify the main\textunderscore multinoiseocc\textunderscore int.cpp. Especially, remove the line of AddSetup corresponding to the ladder you want to remove. 
+
+\subsubsection{Launching a measurement}
+
+
 \begin{verbatim}
 $setup-o2-root
-$cd Test_Beam/framework/bin
+$cd your_working_repository/framework/bin
 $./test_multi_noiseocc_int
 \end{verbatim}
 
@@ -220,21 +258,7 @@ Then, the program will launch on the trigger (external or internal). In particul
 To end the program, one should wait for the maximum trigger number or kill the process with a CTRL+C, the program will then write the different root files (see \ref{Data overview}).
 
 
-        \subsubsection{Config File presentation}\label{Config File presentation}
-There is a configuration file for each ladder in BANCO (Test\textunderscore Beam$\rightarrow$framework$\rightarrow$config$\rightarrow$multiboard
-$\rightarrow$ConfigMFTladder\textunderscore NoiseOccScan\textunderscore ladderX.cfg). 
-
-\bigskip
-
-They have all the same structure and the main settings are the following :
-\begin{itemize}
-    \item ENABLED\textunderscore 0  (Line 36) : when set to 0 it will disabled a chip. This can be useful to exclude a noisy chip or a non working one. (\textbf{chip 6 on 160}
-    \item NTRGPERTRAIN and NTRIGGERS (Line 75,76), this command enables to set the number of triggers before the acquisition end and the number of triggers per train (important for the multi threading).
-    \item ADDRESS (Line 88) : the IP address of the MOSAIC see \ref{fig:5}
-    \item TRIGGERSOURCE : to set the trigger internal(1) or external (0)
-    \item MASTERSLAVEMODEON, MASTERSLAVEMODE, DEVICEID (Line 129-131) : the first is to work in mastersalve mode (1 On 0 Off), the second is to configure the role of the ladder (1 Master 2 Slave) and the last is to set the ID of the ladder.
-    \item ITHR, VCASN, VCASN2 (Line 165-180) these parameters are there to set the value of the threshold, it has to be an integer and adding an underscore enables to set the value for a specific chip (ex : ITHR 54\textunderscore 0 fix a value of 54mA on the chip 4 for ITHR) (NB : Here the chip labelling is different 0 corresponds to chipId=4 and 5 to chipId=8) 
-\end{itemize}
+       
     \subsection{Masking}
 A proper masking procedure has yet to be done, but there are two important things to know : the moment to do it and the right register to update. The ideal place to do it, is in \textbf{MultiLadderOperation$\rightarrow$framework$\rightarrow$src$\rightarrow$manager$\rightarrow$TAlpide.cpp} in the fonction BaseConfigMask. And the right code to do so is : 
 \begin{verbatim}
@@ -292,7 +316,7 @@ One can then load a Noise file using \textit{open\textunderscore noise} program,
     The clustering uses a Density-based spatial clustering with a distance threshold of 1 between two points of a same cluster : the algorithm visits the different point for a given even and if the point has points in its neighbourhood they are added to a same cluster, if not the point will be considered as an isolated point. 
     We try to get an average cluster size of 2 to 2.5 by cluster, and single event (1 cluster 1 event) as often as possible. 
     \subsubsection{Alignement}
-
+    Work in progress
     
 
 
