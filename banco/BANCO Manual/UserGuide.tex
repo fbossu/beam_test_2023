@@ -193,17 +193,21 @@ Then, in the GUI, on the top left, one can set up a test (top picture on \ref{fi
 In the menu for a test (bottom picture \ref{fig:9}, one should input the IP address of the corresponding MOSAIC board,  the number of chips (5) (NB : chips that are not working anymore can be disabled, especially \textbf{on ladder 160 the chip 6 should be disabled}, during the qualification as during an acquisition). Be sure to set the correct Ladder Id according to \ref{fig:5}. Click apply settings. Then a new window will appear, press Load pre-selected settings. 
 Then, it will display the different chips on the ladder rather in green or red. If there are any red chip be sure to check all the wiring, if it is only one chip you can basically disable it. 
 
-After the test, the result with the different values (VCASN, ITHR) for each chip of a ladder is in the shell. There are important, and will be used for the measurement as a config input.
 
-There are other tests that can be done to qualify the ladder, it can be useful for debugging combined with the internal note about the soft (see \cite{Note}).
 
 \begin{figure}[h]
         \centering
-        \includegraphics[scale =0.3]{figures/Interface_example_1.png}
+        \includegraphics[scale =0.2]{figures/Interface_example_1.png}
         \includegraphics[scale =0.3]{figures/Interface_example_2.png}
         \caption{GUI for qualification ( up : general window, bottom : test settings)}
         \label{fig:9}
 \end{figure}
+
+After the test, the result with the different values (VCASN, ITHR) for each chip of a ladder is in the shell. There are important, and will be used for the measurement as a config input.
+
+There are other tests that can be done to qualify the ladder, it can be useful for debugging combined with the internal note about the soft (see \cite{Note}).
+
+
 
 \section{Making Measurements}
     \subsection{Software presentation}
@@ -213,7 +217,7 @@ The working repository to make modifications on the program is \textit{MultiLadd
         \centering
         \includegraphics[scale =0.3]{figures/Repository.png}
         \caption{Structure of the working directory}
-        \label{fig:9}
+        \label{fig:14}
 \end{figure}
 
 You will then, have to set up the config file, in framework$\rightarrow$config$\rightarrow$multiboard.
