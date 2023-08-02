@@ -227,7 +227,7 @@ void reco( string name, DetectorTable det) {
 
 int main( int argc, char **argv ){
 
-  if( argc < 3 ) {
+  if( argc < 2 ) {
     // cerr << " no file name specified \n";
     cerr << " At least one argument need to be specified\n";
     return 1;
