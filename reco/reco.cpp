@@ -9,6 +9,9 @@
 #include <map>
 #include <iostream>
 #include <iomanip>
+
+#include "../map/DetectorTable.h"
+
 using namespace std;
 
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
@@ -23,7 +26,7 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
-void reco( string name) {
+void reco( string name, DetectorTable det) {
 
   TFile *infile = TFile::Open(name.data());
   if( !infile ){
@@ -65,7 +68,6 @@ void reco( string name) {
   outnt.Branch( "delta_timestamp", &delta_timestamp);
   outnt.Branch( "ftst", &ftst );
 
-
   // loop over the events
   // --------------------
   for ( int iev=0; iev<nt->GetEntries() ; iev++){
@@ -84,6 +86,7 @@ void reco( string name) {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
+      if(!det.isConnected(jch)) continue;
          
       amplitudes[jch].push_back( ampl->at(j));
 
@@ -138,21 +141,35 @@ void reco( string name) {
     cls->clear();
     int oldch = -1;
     uint16_t clId = 1;
-    for( auto it = hits->begin() ; it < hits->end(); ){
-     
+    for( auto it = hits->begin(); it < hits->end(); ){
+      // std::cout<<"channel: "<<it->channel<<std::endl;
       // start a new cluster
       if( oldch < 0 ){
         oldch = it->channel;
-        int num = 0;
-        int den = 0;
         int size = 0;
+        int numCh = 0;
+        int denCh = 0;
+        int numSt = 0;
+        int denSt = 0;
+
+        int pitch = det.getPitch(it->channel);
+        int inter = det.getInter(it->channel);
+        char axis = det.getAxis(it->channel);
+
+        // check if th first hit is on the edge of a region
+        bool edge =det.isEdge(oldch);
 
         // loop over the hits
         while( oldch >= 0 ){
 
           // compute the numerator and the denumerator for the centroid  
-          num += it->channel * it->maxamp;
-          den += it->maxamp;
+          numCh += it->channel * it->maxamp;
+          denCh += it->maxamp;
+
+          numSt += det.getStripNb(it->channel) * it->maxamp;  
+          denSt += it->maxamp;
+
+          // std::cout<<det.getAll(it->channel)<<std::endl;
 
           // assign the cluster Id to the hit. 
           it->clusterId = clId; 
@@ -160,10 +177,11 @@ void reco( string name) {
           // increase the size of the cluster
           size++;
 
-          // look for the next hit
+          // look for the next hit, check that the next hit is a neighbourg
           it++;
-          if( it == hits->end() || (it->channel - oldch) > 1 ){
+          if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
             // TODO add here some conditions to skip missing strips and so on
+            edge = edge || det.isEdge(it->channel);
             break;
           }
           else {
@@ -175,8 +193,12 @@ void reco( string name) {
         // make a cluster
         cluster cl;
         cl.size     = size;
-        cl.centroid = (float) num / den;
+        cl.centroid = (float) numCh / denCh;
         cl.id       = clId;
+        cl.stripCentroid = (float) numSt / denCh;
+        cl.pitch = pitch;
+        cl.inter = inter;
+        cl.axis = axis;
         cls->push_back( cl );
 
         // if here, the cluster is finished. reset oldch and increase the clId for the next one
@@ -201,21 +223,65 @@ void reco( string name) {
   cout << "finished processing " << name << endl;
 }
 
+
+
 int main( int argc, char **argv ){
 
-  if( argc < 2 ) {
-    cerr << " no file name specified \n";
+  if( argc < 3 ) {
+    // cerr << " no file name specified \n";
+    cerr << " At least two arguments need to be specified \n file name and FEU number (from 1 to 5)\n";
     return 1;
   }
 
-  for( int i=1; i< argc; i++){
-    string name = argv[i];
-    if( name.find( ".root" ) > name.size() ){
-      cerr << " warning : " << name << " is not a root file; we'll ignore it" << endl;
-      continue;
+  string fname = argv[1];
+  DetectorTable det;
+
+  if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
+
+  // size_t posFeu = fname.find("FEU");
+  // if(posFeu > fname.size()){
+  //   std::cout << "Filename doesn't contain FEU info" << std::endl;
+  //   return 1;
+  // }
+  // int nbFeu = std::stoi(fname.substr(posFeu+3, 1));
+
+  int nbFeu = atoi(argv[2]);
+
+  if(nbFeu == 1){
+    if( argc < 4 ){
+      cerr << " Feu 1 is is connnected to two detectors, input the detector number as second argument :\n 1=MUR_strip \n 2=MUR_inter\n";
+      return 1;
     }
-    reco( argv[i] );
+    int nbDet = atoi(argv[3]);
+
+    if(nbDet == 1){
+      det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
+      det.setInversion(true, true, false, true);
+    }
+    else if(nbDet == 2){
+      det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
+      det.setInversion(true, true, false, false);
+    }
+    else {cerr << "detector number invalid \n"; return 1; }
   }
+
+  else if(nbFeu == 2){
+    det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
+    // det.setInversion(true, true, false, false);
+    det.setInversion(false, false, false, true);
+  }
+  else if(nbFeu == 3){
+    det = DetectorTable("../map/pitch_map.txt", 4, 5, 6, 7);
+    det.setInversion(true, true, false, false);
+  }
+  else if(nbFeu == 4){
+    det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
+    det.setInversion(false, false, false, true);
+  }
+  else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
+  else {cerr << "Feu number is invalid \n"; return 1;}
+  reco( fname, det );
+
   return 0;
 }
 

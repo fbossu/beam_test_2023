@@ -18,5 +18,10 @@ struct cluster {
   float    centroid;
   uint16_t size;
   uint16_t id;
+  bool     isEdge;
+  char     axis;
+  float    stripCentroid;
+  float    pitch;
+  float    inter;
 };
 #endif
