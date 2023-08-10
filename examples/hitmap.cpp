@@ -29,7 +29,7 @@ void hitmap(std::string fname) {
   std::string graphname = fname.substr(0, fname.size()-5)+"_hitmap.png";
   std::string graphname2 = fname.substr(0, fname.size()-5)+"_dreamID.png";
   std::string graphname3 = fname.substr(0, fname.size()-5)+"_map.png";
-  std::string graphname3 = fname.substr(0, fname.size()-5)+"_channel.png";
+  std::string graphname4 = fname.substr(0, fname.size()-5)+"_channel.png";
 
   TFile *inf = TFile::Open( fname.c_str() );
 
