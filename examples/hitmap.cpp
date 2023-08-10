@@ -74,7 +74,7 @@ void hitmap(std::string fname) {
     for (auto h : *hits){
       channels->Fill(h.channel);
       dreamID->Fill(int(h.channel/64));
-      // std::cout<<int(h.channel/64)<<std::endl;
+      std::cout<<int(h.channel/64)<<std::endl;
     }
 
     for( auto c : *cls ){
