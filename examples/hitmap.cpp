@@ -72,13 +72,13 @@ void hitmap(std::string fname) {
     clY.clear();
 
     for (auto h : *hits){
-      channels->Fill(h.channel);
+      // channels->Fill(h.channel);
       dreamID->Fill(int(h.channel/64));
       // std::cout<<int(h.channel/64)<<std::endl;
     }
 
     for( auto c : *cls ){
-
+      channels->Fill(c.centroid);
       if( c.axis == 'x' ){
         clX.push_back(c);
         hcentroidX->Fill(c.stripCentroid);
