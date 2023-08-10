@@ -156,8 +156,8 @@ void reco( string name, DetectorTable det) {
         int inter = det.getInter(it->channel);
         char axis = det.getAxis(it->channel);
 
-        // check if th first hit is on the edge of a region
-        bool edge =det.isEdge(oldch);
+        // check if the first hit is on the edge of a region
+        bool edge = det.isEdge(oldch);
 
         // loop over the hits
         while( oldch >= 0 ){
@@ -236,7 +236,7 @@ int main( int argc, char **argv ){
   string fname = argv[1];
 
   DetectorTable  det = DetectorTable("../map/pitch_map.txt", 4, 5, 6, 7);
-  det.setInversion(true, true, false, true);
+  det.setInversion(false, true, false, true);
 
   reco( fname, det );
 
