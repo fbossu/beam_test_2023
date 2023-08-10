@@ -38,7 +38,7 @@ void hitmap(std::string fname) {
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
   TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
 
-  TH1F *dreamID = new TH1F("dreamID", "dream ID", 8, 0, 8);
+  TH1F *dreamID = new TH1F("dreamID", "dream ID", 8, -0.5, 7.5);
   TH1F *channels = new TH1F("channels", "channels", 512, 0, 512);
 
   TH1F *hcentroidX = new TH1F("hcentroidX", "Centroid strips in x direction", 128,0,128);
@@ -74,7 +74,7 @@ void hitmap(std::string fname) {
     for (auto h : *hits){
       channels->Fill(h.channel);
       dreamID->Fill(int(h.channel/64));
-      std::cout<<int(h.channel/64)<<std::endl;
+      // std::cout<<int(h.channel/64)<<std::endl;
     }
 
     for( auto c : *cls ){
