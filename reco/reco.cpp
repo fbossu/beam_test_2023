@@ -255,7 +255,7 @@ int main( int argc, char **argv ){
     int nbDet = atoi(argv[3]);
 
     if(nbDet == 1){
-      det = DetectorTable("../map/pitch_map.txt", 0, 1, 2, 3);
+      det = DetectorTable("../map/strip_map.txt", 0, 1, 2, 3);
       det.setInversion(true, true, false, true);
     }
     else if(nbDet == 2){
