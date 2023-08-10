@@ -235,8 +235,8 @@ int main( int argc, char **argv ){
 
   string fname = argv[1];
 
-  DetectorTable  det = DetectorTable("../map/inter_map.txt", 4, 5, 7, 6);
-  det.setInversion(true, true, false, false);
+  DetectorTable  det = DetectorTable("../map/pitch_map.txt", 4, 5, 7, 6);
+  det.setInversion(true, true, false, true);
 
   reco( fname, det );
 
