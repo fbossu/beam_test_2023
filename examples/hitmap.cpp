@@ -93,6 +93,7 @@ void hitmap(std::string fname) {
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
         h2c->Fill(y->stripCentroid, x->stripCentroid);
+        h2ch->Fill(y->stripCentroid, x->centroid);
       }
     }
   }
