@@ -29,6 +29,7 @@ void hitmap(std::string fname) {
   std::string graphname = fname.substr(0, fname.size()-5)+"_hitmap.png";
   std::string graphname2 = fname.substr(0, fname.size()-5)+"_dreamID.png";
   std::string graphname3 = fname.substr(0, fname.size()-5)+"_map.png";
+  std::string graphname3 = fname.substr(0, fname.size()-5)+"_channel.png";
 
   TFile *inf = TFile::Open( fname.c_str() );
 
@@ -38,7 +39,7 @@ void hitmap(std::string fname) {
   TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
 
   TH1F *dreamID = new TH1F("dreamID", "dream ID", 8, 0, 7);
-  TH1F *channels = new TH1F("channels", "channels", 256, 0, 256);
+  TH1F *channels = new TH1F("channels", "channels", 512, 0, 512);
 
   TH1F *hcentroidX = new TH1F("hcentroidX", "Centroid strips in x direction", 128,0,128);
   hcentroidX->SetXTitle("centroid");
@@ -56,6 +57,10 @@ void hitmap(std::string fname) {
   TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
   h2c->SetXTitle("centroid on y direction strips");
   h2c->SetYTitle("centroid on x direction strips");
+
+  TH2F *h2ch = new TH2F("h2ch", "chanel map", 512,0,512,512,0,512);
+  h2ch->SetXTitle("chanel centroid on y direction strips");
+  h2ch->SetYTitle("chanel centroid on x direction strips"); 
 
   std::vector<cluster> clX, clY;
 
@@ -161,6 +166,11 @@ void hitmap(std::string fname) {
   h2c->Draw("colz");
   gPad->SetLogz();
   c3->Print(graphname3.c_str(), "png");
+
+  TCanvas *c4 = new TCanvas("c4", "c4", 1000,1000);
+  h2ch->Draw("colz");
+  gPad->SetLogz();
+  c4->Print(graphname4.c_str(), "png");
 
   inf->Close();
 }
