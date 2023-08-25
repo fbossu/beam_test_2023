@@ -71,7 +71,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto c : *cls ){
       std::cout<<c.centroid<<std::endl;
-      int connector = int(c.centroid)/64;
+      int connector = int(c.centroid)/64 - 4;
       if( c.axis == 'x' ){
         if(c.pitch != pitchX[connector]){
           std::cout<<"WARNING pitch for connector "<<connector<<" changed from "<<pitchX[connector]<<" to "<<c.pitch<<std::endl;
