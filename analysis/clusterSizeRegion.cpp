@@ -70,7 +70,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     clY.clear();
 
     for( auto c : *cls ){
-      std::cout<<c.centroid<<std::ednl;
+      std::cout<<c.centroid<<std::endl;
       int connector = int(c.centroid)/64;
       if( c.axis == 'x' ){
         if(c.pitch != pitchX[connector]){
