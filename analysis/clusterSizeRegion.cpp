@@ -131,7 +131,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     cstrips->cd(i+1);
     hcentroidX[i]->SetTitle(titleX.c_str());
     hcentroidX[i]->Draw();
-    cstrips->cd(i+4);
+    cstrips->cd(i+5);
     hcentroidY[i]->SetTitle(titleY.c_str());
     hcentroidY[i]->Draw();
   }
