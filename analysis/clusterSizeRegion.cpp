@@ -48,8 +48,8 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     hcentroidX[i]->SetXTitle("strip centroid"); hcentroidY[i]->SetXTitle("strip centroid");
 
     std::string labelclSize = "hclSize"+std::to_string(i);
-    hcentroidX[i] = new TH1F((labelclSize+"X").c_str(), "cluster size in x direction", 10,-0.5,10.5);
-    hcentroidY[i] = new TH1F((labelclSize+"Y").c_str(), "cluster size in y direction", 10,-0.5,10.5);
+    hclSizeX[i] = new TH1F((labelclSize+"X").c_str(), "cluster size in x direction", 10,-0.5,10.5);
+    hclSizeY[i] = new TH1F((labelclSize+"Y").c_str(), "cluster size in y direction", 10,-0.5,10.5);
   }
 
   TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
