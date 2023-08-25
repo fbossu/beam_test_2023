@@ -78,7 +78,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
           pitchX[connector] = c.pitch;
         }
         if(c.inter != interX[connector]){
-          std::cout<<"WARNING pitch for connector "<<connector<<" changed from "<<interX[connector]<<" to "<<c.inter<<std::endl;
+          std::cout<<"WARNING inter for connector "<<connector<<" changed from "<<interX[connector]<<" to "<<c.inter<<std::endl;
           interX[connector] = c.inter;
         }
         clX.push_back(c);
@@ -90,7 +90,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
           pitchY[connector] = c.pitch;
         }
         if(c.inter != interY[connector]){
-          std::cout<<"WARNING pitch for connector "<<connector<<" changed from "<<interY[connector]<<" to "<<c.inter<<std::endl;
+          std::cout<<"WARNING inter for connector "<<connector<<" changed from "<<interY[connector]<<" to "<<c.inter<<std::endl;
           interY[connector] = c.inter;
         }
         clY.push_back(c);
