@@ -70,7 +70,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     clY.clear();
 
     for( auto c : *cls ){
-      std::cout<<c.centroid<<std::endl;
+      // std::cout<<c.centroid<<std::endl;
       int connector = int(c.centroid)/64 - 4;
       if( c.axis == 'x' ){
         if(c.pitch != pitchX[connector]){
@@ -116,7 +116,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     cclSize->cd(i+1);
     hclSizeX[i]->SetTitle(titleX.c_str());
     hclSizeX[i]->Draw();
-    cclSize->cd(i+4);
+    cclSize->cd(i+5);
     hclSizeY[i]->SetTitle(titleY.c_str());
     hclSizeY[i]->Draw();
   }
