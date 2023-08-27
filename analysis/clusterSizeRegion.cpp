@@ -71,7 +71,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto c : *cls ){
       // std::cout<<c.pitch<<std::endl;
-      if(c.size<2) continue;
+      if(c.size<3) continue;
       int connector = int(c.centroid)/64 - 4;
       if( c.axis == 'x' ){
         if(c.pitch != pitchX[connector]){ 
@@ -138,6 +138,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   }
   cstrips->Print(graphStrip.c_str(), "png");
 
+  gStyle->SetOptStat(0);
   TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
   h2c->Draw("colz");
   gPad->SetLogz();
