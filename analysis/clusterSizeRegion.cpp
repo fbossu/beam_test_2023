@@ -106,7 +106,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     }
   }
 
-  gStyle->SetOptStat(0);
+  // gStyle->SetOptStat(0);
 
   TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1000);
   cclSize->Divide(4, 2);
