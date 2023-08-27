@@ -57,11 +57,11 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   h2c->SetYTitle("centroid on x direction strips");
 
   std::vector<cluster> clX, clY;
-  std::vector<float> pitchX = {-1, -1 -1, -1};
-  std::vector<float> pitchY = {-1, -1 -1, -1};
+  std::vector<float> pitchX = {-1, -1, -1, -1};
+  std::vector<float> pitchY = {-1, -1, -1, -1};
 
-  std::vector<float> interX = {-1, -1 -1, -1};
-  std::vector<float> interY = {-1, -1 -1, -1};
+  std::vector<float> interX = {-1, -1, -1, -1};
+  std::vector<float> interY = {-1, -1, -1, -1};
 
   while( reader.Next() ){
 
@@ -73,7 +73,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
       // std::cout<<c.centroid<<std::endl;
       int connector = int(c.centroid)/64 - 4;
       if( c.axis == 'x' ){
-        if(c.pitch != pitchX[connector]){
+        if(c.pitch != pitchX[connector]){ 
           std::cout<<"WARNING pitch for connector "<<connector<<" changed from "<<pitchX[connector]<<" to "<<c.pitch<<std::endl;
           pitchX[connector] = c.pitch;
         }
