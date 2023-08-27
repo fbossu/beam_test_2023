@@ -70,15 +70,15 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     clY.clear();
 
     for( auto c : *cls ){
-      // std::cout<<c.centroid<<std::endl;
+      std::cout<<c.pitch<<std::endl;
       int connector = int(c.centroid)/64 - 4;
       if( c.axis == 'x' ){
         if(c.pitch != pitchX[connector]){ 
-          std::cout<<"WARNING pitch for connector "<<connector<<" changed from "<<pitchX[connector]<<" to "<<c.pitch<<std::endl;
+          std::cout<<"WARNING Xpitch for connector "<<connector<<" changed from "<<pitchX[connector]<<" to "<<c.pitch<<std::endl;
           pitchX[connector] = c.pitch;
         }
         if(c.inter != interX[connector]){
-          std::cout<<"WARNING inter for connector "<<connector<<" changed from "<<interX[connector]<<" to "<<c.inter<<std::endl;
+          std::cout<<"WARNING Xinter for connector "<<connector<<" changed from "<<interX[connector]<<" to "<<c.inter<<std::endl;
           interX[connector] = c.inter;
         }
         clX.push_back(c);
@@ -86,11 +86,11 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
         hclSizeX[connector]->Fill(c.size);
       }else if( c.axis == 'y' ){
         if(c.pitch != pitchY[connector]){
-          std::cout<<"WARNING pitch for connector "<<connector<<" changed from "<<pitchY[connector]<<" to "<<c.pitch<<std::endl;
+          std::cout<<"WARNING Ypitch for connector "<<connector<<" changed from "<<pitchY[connector]<<" to "<<c.pitch<<std::endl;
           pitchY[connector] = c.pitch;
         }
         if(c.inter != interY[connector]){
-          std::cout<<"WARNING inter for connector "<<connector<<" changed from "<<interY[connector]<<" to "<<c.inter<<std::endl;
+          std::cout<<"WARNING Yinter for connector "<<connector<<" changed from "<<interY[connector]<<" to "<<c.inter<<std::endl;
           interY[connector] = c.inter;
         }
         clY.push_back(c);
