@@ -148,7 +148,7 @@ int main(int argc, char const *argv[])
 {
   TChain* chain = new TChain("events");
   std::string detName = "test";
-  for( int i = 1; i < argc-1; i++) {
+  for( int i = 1; i < argc; i++) {
 
     TString input = argv[i];
 
