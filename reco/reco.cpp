@@ -152,8 +152,8 @@ void reco( string name, DetectorTable det) {
         int numSt = 0;
         int denSt = 0;
 
-        int pitch = det.getPitch(it->channel);
-        int inter = det.getInter(it->channel);
+        float pitch = det.getPitch(it->channel);
+        float inter = det.getInter(it->channel);
         char axis = det.getAxis(it->channel);
 
         // check if th first hit is on the edge of a region
