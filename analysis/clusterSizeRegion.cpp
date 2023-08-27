@@ -71,7 +71,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto c : *cls ){
       // std::cout<<c.pitch<<std::endl;
-      if(c.size<4) continue;
+      // if(c.size<4) continue;
       int connector = int(c.centroid)/64 - 4;
       if( c.axis == 'x' ){
         if(c.pitch != pitchX[connector]){ 
@@ -115,9 +115,11 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     std::string titleX = "X C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
     std::string titleY = "Y C"+std::to_string(i)+": pitch "+std::to_string(pitchY[i])+" inter "+std::to_string(interY[i]);
     cclSize->cd(i+1);
+    gPad->SetLogy();
     hclSizeX[i]->SetTitle(titleX.c_str());
     hclSizeX[i]->Draw();
     cclSize->cd(i+5);
+    gPad->SetLogy();
     hclSizeY[i]->SetTitle(titleY.c_str());
     hclSizeY[i]->Draw();
   }
