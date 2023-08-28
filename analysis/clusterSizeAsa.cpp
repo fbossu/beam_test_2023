@@ -111,34 +111,41 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   // gStyle->SetOptStat(0);
 
   TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1000);
-  cclSize->Divide(4, 2);
+  cclSize->Divide(2, 2);
   for(int i=0; i<4; i++){
-    std::string titleX = "X C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
-    std::string titleY = "Y C"+std::to_string(i)+": pitch "+std::to_string(pitchY[i])+" inter "+std::to_string(interY[i]);
+    std::string titleX = "C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
     cclSize->cd(i+1);
     gPad->SetLogy();
     hclSizeX[i]->SetTitle(titleX.c_str());
     hclSizeX[i]->Draw();
-    cclSize->cd(i+5);
-    gPad->SetLogy();
-    hclSizeY[i]->SetTitle(titleY.c_str());
-    hclSizeY[i]->Draw();
+
+    hclSizeY[i]->SetLineColor(kRed);
+    hclSizeY[i]->Draw("same");
   }
+  cclSize->cd(0);
+  TLegend leg = new TLegend(0.1,0.7,0.48,0.9);
+  leg->AddEntry(hclSizeX[0],"cluster size in X","l");
+  leg->AddEntry(hclSizeY[0],"cluster size in Y","l");
+  leg->Draw();
   cclSize->Print(graphClSize.c_str(), "png");
 
 
   TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1000);
-  cstrips->Divide(4, 2);
+  cstrips->Divide(2, 2);
   for(int i=0; i<4; i++){
-    std::string titleX = "X C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
-    std::string titleY = "Y C"+std::to_string(i)+": pitch "+std::to_string(pitchY[i])+" inter "+std::to_string(interY[i]);
+    std::string titleX = "C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
     cstrips->cd(i+1);
     hcentroidX[i]->SetTitle(titleX.c_str());
     hcentroidX[i]->Draw();
-    cstrips->cd(i+5);
-    hcentroidY[i]->SetTitle(titleY.c_str());
+
+    hcentroidY[i]->SetLineColor(kRed);
     hcentroidY[i]->Draw();
   }
+  cstrip->cd(0);
+  TLegend leg = new TLegend(0.1,0.7,0.48,0.9);
+  leg->AddEntry(hclSizeX[0],"cluster size in X","l");
+  leg->AddEntry(hclSizeY[0],"cluster size in Y","l");
+  leg->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 
   gStyle->SetOptStat(0);
