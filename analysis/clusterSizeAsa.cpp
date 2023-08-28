@@ -31,7 +31,7 @@
 int getZone(float pitchX, float pitchY){
   
   int zone = -1;
-  if(pitchX != pitchY) return zone;
+  // if(pitchX != pitchY) return zone;
 
   if(pitchX == 1.){
     zone = 0;
@@ -113,7 +113,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
           hclSizeX[zone]->Fill(x->size);
           hclSizeY[zone]->Fill(y->size);
-        }
+        }else{ std::cout<<"WARNING "<<pitchX<<" "<<pitchY<<std::endl; }
       }
     }
   }
