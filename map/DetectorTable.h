@@ -9,7 +9,7 @@
 #include <sstream>
 #include <algorithm>
 
-// the maps are indexed with the gerber (GB) channel number which are defined as: connectorNb*64 + connectorCh
+// the tables are indexed with the gerber (GB) channel number which are defined as: connectorNb*64 + connectorCh
 // here channel refers to real channels if using DTchannel or strips if using DTstrip
 
 class DetectorTable

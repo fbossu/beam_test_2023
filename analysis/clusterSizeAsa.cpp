@@ -31,7 +31,7 @@
 int getZone(float pitchX, float pitchY){
   
   int zone = -1;
-  // if(pitchX != pitchY ) return zone;
+  if(pitchX != pitchY) return zone;
 
   if(pitchX == 1.){
     zone = 0;
@@ -147,12 +147,12 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     hcentroidX[i]->Draw();
 
     hcentroidY[i]->SetLineColor(kRed);
-    hcentroidY[i]->Draw();
+    hcentroidY[i]->Draw("same");
   }
   cstrips->cd(0);
   TLegend *legS = new TLegend(0.87,0.75,0.99,0.8);
-  legS->AddEntry(hcentroidX[0],"cluster size in X","l");
-  legS->AddEntry(hcentroidY[0],"cluster size in Y","l");
+  legS->AddEntry(hcentroidX[0],"strip centroid in X","l");
+  legS->AddEntry(hcentroidY[0],"strip centroid in Y","l");
   legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 
