@@ -31,7 +31,7 @@
 int getZone(float pitchX, float pitchY){
   
   int zone = -1;
-  // if(pitchX != pitchY) return zone;
+  if(pitchX != pitchY) return zone;
 
   if(pitchX == 1.){
     zone = 0;
