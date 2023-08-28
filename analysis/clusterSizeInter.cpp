@@ -109,7 +109,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
           hclSizeX[zone]->Fill(x->size);
           hclSizeY[zone]->Fill(y->size);
-        }
+        }else{ std::cout<<"WARNING "<<zone<<" "<<pitchX<<" "<<pitchY<<" "<<pitchX-pitchY<<std::endl; }
       }
     }
   }
