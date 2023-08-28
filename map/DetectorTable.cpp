@@ -42,6 +42,9 @@ void DetectorTable::buildTable(){
 
 	std::cout<< "Building detector table "<<detFile<<std::endl;
 	std::ifstream infile(detFile.c_str());
+	if(infile.fail()){
+		throw std::runtime_error("ERROR: map file not found");
+	}
 
 	std::string line, fcnt, fch, fstripNb, faxis, fpitch, finter, fngh;
 	// float inter = 0;
