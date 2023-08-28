@@ -7,6 +7,7 @@
 #include "TCanvas.h"
 #include "TTreeReader.h"
 #include "TStyle.h"
+#include "TLegend.h"
 
 #include "../reco/definitions.h"
 
@@ -141,7 +142,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     hcentroidY[i]->SetLineColor(kRed);
     hcentroidY[i]->Draw();
   }
-  cstrip->cd(0);
+  cstrips->cd(0);
   TLegend leg = new TLegend(0.1,0.7,0.48,0.9);
   leg->AddEntry(hclSizeX[0],"cluster size in X","l");
   leg->AddEntry(hclSizeY[0],"cluster size in Y","l");
