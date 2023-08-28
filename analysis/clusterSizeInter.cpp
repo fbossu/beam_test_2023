@@ -101,6 +101,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
         float interY = det.getInter(int(y->stripCentroid), int(x->stripCentroid));
+        // std::cout<<interY<<std::endl;
         int zone = getZone(interY);
         if(zone>=0){
           h2c->Fill(y->stripCentroid, x->stripCentroid);
@@ -129,8 +130,8 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   }
   cclSize->cd(0);
   TLegend *leg = new TLegend(0.87,0.75,0.99,0.8);
-  leg->AddEntry(hclSizeX[0],"cluster size in X","l");
-  leg->AddEntry(hclSizeY[0],"cluster size in Y","l");
+  leg->AddEntry(hclSizeX[0],"cluster size in X (bottom)","l");
+  leg->AddEntry(hclSizeY[0],"cluster size in Y (top)","l");
   leg->Draw();
   cclSize->Print(graphClSize.c_str(), "png");
 
@@ -147,8 +148,8 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   }
   cstrips->cd(0);
   TLegend *legS = new TLegend(0.87,0.75,0.99,0.8);
-  legS->AddEntry(hcentroidX[0],"strip centroid in X","l");
-  legS->AddEntry(hcentroidY[0],"strip centroid in Y","l");
+  legS->AddEntry(hcentroidX[0],"strip centroid in X (bottom)","l");
+  legS->AddEntry(hcentroidY[0],"strip centroid in Y (top)","l");
   legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 

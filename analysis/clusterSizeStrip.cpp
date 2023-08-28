@@ -32,17 +32,17 @@ int getZone(float pitchX, float pitchY){
   int zone = -1;
   if(pitchY == 1.){
     zone = 0;
-  }else if(pitchY == 1.5){
+  }else if(pitchY == 1.5f){
     zone = 1;
-  }else if(pitchY == 0.5){
+  }else if(pitchY == 0.5f){
     zone = 2;
   }
 
   if(pitchX == 1){
     zone += 0;
-  }else if(pitchX == 1.5){
+  }else if(pitchX == 1.5f){
     zone += 3;
-  }else if(pitchX == 0.5){
+  }else if(pitchX == 0.5f){
     zone += 6;
   }
 
@@ -116,7 +116,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
           hclSizeX[zone]->Fill(x->size);
           hclSizeY[zone]->Fill(y->size);
-        }
+        }else{ std::cout<<"WARNING "<<zone<<" "<<pitchX<<" "<<pitchY<<" "<<pitchX-pitchY<<std::endl; }
       }
     }
   }
@@ -136,8 +136,8 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   }
   cclSize->cd(0);
   TLegend *leg = new TLegend(0.87,0.75,0.99,0.8);
-  leg->AddEntry(hclSizeX[0],"cluster size in X","l");
-  leg->AddEntry(hclSizeY[0],"cluster size in Y","l");
+  leg->AddEntry(hclSizeX[0],"cluster size in X (bottom)","l");
+  leg->AddEntry(hclSizeY[0],"cluster size in Y (top)","l");
   leg->Draw();
   cclSize->Print(graphClSize.c_str(), "png");
 
@@ -154,8 +154,8 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   }
   cstrips->cd(0);
   TLegend *legS = new TLegend(0.87,0.75,0.99,0.8);
-  legS->AddEntry(hcentroidX[0],"strip centroid in X","l");
-  legS->AddEntry(hcentroidY[0],"strip centroid in Y","l");
+  legS->AddEntry(hcentroidX[0],"strip centroid in X (bottom)","l");
+  legS->AddEntry(hcentroidY[0],"strip centroid in Y (top)","l");
   legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 

@@ -98,7 +98,7 @@ float DetectorTable::getInter(int ch, int chPerp){
 	int GBchPerp = this->toGB(chPerp);
 	if(GBch<0 or GBchPerp<0) return -1;
 
-	if(detFile == "inter_map.txt" && this->getConnector(GBch) < 2){
+	if(mapInter[GBch].size()>1 && this->getConnector(GBch) < 2){
 		if(GBchPerp==-1 or this->getConnector(GBchPerp) < 2) throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the channel of the cluster in x in order to find the interstrip value of y strips (the interstrip changes along one vertical (y) strip)");
 		else{
 			if(this->getConnector(GBchPerp) == 3) return mapInter[GBch][1];  // the cluster is in the connector 3 horizontal region
