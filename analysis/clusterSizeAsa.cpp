@@ -106,7 +106,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
         float pitchX = det.getPitch(int(x->stripCentroid));
         float pitchY = det.getPitch(int(y->stripCentroid));
         int zone = getZone(pitchX, pitchY);
-        if(zone>0){
+        if(zone>=0){
           h2c->Fill(y->stripCentroid, x->stripCentroid);
           hcentroidX[zone]->Fill(x->stripCentroid);
           hcentroidY[zone]->Fill(y->stripCentroid);
