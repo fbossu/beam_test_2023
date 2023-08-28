@@ -127,6 +127,11 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     hclSizeY[i]->SetLineColor(kRed);
     hclSizeY[i]->Draw("same");
   }
+  cclSize->cd(0);
+  TLegend *leg = new TLegend(0.87,0.75,0.99,0.8);
+  leg->AddEntry(hclSizeX[0],"cluster size in X","l");
+  leg->AddEntry(hclSizeY[0],"cluster size in Y","l");
+  leg->Draw();
   cclSize->Print(graphClSize.c_str(), "png");
 
 
@@ -140,6 +145,11 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     hcentroidY[i]->SetLineColor(kRed);
     hcentroidY[i]->Draw("same");
   }
+  cstrips->cd(0);
+  TLegend *legS = new TLegend(0.87,0.75,0.99,0.8);
+  legS->AddEntry(hcentroidX[0],"cluster size in X","l");
+  legS->AddEntry(hcentroidY[0],"cluster size in Y","l");
+  legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 
   gStyle->SetOptStat(0);
