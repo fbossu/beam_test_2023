@@ -25,6 +25,29 @@
 //   uint16_t id;
 // };
 
+
+int getZone(float pitchX, float pitchY){
+  int zone = -1;
+  if(pitchY == 1.){
+    zone = 0;
+  }else if(pitchY == 1.5){
+    zone = 1;
+  }else if(pitchY == 0.5){
+    zone = 2;
+  }
+
+  if(pitchX == 1){
+    zone += 0;
+  }else if(pitchX == 1.5){
+    zone += 3;
+  }else if(pitchX == 0.5){
+    zone += 6;
+  }
+
+  return zone;
+}
+
+
 void clusterSizeRegion(TChain* chain, std::string detname) {
 
   std::string graphMap = detname+"_Map.png";
@@ -36,12 +59,14 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
   TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
 
-  TH1F *hcentroidX[4];
-  TH1F *hcentroidY[4];
-  TH1F *hclSizeX[4];
-  TH1F *hclSizeY[4];
+  int nbZones = 9;
 
-  for(int i=0; i<4; i++){
+  TH1F *hcentroidX[nbZones];
+  TH1F *hcentroidY[nbZones];
+  TH1F *hclSizeX[nbZones];
+  TH1F *hclSizeY[nbZones];
+
+  for(int i=0; i<nbZones; i++){
     std::string labelCentroid = "hcentroid"+std::to_string(i);
     hcentroidX[i] = new TH1F((labelCentroid+"X").c_str(), "Centroid strips in x direction", 128,0,128);
     hcentroidY[i] = new TH1F((labelCentroid+"Y").c_str(), "Centroid strips in y direction", 128,0,128);
@@ -57,12 +82,9 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   h2c->SetXTitle("centroid on y direction strips");
   h2c->SetYTitle("centroid on x direction strips");
 
-  std::vector<cluster> clX, clY;
-  std::vector<float> pitchX = {-1, -1, -1, -1};
-  std::vector<float> pitchY = {-1, -1, -1, -1};
+  std::vector<std::string> titles = { "1/1mm (y/x)", "1.5/1mm", "0.5/1mm", "1/1.5mm", "1.5/1.5mm", "0.5/1.5mm", "1/0.5mm", "1.5/0.5mm", "0.5/0.5mm" };
 
-  std::vector<float> interX = {-1, -1, -1, -1};
-  std::vector<float> interY = {-1, -1, -1, -1};
+  std::vector<cluster> clX, clY;
 
   while( reader.Next() ){
 
@@ -71,73 +93,51 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     clY.clear();
 
     for( auto c : *cls ){
-      // std::cout<<c.pitch<<std::endl;
-      // if(c.size<4) continue;
-      int connector = int(c.centroid)/64 - 4;
       if( c.axis == 'x' ){
-        if(c.pitch != pitchX[connector]){ 
-          std::cout<<"WARNING Xpitch for connector "<<connector<<" changed from "<<pitchX[connector]<<" to "<<c.pitch<<std::endl;
-          pitchX[connector] = c.pitch;
-        }
-        if(c.inter != interX[connector]){
-          std::cout<<"WARNING Xinter for connector "<<connector<<" changed from "<<interX[connector]<<" to "<<c.inter<<std::endl;
-          interX[connector] = c.inter;
-        }
         clX.push_back(c);
-        hcentroidX[connector]->Fill(c.stripCentroid);
-        hclSizeX[connector]->Fill(c.size);
       }else if( c.axis == 'y' ){
-        if(c.pitch != pitchY[connector]){
-          std::cout<<"WARNING Ypitch for connector "<<connector<<" changed from "<<pitchY[connector]<<" to "<<c.pitch<<std::endl;
-          pitchY[connector] = c.pitch;
-        }
-        if(c.inter != interY[connector]){
-          std::cout<<"WARNING Yinter for connector "<<connector<<" changed from "<<interY[connector]<<" to "<<c.inter<<std::endl;
-          interY[connector] = c.inter;
-        }
         clY.push_back(c);
-        hcentroidY[connector]->Fill(c.stripCentroid);
-        hclSizeY[connector]->Fill(c.size);
       }
     }
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
+        int zone  = getZone(x->pitch, y->pitch);
         h2c->Fill(y->stripCentroid, x->stripCentroid);
+        hcentroidX[zone]->Fill(x->stripCentroid);
+        hcentroidY[zone]->Fill(y->stripCentroid);
+
+        hclSizeX[zone]->Fill(x->size);
+        hclSizeY[zone]->Fill(y->size);
       }
     }
   }
 
-  // gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
 
-  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1000);
-  cclSize->Divide(4, 2);
-  for(int i=0; i<4; i++){
-    std::string titleX = "X C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
-    std::string titleY = "Y C"+std::to_string(i)+": pitch "+std::to_string(pitchY[i])+" inter "+std::to_string(interY[i]);
+  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1600);
+  cclSize->Divide(3, 3);
+  for(int i=0; i<9; i++){
     cclSize->cd(i+1);
     gPad->SetLogy();
-    hclSizeX[i]->SetTitle(titleX.c_str());
+    hclSizeX[i]->SetTitle(titles[i].c_str());
     hclSizeX[i]->Draw();
-    cclSize->cd(i+5);
-    gPad->SetLogy();
-    hclSizeY[i]->SetTitle(titleY.c_str());
-    hclSizeY[i]->Draw();
+
+    hclSizeY[i]->SetLineColor(kRed);
+    hclSizeY[i]->Draw("same");
   }
   cclSize->Print(graphClSize.c_str(), "png");
 
 
-  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1000);
-  cstrips->Divide(4, 2);
+  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1600);
+  cstrips->Divide(3, 3);
   for(int i=0; i<4; i++){
-    std::string titleX = "X C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
-    std::string titleY = "Y C"+std::to_string(i)+": pitch "+std::to_string(pitchY[i])+" inter "+std::to_string(interY[i]);
     cstrips->cd(i+1);
-    hcentroidX[i]->SetTitle(titleX.c_str());
+    hcentroidX[i]->SetTitle((titles[i]).c_str());
     hcentroidX[i]->Draw();
-    cstrips->cd(i+5);
-    hcentroidY[i]->SetTitle(titleY.c_str());
-    hcentroidY[i]->Draw();
+
+    hcentroidY[i]->SetLineColor(kRed);
+    hcentroidY[i]->Draw("same");
   }
   cstrips->Print(graphStrip.c_str(), "png");
 
