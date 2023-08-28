@@ -103,7 +103,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
         int zone  = getZone(x->pitch, y->pitch);
-        std::cout<<zone<<endl;
+        std::cout<<zone<<std::endl;
         h2c->Fill(y->stripCentroid, x->stripCentroid);
         hcentroidX[zone]->Fill(x->stripCentroid);
         hcentroidY[zone]->Fill(y->stripCentroid);
