@@ -36,7 +36,7 @@ int getZone(float pitchX, float pitchY){
   if(pitchX == 1.){
     zone = 0;
   }else if(pitchX == 0.8){
-    zone = 1;
+    zone = 1; return 1;
   }else if(pitchX == 2.){
     zone = 2;
   }else if(pitchX == 1.5){
@@ -113,7 +113,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
           hclSizeX[zone]->Fill(x->size);
           hclSizeY[zone]->Fill(y->size);
-        }else{ std::cout<<"WARNING "<<pitchX<<" "<<pitchY<<std::endl; }
+        }else{ std::cout<<"WARNING "<<zone<<" "<<pitchX<<" "<<pitchY<<std::endl; }
       }
     }
   }
