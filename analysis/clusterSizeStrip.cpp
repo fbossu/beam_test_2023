@@ -104,7 +104,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
         int zone  = getZone(x->pitch, y->pitch);
-        std::cout<<x->pitch<<" "<<y->pitch<<" "<<zone<<std::endl;
+        // std::cout<<x->pitch<<" "<<y->pitch<<" "<<zone<<std::endl;
         h2c->Fill(y->stripCentroid, x->stripCentroid);
         hcentroidX[zone]->Fill(x->stripCentroid);
         hcentroidY[zone]->Fill(y->stripCentroid);
@@ -138,7 +138,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
   TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1300);
   cstrips->Divide(3, 3);
-  for(int i=0; i<4; i++){
+  for(int i=0; i<9; i++){
     cstrips->cd(i+1);
     hcentroidX[i]->SetTitle((titles[i]).c_str());
     hcentroidX[i]->Draw();

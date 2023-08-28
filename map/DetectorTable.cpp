@@ -1,37 +1,41 @@
 #include "DetectorTable.h"
 
-DetectorTable::DetectorTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3){
+// DetectorTable::DetectorTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3){
+// 	detFile = idetFile;
+// 	dreamConnect.push_back(dreamConnect0);
+// 	dreamConnect.push_back(dreamConnect1);
+// 	dreamConnect.push_back(dreamConnect2);
+// 	dreamConnect.push_back(dreamConnect3);
+// 	this->buildTable();
+// }
+
+// void DetectorTable::setInversion(bool iC0, bool iC1, bool iC2, bool iC3){
+// 	inv[0] = iC0;
+// 	inv[1] = iC1;
+// 	inv[2] = iC2;
+// 	inv[3] = iC3;
+// }
+
+// bool DetectorTable::isConnected(int channel){
+// 	int dream = channel/64;
+// 	return ( std::find(dreamConnect.begin(), dreamConnect.end(), dream) != dreamConnect.end() );
+// }
+
+// int DetectorTable::toGB(int channel){
+// 	if(!this->isConnected(channel)) return -1;
+// 	int dreamNb = channel/64;
+// 	int ch = channel%64;
+// 	int cntNb = std::find(dreamConnect.begin(), dreamConnect.end(), dreamNb) - dreamConnect.begin();
+// 	if(inv[cntNb]){
+// 		return (cntNb+1)*64 - 1 - ch;
+// 	}
+// 	else{
+// 		return cntNb*64 + ch;
+// 	}
+// }
+
+DetectorTable::DetectorTable(std::string idetFile){
 	detFile = idetFile;
-	dreamConnect.push_back(dreamConnect0);
-	dreamConnect.push_back(dreamConnect1);
-	dreamConnect.push_back(dreamConnect2);
-	dreamConnect.push_back(dreamConnect3);
-	this->buildTable();
-}
-
-void DetectorTable::setInversion(bool iC0, bool iC1, bool iC2, bool iC3){
-	inv[0] = iC0;
-	inv[1] = iC1;
-	inv[2] = iC2;
-	inv[3] = iC3;
-}
-
-bool DetectorTable::isConnected(int channel){
-	int dream = channel/64;
-	return ( std::find(dreamConnect.begin(), dreamConnect.end(), dream) != dreamConnect.end() );
-}
-
-int DetectorTable::toGB(int channel){
-	if(!this->isConnected(channel)) return 0;
-	int dreamNb = channel/64;
-	int ch = channel%64;
-	int cntNb = std::find(dreamConnect.begin(), dreamConnect.end(), dreamNb) - dreamConnect.begin();
-	if(inv[cntNb]){
-		return (cntNb+1)*64 - 1 - ch;
-	}
-	else{
-		return cntNb*64 + ch;
-	}
 }
 
 void DetectorTable::buildTable(){
@@ -86,57 +90,67 @@ void DetectorTable::buildTable(){
 	}
 }
 
-float DetectorTable::getInter(int channel, int channelPerp){
-	if(!this->isConnected(channel)) return 0;
-	int GBchannel = this->toGB(channel);
-	int GBchannelPerp = this->toGB(channelPerp);
+float DetectorTable::getInter(int ch, int chPerp){
+	int GBch = this->toGB(ch);
+	int GBchPerp = this->toGB(chPerp);
+	if(GBch<0 or GBchPerp<0) return -1;
 
-	if(detFile == "inter_map.txt" && this->getConnector(GBchannel) < 2){
-		if(GBchannelPerp==-1 or this->getConnector(GBchannelPerp) < 2) throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the channel of the cluster in x in order to find the interstrip value of y strips (the interstrip changes along one vertical (y) strip)");
+	if(detFile == "inter_map.txt" && this->getConnector(GBch) < 2){
+		if(GBchPerp==-1 or this->getConnector(GBchPerp) < 2) throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the channel of the cluster in x in order to find the interstrip value of y strips (the interstrip changes along one vertical (y) strip)");
 		else{
-			if(this->getConnector(GBchannelPerp) == 3) return mapInter[GBchannel][1];  // the cluster is in the connector 3 horizontal region
-			if(this->getConnector(GBchannelPerp) == 2) return mapInter[GBchannel][0];  // the cluster is in the connector 2 horizontal region
+			if(this->getConnector(GBchPerp) == 3) return mapInter[GBch][1];  // the cluster is in the connector 3 horizontal region
+			if(this->getConnector(GBchPerp) == 2) return mapInter[GBch][0];  // the cluster is in the connector 2 horizontal region
 			else throw std::runtime_error("ERROR: In DetectorTable::getInter(int, int) the cluster x channel position doesn't match a dream connected to connectors 2 or 3 ");
 		}
 	}
-	return (mapInter[GBchannel])[0];
+	return (mapInter[GBch])[0];
 }
 
 int DetectorTable::getConnector(int channel){
-	if(!this->isConnected(channel)) return 0;
-	return mapConnector[this->toGB(channel)];
+	int GBch = this->toGB(channel);
+	if(GBch<0) return -1;
+	return mapConnector[GBch];
 }
 
 char DetectorTable::getAxis(int channel){
-	if(!this->isConnected(channel)) return 'o';
-	return mapAxis[this->toGB(channel)];
+	int GBch = this->toGB(channel);
+	if(GBch<0) return 'o';
+	return mapAxis[GBch];
 }
 
 float DetectorTable::getPitch(int channel){
-	if(!this->isConnected(channel)) return 0;
-	return mapPitch[this->toGB(channel)];
+	int GBch = this->toGB(channel);
+	if(GBch<0) return 0;
+	return mapPitch[GBch];
 }
 
 int DetectorTable::getStripNb(int channel){
-	if(!this->isConnected(channel)) return 0;
-	return mapStripNb[this->toGB(channel)];
+	int GBch = this->toGB(channel);
+	if(GBch<0) return -1;
+	return mapStripNb[GBch];
 }
 
 bool DetectorTable::isNeighbour(int ch1, int ch2){
-	std::vector<int> ngh = mapNgh[this->toGB(ch1)];
-	return std::find(ngh.begin(), ngh.end(), this->toGB(ch2)) != ngh.end();
+	int GBch1 = this->toGB(ch1);
+	int GBch2 = this->toGB(ch2);
+	if(GBch1<0 or GBch2<0) return false;
+	std::vector<int> ngh = mapNgh[GBch1];
+	return std::find(ngh.begin(), ngh.end(), GBch2) != ngh.end();
 }
 
 bool DetectorTable::isEdge(int channel){
-	return mapNgh[this->toGB(channel)].size() < 2;
+	int GBch = this->toGB(channel);
+	if(GBch<0) return true;
+	return mapNgh[GBch].size() < 2;
 }
 
 std::vector<int> DetectorTable::getNeighbours(int channel){
-	if(!this->isConnected(channel)) return std::vector<int>();
-	return mapNgh[this->toGB(channel)];
+	int GBch = this->toGB(channel);
+	if(GBch<0) return std::vector<int>();
+	return mapNgh[GBch];
 }
 
-std::string DetectorTable::getAll(int channel){
+std::string DetectorTable::printAll(int channel){
 	int GBch = this->toGB(channel);
 	std::string out = "ch: " + std::to_string(channel) + " cnt: " + std::to_string(this->getConnector(channel)) + " cntChannel: " + 
 		std::to_string(GBch) + " axis: " + this->getAxis(channel) +

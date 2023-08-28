@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../map/DetectorTable.h"
+#include "../map/DTchannel.h"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
-void reco( string name, DetectorTable det) {
+void reco( string name, DTchannel det) {
 
   TFile *infile = TFile::Open(name.data());
   if( !infile ){
@@ -122,6 +122,7 @@ void reco( string name, DetectorTable det) {
     for( auto &m : maxamp ){
       ahit.channel   = m.first;
       ahit.maxamp    = m.second;
+      ahit.strip     = det.getStripNb(m.first);
       ahit.samplemax = sampmax[m.first];
       ahit.inflex    = flex[m.first];
       hits->push_back(ahit);
@@ -152,12 +153,7 @@ void reco( string name, DetectorTable det) {
         int numSt = 0;
         int denSt = 0;
 
-        float pitch = det.getPitch(it->channel);
-        float inter = det.getInter(it->channel);
         char axis = det.getAxis(it->channel);
-
-        // check if th first hit is on the edge of a region
-        bool edge =det.isEdge(oldch);
 
         // loop over the hits
         while( oldch >= 0 ){
@@ -181,7 +177,6 @@ void reco( string name, DetectorTable det) {
           it++;
           if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
             // TODO add here some conditions to skip missing strips and so on
-            edge = edge || det.isEdge(it->channel);
             break;
           }
           else {
@@ -196,8 +191,6 @@ void reco( string name, DetectorTable det) {
         cl.centroid = (float) numCh / denCh;
         cl.id       = clId;
         cl.stripCentroid = (float) numSt / denCh;
-        cl.pitch = pitch;
-        cl.inter = inter;
         cl.axis = axis;
         cls->push_back( cl );
 
@@ -234,7 +227,7 @@ int main( int argc, char **argv ){
   }
 
   string fname = argv[1];
-  DetectorTable det;
+  DTchannel det;
 
   if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
 
@@ -255,27 +248,27 @@ int main( int argc, char **argv ){
     int nbDet = atoi(argv[3]);
 
     if(nbDet == 1){
-      det = DetectorTable("../map/strip_map.txt", 0, 1, 2, 3);
+      det = DTchannel("../map/strip_map.txt", 0, 1, 2, 3);
       det.setInversion(true, true, false, true);
     }
     else if(nbDet == 2){
-      det = DetectorTable("../map/inter_map.txt", 4, 5, 6, 7);
+      det = DTchannel("../map/inter_map.txt", 4, 5, 6, 7);
       det.setInversion(true, true, false, false);
     }
     else {cerr << "detector number invalid \n"; return 1; }
   }
 
   else if(nbFeu == 2){
-    det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
+    det = DTchannel("../map/asa_map.txt", 4, 5, 6, 7);
     // det.setInversion(true, true, false, false);
     det.setInversion(false, false, false, true);
   }
   else if(nbFeu == 3){
-    det = DetectorTable("../map/strip_map.txt", 4, 5, 6, 7);
+    det = DTchannel("../map/strip_map.txt", 4, 5, 6, 7);
     det.setInversion(true, true, false, false);
   }
   else if(nbFeu == 4){
-    det = DetectorTable("../map/asa_map.txt", 4, 5, 6, 7);
+    det = DTchannel("../map/asa_map.txt", 4, 5, 6, 7);
     det.setInversion(false, false, false, true);
   }
   else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
