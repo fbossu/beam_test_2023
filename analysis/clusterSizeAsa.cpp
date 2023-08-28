@@ -143,10 +143,10 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     hcentroidY[i]->Draw();
   }
   cstrips->cd(0);
-  TLegend *leg = new TLegend(0.1,0.7,0.48,0.9);
-  leg->AddEntry(hclSizeX[0],"cluster size in X","l");
-  leg->AddEntry(hclSizeY[0],"cluster size in Y","l");
-  leg->Draw();
+  TLegend *legS = new TLegend(0.1,0.7,0.48,0.9);
+  legS->AddEntry(hclSizeX[0],"cluster size in X","l");
+  legS->AddEntry(hclSizeY[0],"cluster size in Y","l");
+  legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 
   gStyle->SetOptStat(0);
