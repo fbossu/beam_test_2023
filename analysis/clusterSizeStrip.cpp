@@ -10,6 +10,7 @@
 #include "TLegend.h"
 
 #include "../reco/definitions.h"
+#include "../map/DTstrip.h"
 
 // struct hit {
 //   uint16_t channel;
@@ -105,9 +106,9 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        int pitchX = det.getPitch(int(x->stripCentroid));
-        int pitchY = det.getPitch(int(y->stripCentroid));
-        zone = getZone(pitchX, pitchY);
+        float pitchX = det.getPitch(int(x->stripCentroid));
+        float pitchY = det.getPitch(int(y->stripCentroid));
+        int zone = getZone(pitchX, pitchY);
         if(zone>0){
           h2c->Fill(y->stripCentroid, x->stripCentroid);
           hcentroidX[zone]->Fill(x->stripCentroid);

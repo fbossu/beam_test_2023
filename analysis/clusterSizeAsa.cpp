@@ -10,6 +10,7 @@
 #include "TLegend.h"
 
 #include "../reco/definitions.h"
+#include "../map/DTstrip.h"
 
 // struct hit {
 //   uint16_t channel;
@@ -95,20 +96,16 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
       if( c.axis == 'x' ){
         clX.push_back(c);
-        hcentroidX[connector]->Fill(c.stripCentroid);
-        hclSizeX[connector]->Fill(c.size);
       }else if( c.axis == 'y' ){
         clY.push_back(c);
-        hcentroidY[connector]->Fill(c.stripCentroid);
-        hclSizeY[connector]->Fill(c.size);
       }
     }
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        int pitchX = det.getPitch(int(x->stripCentroid));
-        int pitchY = det.getPitch(int(y->stripCentroid));
-        zone = getZone(pitchX, pitchY);
+        float pitchX = det.getPitch(int(x->stripCentroid));
+        float pitchY = det.getPitch(int(y->stripCentroid));
+        int zone = getZone(pitchX, pitchY);
         if(zone>0){
           h2c->Fill(y->stripCentroid, x->stripCentroid);
           hcentroidX[zone]->Fill(x->stripCentroid);
@@ -128,7 +125,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   for(int i=0; i<4; i++){
     cclSize->cd(i+1);
     gPad->SetLogy();
-    hclSizeX[i]->SetTitle(("pitch: "+title[i]).c_str());
+    hclSizeX[i]->SetTitle(("pitch: "+titles[i]).c_str());
     hclSizeX[i]->Draw();
 
     hclSizeY[i]->SetLineColor(kRed);
@@ -146,7 +143,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   cstrips->Divide(2, 2);
   for(int i=0; i<4; i++){
     cstrips->cd(i+1);
-    hcentroidX[i]->SetTitle(("pitch: "+title[i]).c_str());;
+    hcentroidX[i]->SetTitle(("pitch: "+titles[i]).c_str());;
     hcentroidX[i]->Draw();
 
     hcentroidY[i]->SetLineColor(kRed);
