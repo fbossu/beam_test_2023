@@ -30,13 +30,13 @@
 
 int getZone(float interY){
   int zone = -1;
-  if(interY == 0.9){
+  if(interY == 0.9f){
     zone = 0;
-  }else if(interY == 0.67){
+  }else if(interY == 0.67f){
     zone = 1;
-  }else if(interY == 0.75){
+  }else if(interY == 0.75f){
     zone = 2;
-  }else if(interY == 0.5){
+  }else if(interY == 0.5f){
     zone = 3;
   }
 
