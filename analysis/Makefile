@@ -1,7 +1,7 @@
 all: clusterSizeAsa clusterSizeStrip clusterSizeInter
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs )
-DT = ../map/DetectorTable.o ../map/DTstrip.o
+DT = ../map/DetectorTable.o ../map/StripTable.o
 
 clusterSizeAsa: clusterSizeAsa.cpp ../reco/definitions.h ../reco/linkdef.h $(DT)
 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
