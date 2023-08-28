@@ -3,13 +3,19 @@
 
 #include "DetectorTable.h"
 
-class DTstrip : public DetectorTable
+// here channel refers to the strip number
+
+class DTstrip : protected DetectorTable
 {
 public:
 	DTstrip() = default;
 	~DTstrip() = default;
 	DTstrip(std::string idetFile);
 
-	int toGB(int channel);  // convert real channel to gerber channnel
+	int toGB(int ch, char axis);  					// convert strip to gerber channnel
+	float pitchX(int ch);
+	float pitchX(int ch);
+	std::vector<float> getInter(int ch){return mapInter[ch];};
+
 };
 #endif

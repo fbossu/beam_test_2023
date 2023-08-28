@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../map/DTchannel.h"
+#include "../map/DreamTable.h"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
-void reco( string name, DTchannel det) {
+void reco( string name, DreamTable det) {
 
   TFile *infile = TFile::Open(name.data());
   if( !infile ){
@@ -122,7 +122,8 @@ void reco( string name, DTchannel det) {
     for( auto &m : maxamp ){
       ahit.channel   = m.first;
       ahit.maxamp    = m.second;
-      ahit.strip     = det.getStripNb(m.first);
+      ahit.strip     = det.stripNb(m.first);
+      ahit.axis      = det.axis(m.first);
       ahit.samplemax = sampmax[m.first];
       ahit.inflex    = flex[m.first];
       hits->push_back(ahit);
@@ -153,7 +154,7 @@ void reco( string name, DTchannel det) {
         int numSt = 0;
         int denSt = 0;
 
-        char axis = det.getAxis(it->channel);
+        char axis = det.axis(it->channel);
 
         // loop over the hits
         while( oldch >= 0 ){
@@ -162,7 +163,7 @@ void reco( string name, DTchannel det) {
           numCh += it->channel * it->maxamp;
           denCh += it->maxamp;
 
-          numSt += det.getStripNb(it->channel) * it->maxamp;  
+          numSt += det.stripNb(it->channel) * it->maxamp;  
           denSt += it->maxamp;
 
           // std::cout<<det.getAll(it->channel)<<std::endl;
@@ -227,7 +228,7 @@ int main( int argc, char **argv ){
   }
 
   string fname = argv[1];
-  DTchannel det;
+  DreamTable det;
 
   if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
 
@@ -248,27 +249,27 @@ int main( int argc, char **argv ){
     int nbDet = atoi(argv[3]);
 
     if(nbDet == 1){
-      det = DTchannel("../map/strip_map.txt", 0, 1, 2, 3);
+      det = DreamTable("../map/strip_map.txt", 0, 1, 2, 3);
       det.setInversion(true, true, false, true);
     }
     else if(nbDet == 2){
-      det = DTchannel("../map/inter_map.txt", 4, 5, 6, 7);
+      det = DreamTable("../map/inter_map.txt", 4, 5, 6, 7);
       det.setInversion(true, true, false, false);
     }
     else {cerr << "detector number invalid \n"; return 1; }
   }
 
   else if(nbFeu == 2){
-    det = DTchannel("../map/asa_map.txt", 4, 5, 6, 7);
+    det = DreamTable("../map/asa_map.txt", 4, 5, 6, 7);
     // det.setInversion(true, true, false, false);
     det.setInversion(false, false, false, true);
   }
   else if(nbFeu == 3){
-    det = DTchannel("../map/strip_map.txt", 4, 5, 6, 7);
+    det = DreamTable("../map/strip_map.txt", 4, 5, 6, 7);
     det.setInversion(true, true, false, false);
   }
   else if(nbFeu == 4){
-    det = DTchannel("../map/asa_map.txt", 4, 5, 6, 7);
+    det = DreamTable("../map/asa_map.txt", 4, 5, 6, 7);
     det.setInversion(false, false, false, true);
   }
   else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}

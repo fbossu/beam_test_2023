@@ -12,6 +12,7 @@ struct hit {
   float    inflex;
   uint16_t clusterId;
   uint16_t strip;
+  char axis;
 };
 
 struct cluster {

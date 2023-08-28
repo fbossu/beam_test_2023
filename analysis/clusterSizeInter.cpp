@@ -10,7 +10,7 @@
 #include "TLegend.h"
 
 #include "../reco/definitions.h"
-#include "../map/DTstrip.h"
+#include "../map/StripTable.h"
 
 // struct hit {
 //   uint16_t channel;
@@ -50,7 +50,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   std::string graphStrip = detname+"_strips.png";
   std::string graphClSize = detname+"_ClSize.png";
 
-  DTstrip det("../map/inter_map.txt");
+  StripTable det("../map/inter_map.txt");
 
   TTreeReader reader(chain);
 
@@ -100,7 +100,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        float interY = det.getInter(int(y->stripCentroid), int(x->stripCentroid));
+        float interY = det.interY(int(y->stripCentroid), int(x->stripCentroid));
         // std::cout<<interY<<std::endl;
         int zone = getZone(interY);
         if(zone>=0){

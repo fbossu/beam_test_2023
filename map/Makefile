@@ -1,4 +1,4 @@
-all: inter strip asa DetectorTable.o DTchannel.o DTstrip.o
+all: inter strip asa DetectorTable.o DreamTable.o StripTable.o
 
 asa: factory_asa.cpp
 	g++ factory_asa.cpp -o factory_asa
@@ -12,8 +12,8 @@ inter: factory_inter.cpp
 DetectorTable.o: DetectorTable.cpp DetectorTable.h
 	g++ -c DetectorTable.cpp
 
-DTchannel.o: DTchannel.cpp DTchannel.h DetectorTable.cpp DetectorTable.h
-	g++ -c DTchannel.cpp
+DreamTable.o: DreamTable.cpp DreamTable.h DetectorTable.cpp DetectorTable.h
+	g++ -c DreamTable.cpp
 
-DTstrip.o: DTstrip.cpp DTstrip.h DetectorTable.cpp DetectorTable.h
-	g++ -c DTstrip.cpp
+StripTable.o: StripTable.cpp StripTable.h DetectorTable.cpp DetectorTable.h
+	g++ -c StripTable.cpp

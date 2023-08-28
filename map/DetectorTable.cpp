@@ -93,73 +93,54 @@ void DetectorTable::buildTable(){
 	}
 }
 
-float DetectorTable::getInter(int ch, int chPerp){
-	int GBch = this->toGB(ch);
-	int GBchPerp = this->toGB(chPerp);
-	if(GBch<0) return -1;
+float DetectorTable::getInter(int GBch, int GBchPerp){
 
-	if(mapInter[GBch].size()>1 && this->getConnector(ch) < 2){
-		if(GBchPerp==-1 or this->getConnector(chPerp) < 2){
-			std::cout<<GBchPerp<<" "<< this->getConnector(chPerp) <<std::endl;
-			throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the channel of the cluster in x in order to find the interstrip value of y strips (the interstrip changes along one vertical (y) strip)");
+	if(mapInter[GBch].size()>1 && mapConnector[GBch] < 2){
+		if(GBchPerp==-1 or mapConnector[GBchPerp] < 2){
+			throw std::runtime_error("ERROR: With detector inter_map.txt you need to specify the stripNb of the cluster in x in order to find the interstrip of the y strips (the interstrip changes along one vertical (y) strip)");
 		}else{
-			if(this->getConnector(chPerp) == 3) return mapInter[GBch][1];  // the cluster is in the connector 3 horizontal region
-			if(this->getConnector(chPerp) == 2) return mapInter[GBch][0];  // the cluster is in the connector 2 horizontal region
-			else throw std::runtime_error("ERROR: In DetectorTable::getInter(int, int) the cluster x channel position doesn't match a dream connected to connectors 2 or 3 ");
+			if(mapConnector[GBchPerp] == 3) return mapInter[GBch][1];  // the cluster is in the connector 3 horizontal region
+			if(mapConnector[GBchPerp] == 2) return mapInter[GBch][0];  // the cluster is in the connector 2 horizontal region
+			else throw std::runtime_error("ERROR: In DetectorTable::getInter(int, int) the cluster x stripNumber doesn't match a dream connected to connectors 2 or 3 ");
 		}
 	}
-	return (mapInter[GBch])[0];
+	return mapInter[GBch][0];
 }
 
-int DetectorTable::getConnector(int channel){
-	int GBch = this->toGB(channel);
-	if(GBch<0) return -1;
-	return mapConnector[GBch];
-}
+// int DetectorTable::getConnector(int channel){
+// 	int GBch = this->toGB(channel);
+// 	if(GBch<0) return -1;
+// 	return mapConnector[GBch];
+// }
 
-char DetectorTable::getAxis(int channel){
-	int GBch = this->toGB(channel);
-	if(GBch<0) return 'o';
-	return mapAxis[GBch];
-}
+// char DetectorTable::getAxis(int channel){
+// 	int GBch = this->toGB(channel);
+// 	if(GBch<0) return 'o';
+// 	return mapAxis[GBch];
+// }
 
-float DetectorTable::getPitch(int channel){
-	int GBch = this->toGB(channel);
-	if(GBch<0) return 0;
-	return mapPitch[GBch];
-}
+// float DetectorTable::getPitch(int channel){
+// 	int GBch = this->toGB(channel);
+// 	if(GBch<0) return 0;
+// 	return mapPitch[GBch];
+// }
 
-int DetectorTable::getStripNb(int channel){
-	int GBch = this->toGB(channel);
-	if(GBch<0) return -1;
-	return mapStripNb[GBch];
-}
+// int DetectorTable::getStripNb(int channel){
+// 	int GBch = this->toGB(channel);
+// 	if(GBch<0) return -1;
+// 	return mapStripNb[GBch];
+// }
 
-bool DetectorTable::isNeighbour(int ch1, int ch2){
-	int GBch1 = this->toGB(ch1);
-	int GBch2 = this->toGB(ch2);
-	if(GBch1<0 or GBch2<0) return false;
-	std::vector<int> ngh = mapNgh[GBch1];
-	return std::find(ngh.begin(), ngh.end(), GBch2) != ngh.end();
-}
 
-bool DetectorTable::isEdge(int channel){
-	int GBch = this->toGB(channel);
-	if(GBch<0) return true;
-	return mapNgh[GBch].size() < 2;
-}
+// std::vector<int> DetectorTable::getNeighbours(int channel){
+// 	int GBch = this->toGB(channel);
+// 	if(GBch<0) return std::vector<int>();
+// 	return mapNgh[GBch];
+// }
 
-std::vector<int> DetectorTable::getNeighbours(int channel){
-	int GBch = this->toGB(channel);
-	if(GBch<0) return std::vector<int>();
-	return mapNgh[GBch];
-}
-
-std::string DetectorTable::printAll(int channel){
-	int GBch = this->toGB(channel);
-	std::string out = "ch: " + std::to_string(channel) + " cnt: " + std::to_string(this->getConnector(channel)) + " cntChannel: " + 
-		std::to_string(GBch) + " axis: " + this->getAxis(channel) +
-		" pitch: " + std::to_string(this->getPitch(channel)) + " stripNb: " + std::to_string(this->getStripNb(channel));
+std::string DetectorTable::printAll(int GBch){
+	std::string out = "stripNb: " + std::to_string(GBch) + " cnt: " + std::to_string(this->getConnector(GBch)) + " axis: " + this->getAxis(GBch) +
+		" pitch: " + std::to_string(this->getPitch(GBch));
 	return out;
 }
 

@@ -10,7 +10,7 @@
 #include "TLegend.h"
 
 #include "../reco/definitions.h"
-#include "../map/DTstrip.h"
+#include "../map/StripTable.h"
 
 // struct hit {
 //   uint16_t channel;
@@ -49,7 +49,7 @@ int getZone(float pitchX, float pitchY){
 
 void clusterSizeRegion(TChain* chain, std::string detname) {
 
-  DTstrip det("../map/asa_map.txt");
+  StripTable det("../map/asa_map.txt");
 
   std::string graphMap = detname+"_Map.png";
   std::string graphStrip = detname+"_strips.png";
@@ -103,8 +103,8 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        float pitchX = det.getPitch(int(x->stripCentroid));
-        float pitchY = det.getPitch(int(y->stripCentroid));
+        float pitchX = det.pitchX(int(x->stripCentroid));
+        float pitchY = det.pitchY(int(y->stripCentroid));
         int zone = getZone(pitchX, pitchY);
         if(zone>=0){
           h2c->Fill(y->stripCentroid, x->stripCentroid);

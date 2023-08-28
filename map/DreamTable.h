@@ -1,25 +1,24 @@
-#ifndef DTCHANNEL_H
-#define DTCHANNEL_H
+#ifndef DREAMTABLE_H
+#define DREAMTABLE_H
 
 #include "DetectorTable.h"
 
 // channel refers to real dream channel
 
-class DTchannel : protected DetectorTable
+class DreamTable : protected DetectorTable
 {
 public:
-	DTchannel() = default;
-	~DTchannel() = default;
-	DTchannel(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3);
+	DreamTable() = default;
+	~DreamTable() = default;
+	DreamTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3);
 
 	void setInversion(bool iC0, bool iC1, bool iC2, bool iC3);
-	int toGB(int ch);  // convert real channel to gerber channnel
-
+	int toGB(int ch);  										// convert real channel to gerber channel
 	bool isConnected(int ch);
 	bool isNeighbour(int ch1, int ch2);
 	bool isEdge(int ch);
-	int stripNb(int ch);
 	char axis(int ch);
+	int stripNb(int ch);
 
 private:
 	std::vector<int> dreamConnect;

@@ -33,3 +33,29 @@ int DTchannel::toGB(int channel){
 		return cntNb*64 + ch;
 	}
 }
+
+bool DTchannel::isNeighbour(int ch1, int ch2){
+	int GBch = this->toGB(ch);
+	if(GBch<0) return false;
+	std::vector<int> ngh = mapNgh[ch1];
+	return std::find(ngh.begin(), ngh.end(), ch2) != ngh.end();
+}
+
+bool DTchannel::isEdge(int ch){
+	int GBch = this->toGB(ch);
+	if(GBch<0) return false;
+	return mapNgh[GBch].size() < 2;
+}
+
+int DTchannel::stripNb(int ch){
+	int GBch = this->toGB(ch);
+	if(GBch<0) return -1;
+	return mapStripNb[GBch];
+}
+
+
+char DTchannel::getAxis(int ch){
+	int GBch = this->toGB(ch);
+	if(GBch<0) return 'o';
+	return mapAxis[GBch];
+}
