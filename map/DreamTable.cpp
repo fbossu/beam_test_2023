@@ -48,6 +48,12 @@ bool DreamTable::isEdge(int ch){
 }
 
 
+int DreamTable::stripNb(int ch){
+	int GBch = this->toGB(ch);
+	if(GBch<0) return -1;
+	return mapStripNb[GBch];
+}
+
 char DreamTable::axis(int ch){
 	int GBch = this->toGB(ch);
 	if(GBch<0) return 'o';
