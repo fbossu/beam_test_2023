@@ -1,7 +1,7 @@
 #include "DTstrip.h"
 
 DTstrip::DTstrip(std::string idetFile) : DetectorTable(idetFile) {
-
+	this->buildTable();
 }
 
 
