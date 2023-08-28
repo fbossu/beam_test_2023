@@ -7,6 +7,7 @@
 #include "TCanvas.h"
 #include "TTreeReader.h"
 #include "TStyle.h"
+#include "TLegend.h"
 
 #include "../reco/definitions.h"
 
