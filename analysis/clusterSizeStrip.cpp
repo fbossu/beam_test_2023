@@ -115,9 +115,9 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     }
   }
 
-  gStyle->SetOptStat(0);
+  // gStyle->SetOptStat(0);
 
-  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1600);
+  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1300);
   cclSize->Divide(3, 3);
   for(int i=0; i<9; i++){
     cclSize->cd(i+1);
@@ -136,7 +136,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   cclSize->Print(graphClSize.c_str(), "png");
 
 
-  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1600);
+  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1300);
   cstrips->Divide(3, 3);
   for(int i=0; i<4; i++){
     cstrips->cd(i+1);
