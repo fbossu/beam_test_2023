@@ -51,6 +51,8 @@ int getZone(float pitchX, float pitchY){
 
 void clusterSizeRegion(TChain* chain, std::string detname) {
 
+  DTstrip det("../map/strip_map.txt");
+
   std::string graphMap = detname+"_Map.png";
   std::string graphStrip = detname+"_strips.png";
   std::string graphClSize = detname+"_ClSize.png";
@@ -103,14 +105,16 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        int zone  = getZone(x->pitch, y->pitch);
-        // std::cout<<x->pitch<<" "<<y->pitch<<" "<<zone<<std::endl;
-        h2c->Fill(y->stripCentroid, x->stripCentroid);
-        hcentroidX[zone]->Fill(x->stripCentroid);
-        hcentroidY[zone]->Fill(y->stripCentroid);
+        int pitchX = det.getPitch(int(x->stripCentroid));
+        int pitchY = det.getPitch(int(y->stripCentroid));
+        zone = getZone(pitchX, pitchY);
+        if(zone>0){
+          h2c->Fill(y->stripCentroid, x->stripCentroid);
+          hcentroidX[zone]->Fill(x->stripCentroid);
+          hcentroidY[zone]->Fill(y->stripCentroid);
 
-        hclSizeX[zone]->Fill(x->size);
-        hclSizeY[zone]->Fill(y->size);
+          hclSizeX[zone]->Fill(x->size);
+          hclSizeY[zone]->Fill(y->size);
       }
     }
   }
@@ -122,7 +126,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   for(int i=0; i<9; i++){
     cclSize->cd(i+1);
     gPad->SetLogy();
-    hclSizeX[i]->SetTitle(titles[i].c_str());
+    hclSizeX[i]->SetTitle(("pitch: "+titles[i]).c_str());
     hclSizeX[i]->Draw();
 
     hclSizeY[i]->SetLineColor(kRed);
@@ -140,7 +144,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   cstrips->Divide(3, 3);
   for(int i=0; i<9; i++){
     cstrips->cd(i+1);
-    hcentroidX[i]->SetTitle((titles[i]).c_str());
+    hcentroidX[i]->SetTitle(("pitch: "+titles[i]).c_str());
     hcentroidX[i]->Draw();
 
     hcentroidY[i]->SetLineColor(kRed);

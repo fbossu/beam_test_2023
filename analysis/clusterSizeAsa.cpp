@@ -26,7 +26,29 @@
 //   uint16_t id;
 // };
 
+// if both cluster are not in the same zone return -1
+int getZone(float pitchX, float pitchY){
+  
+  int zone = -1;
+  if(pitchX != pitchY) return zone;
+
+  if(pitchX == 1.){
+    zone = 0;
+  }else if(pitchX == 0.8){
+    zone = 1;
+  }else if(pitchX == 2.){
+    zone = 2;
+  }else if(pitchX == 1.5){
+    zone = 3;
+  }
+
+  return zone;
+}
+
+
 void clusterSizeRegion(TChain* chain, std::string detname) {
+
+  DTstrip det("../map/asa_map.txt");
 
   std::string graphMap = detname+"_Map.png";
   std::string graphStrip = detname+"_strips.png";
@@ -41,6 +63,7 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   TH1F *hcentroidY[4];
   TH1F *hclSizeX[4];
   TH1F *hclSizeY[4];
+  std::vector<std::string> titles = { "1mm (x=y)", "0.8mm", "2mm", "1.5mm"};
 
   for(int i=0; i<4; i++){
     std::string labelCentroid = "hcentroid"+std::to_string(i);
@@ -59,11 +82,6 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   h2c->SetYTitle("centroid on x direction strips");
 
   std::vector<cluster> clX, clY;
-  std::vector<float> pitchX = {-1, -1, -1, -1};
-  std::vector<float> pitchY = {-1, -1, -1, -1};
-
-  std::vector<float> interX = {-1, -1, -1, -1};
-  std::vector<float> interY = {-1, -1, -1, -1};
 
   while( reader.Next() ){
 
@@ -74,28 +92,12 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
     for( auto c : *cls ){
       // std::cout<<c.pitch<<std::endl;
       // if(c.size<4) continue;
-      int connector = int(c.centroid)/64 - 4;
+
       if( c.axis == 'x' ){
-        if(c.pitch != pitchX[connector]){ 
-          std::cout<<"WARNING Xpitch for connector "<<connector<<" changed from "<<pitchX[connector]<<" to "<<c.pitch<<std::endl;
-          pitchX[connector] = c.pitch;
-        }
-        if(c.inter != interX[connector]){
-          std::cout<<"WARNING Xinter for connector "<<connector<<" changed from "<<interX[connector]<<" to "<<c.inter<<std::endl;
-          interX[connector] = c.inter;
-        }
         clX.push_back(c);
         hcentroidX[connector]->Fill(c.stripCentroid);
         hclSizeX[connector]->Fill(c.size);
       }else if( c.axis == 'y' ){
-        if(c.pitch != pitchY[connector]){
-          std::cout<<"WARNING Ypitch for connector "<<connector<<" changed from "<<pitchY[connector]<<" to "<<c.pitch<<std::endl;
-          pitchY[connector] = c.pitch;
-        }
-        if(c.inter != interY[connector]){
-          std::cout<<"WARNING Yinter for connector "<<connector<<" changed from "<<interY[connector]<<" to "<<c.inter<<std::endl;
-          interY[connector] = c.inter;
-        }
         clY.push_back(c);
         hcentroidY[connector]->Fill(c.stripCentroid);
         hclSizeY[connector]->Fill(c.size);
@@ -104,7 +106,17 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
     for( auto x = clX.begin(); x < clX.end(); x++){
       for(auto y = clY.begin(); y < clY.end(); y++){
-        h2c->Fill(y->stripCentroid, x->stripCentroid);
+        int pitchX = det.getPitch(int(x->stripCentroid));
+        int pitchY = det.getPitch(int(y->stripCentroid));
+        zone = getZone(pitchX, pitchY);
+        if(zone>0){
+          h2c->Fill(y->stripCentroid, x->stripCentroid);
+          hcentroidX[zone]->Fill(x->stripCentroid);
+          hcentroidY[zone]->Fill(y->stripCentroid);
+
+          hclSizeX[zone]->Fill(x->size);
+          hclSizeY[zone]->Fill(y->size);
+        }
       }
     }
   }
@@ -114,10 +126,9 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1000);
   cclSize->Divide(2, 2);
   for(int i=0; i<4; i++){
-    std::string titleX = "C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
     cclSize->cd(i+1);
     gPad->SetLogy();
-    hclSizeX[i]->SetTitle(titleX.c_str());
+    hclSizeX[i]->SetTitle(("pitch: "+title[i]).c_str());
     hclSizeX[i]->Draw();
 
     hclSizeY[i]->SetLineColor(kRed);
@@ -134,9 +145,8 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
   TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1000);
   cstrips->Divide(2, 2);
   for(int i=0; i<4; i++){
-    std::string titleX = "C"+std::to_string(i)+": pitch "+std::to_string(pitchX[i])+" inter "+std::to_string(interX[i]);
     cstrips->cd(i+1);
-    hcentroidX[i]->SetTitle(titleX.c_str());
+    hcentroidX[i]->SetTitle(("pitch: "+title[i]).c_str());;
     hcentroidX[i]->Draw();
 
     hcentroidY[i]->SetLineColor(kRed);
