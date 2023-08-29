@@ -206,8 +206,8 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
   for(int i=0; i<6; i++){
     std::string label = "h2amp"+std::to_string(i);
     std::string title = "clusters size"+std::to_string(i+1);
-    h2ampX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), xlim[1]-xlim[0]+1, xlim[0]-0.5, xlim[1]+0.5, 1000, 0, 1000);
-    h2ampY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), ylim[1]-ylim[0]+1, ylim[0]-0.5, ylim[1]+0.5, 1000, 0, 1000);
+    h2ampX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), xlim[1]-xlim[0]+1, xlim[0]-0.5, xlim[1]+0.5, 500, 200, 700);
+    h2ampY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), ylim[1]-ylim[0]+1, ylim[0]-0.5, ylim[1]+0.5, 500, 200, 700);
     h2ampX[i]->SetXTitle("strip number"); h2ampY[i]->SetXTitle("strip number");
     h2ampX[i]->SetYTitle("amplitude"); h2ampY[i]->SetYTitle("amplitude");
   }
