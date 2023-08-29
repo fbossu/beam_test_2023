@@ -28,10 +28,10 @@
 // };
 
 // if both cluster are not in the same zone return -1
-int getZone(float pitchX, float pitchY){
+int getZone(float pitchX, float pitchY=-1){
   
   int zone = -1;
-  if(pitchX != pitchY) return zone;
+  if(pitchX != pitchY and pitchY>=0) return zone;
 
   if(pitchX == 1.){
     zone = 0;
@@ -164,6 +164,104 @@ void clusterSizeRegion(TChain* chain, std::string detname) {
 
 }
 
+
+
+void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, std::vector<int> ylim) {
+
+  StripTable det("../map/asa_map.txt");
+  std::vector<std::string> titles = { "1mm (x=y)", "0.8mm", "2mm", "1.5mm"};
+
+  int zone = getZone(det.pitchX(xlim[0]));
+  if(getZone(det.pitchX(xlim[1]))!=zone or getZone(det.pitchY(ylim[0]))!=zone or getZone(det.pitchY(ylim[1]))!=zone){
+    std::cout<<"WARNING: The limits are no in the same region"<<std::endl;
+  }
+
+  float pitch = det.pitchX(xlim[0]);
+
+  std::string graphMap = detname+"_ref"+std::to_string(pitch)+"_Map.png";
+  std::string graphStrip = detname+"_ref"+std::to_string(pitch)+"_strips.png";
+  std::string graphClSize = detname+"_ref"+std::to_string(pitch)+"_ClSize.png";
+
+  TTreeReader reader(chain);
+
+  TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
+  TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
+
+  TH1F *hcentroidX = new TH1F("hcentroidX", "Centroid strips in x direction", 128,0,128);
+  TH1F *hcentroidY = new TH1F("hcentroidY", "Centroid strips in y direction", 128,0,128);
+  TH1F *hclSizeX = new TH1F("hclSizeX", "cluster size in x direction", 10,-0.5,10.5);
+  TH1F *hclSizeY = new TH1F("hclSizeY", "cluster size in y direction", 10,-0.5,10.5);
+  hcentroidX->SetXTitle("strip centroid"); hcentroidY->SetXTitle("strip centroid");
+  hclSizeX->SetXTitle("cluster size"); hclSizeY->SetXTitle("cluster size");
+
+  TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
+  h2c->SetXTitle("centroid on y direction strips");
+  h2c->SetYTitle("centroid on x direction strips");
+
+  std::vector<cluster> clX, clY;
+
+  while( reader.Next() ){
+
+    if( hits->size() == 0 ) continue;
+    clX.clear();
+    clY.clear();
+
+    for( auto c : *cls ){
+      if( c.axis == 'x' and c.stripCentroid>xlim[0] and c.stripCentroid<xlim[1] ){
+        clX.push_back(c);
+        hcentroidX->Fill(c.stripCentroid);
+        hclSizeX->Fill(c.size);
+      }else if( c.axis == 'y' and c.stripCentroid>ylim[0] and c.stripCentroid<ylim[1] ){
+        clY.push_back(c);
+        hcentroidY->Fill(c.stripCentroid);
+        hclSizeY->Fill(c.size);
+      }
+    }
+
+    for( auto x = clX.begin(); x < clX.end(); x++){
+      for(auto y = clY.begin(); y < clY.end(); y++){
+          h2c->Fill(y->stripCentroid, x->stripCentroid);
+      }
+    }
+  }
+
+  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1000);
+  gPad->SetLogy();
+  hclSizeX->SetTitle(("pitch: "+titles[zone]).c_str());
+  hclSizeX->Draw();
+
+  hclSizeY->SetLineColor(kRed);
+  hclSizeY->Draw("same");
+  
+  TLegend *leg = new TLegend(0.87,0.75,0.99,0.8);
+  leg->AddEntry(hclSizeX,"cluster size in X","l");
+  leg->AddEntry(hclSizeY,"cluster size in Y","l");
+  leg->Draw();
+  cclSize->Print(graphClSize.c_str(), "png");
+
+
+  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1000);
+  hcentroidX->SetTitle(("pitch: "+titles[zone]).c_str());;
+  hcentroidX->Draw();
+
+  hcentroidY->SetLineColor(kRed);
+  hcentroidY->Draw("same");
+
+  TLegend *legS = new TLegend(0.87,0.75,0.99,0.8);
+  legS->AddEntry(hcentroidX,"strip centroid in X","l");
+  legS->AddEntry(hcentroidY,"strip centroid in Y","l");
+  legS->Draw();
+  cstrips->Print(graphStrip.c_str(), "png");
+
+  gStyle->SetOptStat(0);
+  TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
+  h2c->Draw("colz");
+  gPad->SetLogz();
+  c3->Print(graphMap.c_str(), "png");
+}
+
+
+
 int main(int argc, char const *argv[])
 {
   TChain* chain = new TChain("events");
@@ -181,7 +279,11 @@ int main(int argc, char const *argv[])
     }
   }
 
-  clusterSizeRegion(chain, detName);
+  // clusterSizeRegion(chain, detName);
+  clusterSizeLims(chain, detName, {2, 16}, {15, 25});
+  clusterSizeLims(chain, detName, {37, 52}, {50, 65});
+  clusterSizeLims(chain, detName, {70, 90}, {65, 85});
+  clusterSizeLims(chain, detName, {100, 110}, {105, 115});
 
   return 0;
 }
