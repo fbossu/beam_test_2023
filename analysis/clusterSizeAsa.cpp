@@ -177,10 +177,11 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
   }
 
   float pitch = det.pitchX(xlim[0]);
+  std::string strpitch = std::to_string(pitch).substr(0,3);
 
-  std::string graphMap = detname+"_ref"+std::to_string(pitch)+"_Map.png";
-  std::string graphStrip = detname+"_ref"+std::to_string(pitch)+"_strips.png";
-  std::string graphClSize = detname+"_ref"+std::to_string(pitch)+"_ClSize.png";
+  std::string graphMap = detname+"_ref"+strpitch+"_Map.png";
+  std::string graphStrip = detname+"_ref"+strpitch+"_strips.png";
+  std::string graphClSize = detname+"_ref"+strpitch+"_ClSize.png";
 
   TTreeReader reader(chain);
 
