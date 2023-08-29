@@ -231,6 +231,7 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
         clX.push_back(c);
         hcentroidX->Fill(c.stripCentroid);
         hclSizeX->Fill(c.size);
+        if(c.size>6) continue;
         for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
           if(hitx->clusterId == c.id) h2ampX[c.size-1]->Fill(hitx->strip, hitx->maxamp);
         }
@@ -239,6 +240,7 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
         clY.push_back(c);
         hcentroidY->Fill(c.stripCentroid);
         hclSizeY->Fill(c.size);
+        if(c.size>6) continue;
         for( auto hity = hY.begin(); hity < hY.end(); hity++){
           if(hity->clusterId == c.id) h2ampY[c.size-1]->Fill(hity->strip, hity->maxamp);
         }
