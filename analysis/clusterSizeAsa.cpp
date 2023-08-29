@@ -283,7 +283,7 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
   legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 
-  gStyle->SetOptStat(0);
+  // gStyle->SetOptStat(0);
   TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
   h2c->Draw("colz");
   gPad->SetLogz();
