@@ -212,14 +212,59 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
     h2ampX[i]->SetYTitle("amplitude"); h2ampY[i]->SetYTitle("amplitude");
   }
 
-  std::vector<cluster> clX, clY;
+  // std::vector<cluster> clX, clY;
+  // std::vector<hit> hX, hY;
+
+  // while( reader.Next() ){
+
+  //   if( hits->size() == 0 ) continue;
+  //   clX.clear(); clY.clear();
+  //   hX.clear(); hY.clear();
+
+  //   for(auto h : *hits){
+  //     if(h.axis == 'x' and h.strip>xlim[0] and h.strip<xlim[1]) hX.push_back(h);
+  //     if(h.axis == 'y' and h.strip>ylim[0] and h.strip<ylim[1]) hY.push_back(h);
+  //   }
+
+  //   for( auto c : *cls ){
+  //     if( c.axis == 'x' and c.stripCentroid>xlim[0] and c.stripCentroid<xlim[1] ){
+  //       clX.push_back(c);
+  //       hcentroidX->Fill(c.stripCentroid);
+  //       hclSizeX->Fill(c.size);
+  //       if(c.size>6) continue;
+  //       for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
+  //         if(hitx->clusterId == c.id) h2ampX[c.size-1]->Fill(hitx->strip, hitx->maxamp);
+  //       }
+  //     }
+  //     else if( c.axis == 'y' and c.stripCentroid>ylim[0] and c.stripCentroid<ylim[1] ){
+  //       clY.push_back(c);
+  //       hcentroidY->Fill(c.stripCentroid);
+  //       hclSizeY->Fill(c.size);
+  //       if(c.size>6) continue;
+  //       for( auto hity = hY.begin(); hity < hY.end(); hity++){
+  //         if(hity->clusterId == c.id) h2ampY[c.size-1]->Fill(hity->strip, hity->maxamp);
+  //       }
+  //     }
+  //   }
+
+  //   for( auto x = clX.begin(); x < clX.end(); x++){
+  //     for(auto y = clY.begin(); y < clY.end(); y++){
+  //         h2c->Fill(y->stripCentroid, x->stripCentroid);
+  //     }
+  //   }
+  // }
+
+// ---------------- One cluster per event (largest in size) -----------------
+  
+  cluster clX, clY;
   std::vector<hit> hX, hY;
 
   while( reader.Next() ){
 
     if( hits->size() == 0 ) continue;
-    clX.clear(); clY.clear();
     hX.clear(); hY.clear();
+    int maxSizeX = 0;
+    int maxSizeY = 0;
 
     for(auto h : *hits){
       if(h.axis == 'x' and h.strip>xlim[0] and h.strip<xlim[1]) hX.push_back(h);
@@ -228,30 +273,29 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
 
     for( auto c : *cls ){
       if( c.axis == 'x' and c.stripCentroid>xlim[0] and c.stripCentroid<xlim[1] ){
-        clX.push_back(c);
-        hcentroidX->Fill(c.stripCentroid);
-        hclSizeX->Fill(c.size);
-        if(c.size>6) continue;
-        for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
-          if(hitx->clusterId == c.id) h2ampX[c.size-1]->Fill(hitx->strip, hitx->maxamp);
-        }
+        if(c.size>maxSizeX) clX = c;
       }
       else if( c.axis == 'y' and c.stripCentroid>ylim[0] and c.stripCentroid<ylim[1] ){
-        clY.push_back(c);
-        hcentroidY->Fill(c.stripCentroid);
-        hclSizeY->Fill(c.size);
-        if(c.size>6) continue;
-        for( auto hity = hY.begin(); hity < hY.end(); hity++){
-          if(hity->clusterId == c.id) h2ampY[c.size-1]->Fill(hity->strip, hity->maxamp);
-        }
+        if(c.size>maxSizeY) clY = c;
+        
       }
     }
 
-    for( auto x = clX.begin(); x < clX.end(); x++){
-      for(auto y = clY.begin(); y < clY.end(); y++){
-          h2c->Fill(y->stripCentroid, x->stripCentroid);
-      }
+    hcentroidX->Fill(clX.stripCentroid);
+    hclSizeX->Fill(clX.size);
+    if(clX.size>6) continue;
+    for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
+      if(hitx->clusterId == clX.id) h2ampX[clX.size-1]->Fill(hitx->strip, hitx->maxamp);
     }
+
+    hcentroidY->Fill(clY.stripCentroid);
+    hclSizeY->Fill(clY.size);
+    if(clY.size>6) continue;
+    for( auto hity = hY.begin(); hity < hY.end(); hity++){
+      if(hity->clusterId == clY.id) h2ampY[clY.size-1]->Fill(hity->strip, hity->maxamp);
+    }
+
+    h2c->Fill(clY.stripCentroid, clX.stripCentroid);
   }
 
   gStyle->SetOptStat(1111);
