@@ -254,6 +254,7 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
     }
   }
 
+  gStyle->SetOptStat(11111);
   TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1000);
   gPad->SetLogy();
   hclSizeX->SetTitle(("pitch: "+titles[zone]).c_str());
