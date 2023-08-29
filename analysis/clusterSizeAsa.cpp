@@ -255,7 +255,7 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
   }
 
   gStyle->SetOptStat(1111);
-  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1000);
+  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1000,700);
   gPad->SetLogy();
   hclSizeX->SetTitle(("pitch: "+titles[zone]).c_str());
   hclSizeX->Draw();
@@ -263,21 +263,21 @@ void clusterSizeLims(TChain* chain, std::string detname, std::vector<int> xlim, 
   hclSizeY->SetLineColor(kRed);
   hclSizeY->Draw("same");
   
-  TLegend *leg = new TLegend(0.87,0.75,0.99,0.8);
+  TLegend *leg = new TLegend(0.87,0.7,0.99,0.75);
   leg->AddEntry(hclSizeX,"cluster size in X","l");
   leg->AddEntry(hclSizeY,"cluster size in Y","l");
   leg->Draw();
   cclSize->Print(graphClSize.c_str(), "png");
 
 
-  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1000);
+  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1000,700);
   hcentroidX->SetTitle(("pitch: "+titles[zone]).c_str());;
   hcentroidX->Draw();
 
   hcentroidY->SetLineColor(kRed);
   hcentroidY->Draw("same");
 
-  TLegend *legS = new TLegend(0.87,0.75,0.99,0.8);
+  TLegend *legS = new TLegend(0.87,0.7,0.99,0.75);
   legS->AddEntry(hcentroidX,"strip centroid in X","l");
   legS->AddEntry(hcentroidY,"strip centroid in Y","l");
   legS->Draw();
