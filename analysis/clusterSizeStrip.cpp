@@ -11,161 +11,8 @@
 
 #include "../reco/definitions.h"
 #include "../map/StripTable.h"
+#include "clusterSize.h"
 
-// struct hit {
-//   uint16_t channel;
-//   uint16_t maxamp;
-//   uint16_t samplemax;
-//   float    inflex;
-//   uint16_t clusterId;
-
-// };
-
-// struct cluster {
-//   float    centroid;
-//   uint16_t size;
-//   uint16_t id;
-// };
-
-
-int getZone(float pitchX, float pitchY){
-  int zone = -1;
-  if(pitchY == 1.){
-    zone = 0;
-  }else if(pitchY == 1.5f){
-    zone = 1;
-  }else if(pitchY == 0.5f){
-    zone = 2;
-  }
-
-  if(pitchX == 1){
-    zone += 0;
-  }else if(pitchX == 1.5f){
-    zone += 3;
-  }else if(pitchX == 0.5f){
-    zone += 6;
-  }
-
-  return zone;
-}
-
-
-void clusterSizeRegion(TChain* chain, std::string detname) {
-
-  StripTable det("../map/strip_map.txt");
-
-  std::string graphMap = detname+"_Map.png";
-  std::string graphStrip = detname+"_strips.png";
-  std::string graphClSize = detname+"_ClSize.png";
-
-  TTreeReader reader(chain);
-
-  TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
-  TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
-
-  int nbZones = 9;
-
-  TH1F *hcentroidX[nbZones];
-  TH1F *hcentroidY[nbZones];
-  TH1F *hclSizeX[nbZones];
-  TH1F *hclSizeY[nbZones];
-
-  for(int i=0; i<nbZones; i++){
-    std::string labelCentroid = "hcentroid"+std::to_string(i);
-    hcentroidX[i] = new TH1F((labelCentroid+"X").c_str(), "Centroid strips in x direction", 128,0,128);
-    hcentroidY[i] = new TH1F((labelCentroid+"Y").c_str(), "Centroid strips in y direction", 128,0,128);
-    hcentroidX[i]->SetXTitle("strip centroid"); hcentroidY[i]->SetXTitle("strip centroid");
-
-    std::string labelclSize = "hclSize"+std::to_string(i);
-    hclSizeX[i] = new TH1F((labelclSize+"X").c_str(), "cluster size in x direction", 10,-0.5,10.5);
-    hclSizeY[i] = new TH1F((labelclSize+"Y").c_str(), "cluster size in y direction", 10,-0.5,10.5);
-    hclSizeX[i]->SetXTitle("cluster size"); hclSizeY[i]->SetXTitle("cluster size");
-  }
-
-  TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
-  h2c->SetXTitle("centroid on y direction strips");
-  h2c->SetYTitle("centroid on x direction strips");
-
-  std::vector<std::string> titles = { "1/1mm (y/x)", "1.5/1mm", "0.5/1mm", "1/1.5mm", "1.5/1.5mm", "0.5/1.5mm", "1/0.5mm", "1.5/0.5mm", "0.5/0.5mm" };
-
-  std::vector<cluster> clX, clY;
-
-  while( reader.Next() ){
-
-    if( hits->size() == 0 ) continue;
-    clX.clear();
-    clY.clear();
-
-    for( auto c : *cls ){
-      if( c.axis == 'x' ){
-        clX.push_back(c);
-      }else if( c.axis == 'y' ){
-        clY.push_back(c);
-      }
-    }
-
-    for( auto x = clX.begin(); x < clX.end(); x++){
-      for(auto y = clY.begin(); y < clY.end(); y++){
-        float pitchX = det.pitchX(int(x->stripCentroid));
-        float pitchY = det.pitchY(int(y->stripCentroid));
-        int zone = getZone(pitchX, pitchY);
-        if(zone>=0){
-          h2c->Fill(y->stripCentroid, x->stripCentroid);
-          hcentroidX[zone]->Fill(x->stripCentroid);
-          hcentroidY[zone]->Fill(y->stripCentroid);
-
-          hclSizeX[zone]->Fill(x->size);
-          hclSizeY[zone]->Fill(y->size);
-        }else{ std::cout<<"WARNING "<<zone<<" "<<pitchX<<" "<<pitchY<<" "<<pitchX-pitchY<<std::endl; }
-      }
-    }
-  }
-
-  // gStyle->SetOptStat(0);
-
-  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1600,1300);
-  cclSize->Divide(3, 3);
-  for(int i=0; i<9; i++){
-    cclSize->cd(i+1);
-    gPad->SetLogy();
-    hclSizeX[i]->SetTitle(("pitch: "+titles[i]).c_str());
-    hclSizeX[i]->Draw();
-
-    hclSizeY[i]->SetLineColor(kRed);
-    hclSizeY[i]->Draw("same");
-  }
-  cclSize->cd(0);
-  TLegend *leg = new TLegend(0.87,0.75,0.99,0.8);
-  leg->AddEntry(hclSizeX[0],"cluster size in X (bottom)","l");
-  leg->AddEntry(hclSizeY[0],"cluster size in Y (top)","l");
-  leg->Draw();
-  cclSize->Print(graphClSize.c_str(), "png");
-
-
-  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1600,1300);
-  cstrips->Divide(3, 3);
-  for(int i=0; i<9; i++){
-    cstrips->cd(i+1);
-    hcentroidX[i]->SetTitle(("pitch: "+titles[i]).c_str());
-    hcentroidX[i]->Draw();
-
-    hcentroidY[i]->SetLineColor(kRed);
-    hcentroidY[i]->Draw("same");
-  }
-  cstrips->cd(0);
-  TLegend *legS = new TLegend(0.87,0.75,0.99,0.8);
-  legS->AddEntry(hcentroidX[0],"strip centroid in X (bottom)","l");
-  legS->AddEntry(hcentroidY[0],"strip centroid in Y (top)","l");
-  legS->Draw();
-  cstrips->Print(graphStrip.c_str(), "png");
-
-  gStyle->SetOptStat(0);
-  TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
-  h2c->Draw("colz");
-  gPad->SetLogz();
-  c3->Print(graphMap.c_str(), "png");
-
-}
 
 int main(int argc, char const *argv[])
 {
@@ -183,8 +30,9 @@ int main(int argc, char const *argv[])
       detName = argv[i];
     }
   }
-
-  clusterSizeRegion(chain, detName);
+  StripTable det("../map/strip_map.txt");
+  clusterSizeRegion(chain, detName, det);
+  clusterSizeLims(chain, detName, det, {55, 62}, {61, 70});
 
   return 0;
 }

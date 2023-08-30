@@ -4,6 +4,7 @@
 #include "DetectorTable.h"
 
 // can read DetectorTable from the strip number and axis
+// zones are defined as areas in the detector with different pitch/inter combinations. Numbered From left to right, top to botom.
 
 class StripTable : protected DetectorTable
 {
@@ -21,5 +22,12 @@ public:
 	float interX(int sn);
 	float interY(int sn, int snPerp);
 
+	int zone(int snx, int sny);
+	int nbZone(){return zonePitch.size();};
+	std::string zoneLabel(int z);
+
+private:
+	std::vector<std::vector<float>> zonePitch;
+	std::vector<std::vector<float>> zoneInter;
 };
 #endif
