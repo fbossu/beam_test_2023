@@ -126,6 +126,7 @@ void reco( string name, DreamTable det) {
       ahit.axis      = det.axis(m.first);
       ahit.samplemax = sampmax[m.first];
       ahit.inflex    = flex[m.first];
+      ahit.samples.assign( amplitudes[m.first].begin(),  amplitudes[m.first].end() );
       hits->push_back(ahit);
     }
 

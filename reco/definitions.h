@@ -5,6 +5,8 @@
 #pragma link C++ struct cluster;
 /*#pragma link C++ class std::vector<hit>;*/
 
+#include <vector>
+
 struct hit {
   uint16_t channel;
   uint16_t maxamp;
@@ -13,6 +15,7 @@ struct hit {
   uint16_t clusterId;
   uint16_t strip;
   char axis;
+  std::vector<uint16_t> samples;
 };
 
 struct cluster {

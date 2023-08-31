@@ -7,3 +7,6 @@ hitmap: hitmap.cpp ../reco/definitions.h ../reco/linkdef.h
 amplitude: amplitude.cpp ../reco/definitions.h ../reco/linkdef.h
 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
 	g++ amplitude.cpp ../reco/Dict.cxx -o amplitude  $(shell root-config --cflags) $(shell root-config --libs )
+centroid: centroid.cpp ../reco/definitions.h ../reco/linkdef.h
+	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
+	g++ centroid.cpp ../reco/Dict.cxx -o centroid  $(shell root-config --cflags) $(shell root-config --libs )
