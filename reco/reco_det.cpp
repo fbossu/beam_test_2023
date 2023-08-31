@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../map/DreamTable.h"
+#include "../map/DetectorTable.h"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
-void reco( string name, DreamTable det) {
+void reco( string name, DetectorTable det) {
 
   TFile *infile = TFile::Open(name.data());
   if( !infile ){
@@ -122,8 +122,6 @@ void reco( string name, DreamTable det) {
     for( auto &m : maxamp ){
       ahit.channel   = m.first;
       ahit.maxamp    = m.second;
-      ahit.strip     = det.stripNb(m.first);
-      ahit.axis      = det.axis(m.first);
       ahit.samplemax = sampmax[m.first];
       ahit.inflex    = flex[m.first];
       hits->push_back(ahit);
@@ -154,7 +152,12 @@ void reco( string name, DreamTable det) {
         int numSt = 0;
         int denSt = 0;
 
-        char axis = det.axis(it->channel);
+        int pitch = det.getPitch(it->channel);
+        int inter = det.getInter(it->channel);
+        char axis = det.getAxis(it->channel);
+
+        // check if the first hit is on the edge of a region
+        bool edge = det.isEdge(oldch);
 
         // loop over the hits
         while( oldch >= 0 ){
@@ -163,7 +166,7 @@ void reco( string name, DreamTable det) {
           numCh += it->channel * it->maxamp;
           denCh += it->maxamp;
 
-          numSt += det.stripNb(it->channel) * it->maxamp;  
+          numSt += det.getStripNb(it->channel) * it->maxamp;  
           denSt += it->maxamp;
 
           // std::cout<<det.getAll(it->channel)<<std::endl;
@@ -178,6 +181,7 @@ void reco( string name, DreamTable det) {
           it++;
           if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
             // TODO add here some conditions to skip missing strips and so on
+            edge = edge || det.isEdge(it->channel);
             break;
           }
           else {
@@ -192,6 +196,8 @@ void reco( string name, DreamTable det) {
         cl.centroid = (float) numCh / denCh;
         cl.id       = clId;
         cl.stripCentroid = (float) numSt / denCh;
+        cl.pitch = pitch;
+        cl.inter = inter;
         cl.axis = axis;
         cls->push_back( cl );
 
@@ -221,59 +227,17 @@ void reco( string name, DreamTable det) {
 
 int main( int argc, char **argv ){
 
-  if( argc < 3 ) {
+  if( argc < 2 ) {
     // cerr << " no file name specified \n";
-    cerr << " At least two arguments need to be specified \n file name and FEU number (from 1 to 5)\n";
+    cerr << " At least one argument need to be specified\n";
     return 1;
   }
 
   string fname = argv[1];
-  DreamTable det;
 
-  if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
+  DetectorTable  det = DetectorTable("../map/strip_map.txt", 4, 5, 6, 7);
+  det.setInversion(false, true, false, true);
 
-  // size_t posFeu = fname.find("FEU");
-  // if(posFeu > fname.size()){
-  //   std::cout << "Filename doesn't contain FEU info" << std::endl;
-  //   return 1;
-  // }
-  // int nbFeu = std::stoi(fname.substr(posFeu+3, 1));
-
-  int nbFeu = atoi(argv[2]);
-
-  if(nbFeu == 1){
-    if( argc < 4 ){
-      cerr << " Feu 1 is is connnected to two detectors, input the detector number as second argument :\n 1=MUR_strip \n 2=MUR_inter\n";
-      return 1;
-    }
-    int nbDet = atoi(argv[3]);
-
-    if(nbDet == 1){
-      det = DreamTable("../map/strip_map.txt", 0, 1, 2, 3);
-      det.setInversion(true, true, false, true);
-    }
-    else if(nbDet == 2){
-      det = DreamTable("../map/inter_map.txt", 4, 5, 6, 7);
-      det.setInversion(true, true, false, false);
-    }
-    else {cerr << "detector number invalid \n"; return 1; }
-  }
-
-  else if(nbFeu == 2){
-    det = DreamTable("../map/asa_map.txt", 4, 5, 6, 7);
-    // det.setInversion(true, true, false, false);
-    det.setInversion(false, false, false, true);
-  }
-  else if(nbFeu == 3){
-    det = DreamTable("../map/strip_map.txt", 4, 5, 6, 7);
-    det.setInversion(true, true, false, false);
-  }
-  else if(nbFeu == 4){
-    det = DreamTable("../map/asa_map.txt", 4, 5, 6, 7);
-    det.setInversion(false, false, false, true);
-  }
-  else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
-  else {cerr << "Feu number is invalid \n"; return 1;}
   reco( fname, det );
 
   return 0;

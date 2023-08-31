@@ -10,7 +10,7 @@ int main(int argc, char const *argv[])
 {
 	//Output 
 	std::ofstream outfile;
-	outfile.open("pitch_map.txt");
+	outfile.open("strip_map.txt");
 	outfile << "connector,conectorChannel,stripNb,axis,pitch(mm),interpitch(mm),neighbours(:separated)" << std::endl;
 
 	double pitch = 0, inter = 0;

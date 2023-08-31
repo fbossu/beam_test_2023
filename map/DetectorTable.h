@@ -1,3 +1,6 @@
+#ifndef DETECTORTABLE_H
+#define DETECTORTABLE_H
+
 #include <vector>
 #include <string>
 #include <map>
@@ -6,37 +9,28 @@
 #include <sstream>
 #include <algorithm>
 
-// the maps are indexed with the gerber (GB) channel number which are defined as: connectorNb*64 + connectorCh 
+// the tables are indexed by gerber channel (GBch) that are defined as: connectorNb*64 + connectorCh
 
 class DetectorTable
 {
 public:
 	DetectorTable() = default;
 	~DetectorTable() = default;
-	DetectorTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3);
+	DetectorTable(std::string idetFile);
 
-	void setInversion(bool iC0, bool iC1, bool iC2, bool iC3);
-	int toGB(int channel);  // convert real channel to gerber channnel
-
-	bool isConnected(int channel);
-	bool isNeighbour(int ch1, int ch2);
-	bool isEdge(int channel);
 	void buildTable();
 	
-	int getConnector(int channel);
-	char getAxis(int channel);
-	float getPitch(int channel);
-	float getInter(int channel, int channelPerp = -1);   //{return mapInter[channel];};
-	int getStripNb(int channel);
-	std::vector<int> getNeighbours(int channel);
+	int getConnector(int GBch){return mapConnector[GBch];};
+	char getAxis(int GBch){return mapAxis[GBch];};
+	float getPitch(int GBch){return mapPitch[GBch];};
+	float getInter(int GBch, int GBchPerp = -1);
+	std::vector<int> getNeighbours(int GBch){return mapNgh[GBch];};
 
 	// for debug purposes
-	std::string getAll(int channel);
+	std::string printAll(int GBch);
 
-private:
+protected:
 	std::string detFile;
-	std::vector<int> dreamConnect;
-	std::vector<bool> inv = {false, false, false, false}; 
 
 	std::map<int, int> mapConnector;
 	std::map<int, char> mapAxis;
@@ -45,3 +39,5 @@ private:
 	std::map<int, int> mapStripNb;
 	std::map<int, std::vector<int>> mapNgh;
 };
+
+#endif
