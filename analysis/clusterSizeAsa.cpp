@@ -16,6 +16,11 @@
 
 int main(int argc, char const *argv[])
 {
+  
+  std::string basedir = argv[0];
+  basedir = basedir.substr(0, basedir.size()-4);
+  std::cout << basedir << std::endl;
+
   TChain* chain = new TChain("events");
   std::string detName = "test";
   for( int i = 1; i < argc; i++) {
@@ -31,13 +36,13 @@ int main(int argc, char const *argv[])
     }
   }
   
-  StripTable det("../map/asa_map.txt");
+  StripTable det(basedir+"../map/asa_map.txt");
 
   clusterSizeRegion(chain, detName, det);
-  clusterSizeLims(chain, detName, det, {2, 16}, {15, 25});
-  clusterSizeLims(chain, detName, det, {37, 52}, {50, 65});
-  clusterSizeLims(chain, detName, det, {70, 90}, {65, 85});
-  clusterSizeLims(chain, detName, det, {100, 110}, {105, 115});
+  // clusterSizeLims(chain, detName, det, {2, 16}, {15, 25});
+  // clusterSizeLims(chain, detName, det, {37, 52}, {50, 65});
+  // clusterSizeLims(chain, detName, det, {70, 90}, {65, 85});
+  // clusterSizeLims(chain, detName, det, {100, 110}, {105, 115});
 
   return 0;
 }

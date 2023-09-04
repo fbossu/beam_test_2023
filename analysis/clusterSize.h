@@ -11,6 +11,7 @@
 #include "TTreeReader.h"
 #include "TStyle.h"
 #include "TLegend.h"
+#include <math.h>
 
 #include "../reco/definitions.h"
 #include "../map/StripTable.h"

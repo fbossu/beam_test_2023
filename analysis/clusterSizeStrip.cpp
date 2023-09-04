@@ -16,6 +16,11 @@
 
 int main(int argc, char const *argv[])
 {
+
+  std::string basedir = argv[0];
+  basedir = basedir.substr(0, basedir.size()-4);
+  std::cout << basedir << std::endl;
+
   TChain* chain = new TChain("events");
   std::string detName = "test";
   for( int i = 1; i < argc; i++) {
@@ -30,7 +35,7 @@ int main(int argc, char const *argv[])
       detName = argv[i];
     }
   }
-  StripTable det("../map/strip_map.txt");
+  StripTable det(basedir+"../map/strip_map.txt");
   clusterSizeRegion(chain, detName, det);
   clusterSizeLims(chain, detName, det, {55, 62}, {61, 70});
 

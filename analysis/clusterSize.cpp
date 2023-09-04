@@ -101,8 +101,9 @@ void clusterSizeRegion(TChain* chain, std::string detname, StripTable det) {
   legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 
-  gStyle->SetOptStat(0);
+  // gStyle->SetOptStat(0);
   TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
+  h2c->SetStats(0);
   h2c->Draw("colz");
   gPad->SetLogz();
   c3->Print(graphMap.c_str(), "png");
@@ -122,6 +123,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   std::string graphClSize = detname+"_ref"+strpitch+"_ClSize.png";
   std::string graphAmpX = detname+"_ref"+strpitch+"_AmpX.png";
   std::string graphAmpY = detname+"_ref"+strpitch+"_AmpY.png";
+  std::string graphampCenter = detname+"_ref"+strpitch+"_CenterAmp.png";
+  std::string graphMax = detname+"_ref"+strpitch+"_Max.png";
 
   TTreeReader reader(chain);
 
@@ -134,6 +137,14 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   TH1F *hclSizeY = new TH1F("hclSizeY", ("Y "+det.zoneLabel(zone)).c_str(), 10,-0.5,10.5);
   hcentroidX->SetXTitle("strip centroid"); hcentroidY->SetXTitle("strip centroid");
   hclSizeX->SetXTitle("cluster size"); hclSizeY->SetXTitle("cluster size");
+
+  TH1F *hampCenterX = new TH1F("hampCenterX", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
+  TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
+  hampCenterX->SetXTitle("amplitude (ADC counts)"); hampCenterY->SetXTitle("amplitude (ADC counts)");
+
+  TH1F *hampSampleX = new TH1F("hampSampleX", ("sampleMax "+det.zoneLabel(zone)).c_str(), 13,-0.5,12.5);
+  TH1F *hampSampleY = new TH1F("hampSampleY", ("sampleMax "+det.zoneLabel(zone)).c_str(), 13,-0.5,12.5);
+  hampSampleX->SetXTitle("sample number"); hampSampleY->SetXTitle("sample number");
 
   TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
   h2c->SetXTitle("centroid on y direction strips");
@@ -178,9 +189,16 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     if( hX.size() > 0 ){
       hcentroidX->Fill(clX.stripCentroid);
       hclSizeX->Fill(clX.size);
+      int centerStrip = int(round(clX.stripCentroid));
       if(clX.size<7){
         for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
-          if(hitx->clusterId == clX.id) h2ampX[clX.size-1]->Fill(hitx->strip, hitx->maxamp);
+          if(hitx->clusterId == clX.id){
+            h2ampX[clX.size-1]->Fill(hitx->strip, hitx->maxamp);
+            if(hitx->strip == centerStrip){
+              hampCenterX->Fill(hitx->maxamp);
+              hampSampleX->Fill(hitx->samplemax);
+            }
+          }
         }
       }
     }
@@ -188,9 +206,16 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     if( hY.size() > 0 ){
       hcentroidY->Fill(clY.stripCentroid);
       hclSizeY->Fill(clY.size);
+      int centerStrip = int(round(clY.stripCentroid));
       if(clY.size<7){
         for( auto hity = hY.begin(); hity < hY.end(); hity++){
-          if(hity->clusterId == clY.id) h2ampY[clY.size-1]->Fill(hity->strip, hity->maxamp);
+          if(hity->clusterId == clY.id){
+            h2ampY[clY.size-1]->Fill(hity->strip, hity->maxamp);
+            if(hity->strip == centerStrip){
+              hampCenterY->Fill(hity->maxamp);
+              hampSampleY->Fill(hity->samplemax);
+            }
+          }
         }
       }
     }
@@ -198,7 +223,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     if(hY.size() > 0 and hX.size()>0) h2c->Fill(clY.stripCentroid, clX.stripCentroid);
   }
 
-  gStyle->SetOptStat(1111);
+  // gStyle->SetOptStat(1111);
+
   TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1000,700);
   gPad->SetLogy();
   hclSizeX->Draw();
@@ -206,27 +232,47 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   hclSizeY->SetLineColor(kRed);
   hclSizeY->Draw("same");
   
-  TLegend *leg = new TLegend(0.85,0.67,0.99,0.75);
-  leg->AddEntry(hclSizeX,"cluster size in X","l");
-  leg->AddEntry(hclSizeY,"cluster size in Y","l");
+  TLegend *leg = new TLegend(0.89,0.69,0.99,0.75);
+  leg->AddEntry(hclSizeX,"X","l");
+  leg->AddEntry(hclSizeY,"Y","l");
   leg->Draw();
   cclSize->Print(graphClSize.c_str(), "png");
 
 
   TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1000,700);
   hcentroidX->Draw();
-
   hcentroidY->SetLineColor(kRed);
   hcentroidY->Draw("same");
-
-  TLegend *legS = new TLegend(0.85,0.67,0.99,0.75);
-  legS->AddEntry(hcentroidX,"strip centroid in X","l");
-  legS->AddEntry(hcentroidY,"strip centroid in Y","l");
+  TLegend *legS = new TLegend(0.89,0.69,0.99,0.75);
+  legS->AddEntry(hcentroidX,"X","l");
+  legS->AddEntry(hcentroidY,"Y","l");
   legS->Draw();
   cstrips->Print(graphStrip.c_str(), "png");
 
+
+  TCanvas *campCenter = new TCanvas("camp", "camp", 1600,1000);
+  campCenter->Divide(2,1);
+  campCenter->cd(1);
+  hampCenterY->SetLineColor(kRed);
+  hampCenterY->Draw();
+  hampCenterX->Draw("same");
+
+  campCenter->cd(2);
+  hampSampleY->SetLineColor(kRed);
+  hampSampleY->Draw();
+  hampSampleX->Draw("same");
+
+  campCenter->cd(0);
+  TLegend *legA = new TLegend(0.89,0.69,0.99,0.75);
+  legA->AddEntry(hampCenterX,"X","l");
+  legA->AddEntry(hampCenterY,"Y","l");
+  // legA->SetTextSize(0.02);
+  legA->Draw();
+  campCenter->Print(graphampCenter.c_str(), "png");
+
   // gStyle->SetOptStat(0);
   TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
+  h2c->SetStats(0);
   h2c->Draw("colz");
   gPad->SetLogz();
   c3->Print(graphMap.c_str(), "png");
@@ -235,6 +281,7 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   campX->Divide(3, 2);
   for(int i=0; i<6; i++){
     campX->cd(i+1);
+    h2ampX[i]->SetStats(0);
     h2ampX[i]->Draw("colz");
   }
   campX->Print(graphAmpX.c_str(), "png");
@@ -243,6 +290,7 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   campY->Divide(3, 2);
   for(int i=0; i<6; i++){
     campY->cd(i+1);
+    h2ampY[i]->SetStats(0);
     h2ampY[i]->Draw("colz");
   }
   campY->Print(graphAmpY.c_str(), "png");
