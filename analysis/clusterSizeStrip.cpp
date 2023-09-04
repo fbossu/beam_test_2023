@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
 {
 
   std::string basedir = argv[0];
-  basedir = basedir.substr(0, basedir.size()-4);
+  basedir = basedir.substr(0, basedir.find_last_of("/"));
   std::cout << basedir << std::endl;
 
   TChain* chain = new TChain("events");
