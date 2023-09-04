@@ -222,6 +222,9 @@ void reco( string name, DreamTable det) {
 
 int main( int argc, char **argv ){
 
+  string basedir = argv[0];
+  basedir = basedir.substr(0, basedir.size()-4);
+  cout << basedir << endl;
   if( argc < 3 ) {
     // cerr << " no file name specified \n";
     cerr << " At least two arguments need to be specified \n file name and FEU number (from 1 to 5)\n";
@@ -250,27 +253,27 @@ int main( int argc, char **argv ){
     int nbDet = atoi(argv[3]);
 
     if(nbDet == 1){
-      det = DreamTable("../map/strip_map.txt", 0, 1, 2, 3);
+      det = DreamTable(basedir + "../map/strip_map.txt", 0, 1, 2, 3);
       det.setInversion(true, true, false, true);
     }
     else if(nbDet == 2){
-      det = DreamTable("../map/inter_map.txt", 4, 5, 6, 7);
+      det = DreamTable(basedir + "../map/inter_map.txt", 4, 5, 6, 7);
       det.setInversion(true, true, false, false);
     }
     else {cerr << "detector number invalid \n"; return 1; }
   }
 
   else if(nbFeu == 2){
-    det = DreamTable("../map/asa_map.txt", 4, 5, 6, 7);
+    det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
     // det.setInversion(true, true, false, false);
     det.setInversion(false, false, false, true);
   }
   else if(nbFeu == 3){
-    det = DreamTable("../map/strip_map.txt", 4, 5, 6, 7);
+    det = DreamTable(basedir + "../map/strip_map.txt", 4, 5, 6, 7);
     det.setInversion(true, true, false, false);
   }
   else if(nbFeu == 4){
-    det = DreamTable("../map/asa_map.txt", 4, 5, 6, 7);
+    det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
     det.setInversion(false, false, false, true);
   }
   else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
