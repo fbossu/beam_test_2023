@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
   }
   StripTable det(basedir+"../map/strip_map.txt");
   clusterSizeRegion(chain, detName, det);
-  clusterSizeLims(chain, detName, det, {55, 62}, {61, 70});
+  // clusterSizeLims(chain, detName, det, {55, 62}, {61, 70});
 
   return 0;
 }
