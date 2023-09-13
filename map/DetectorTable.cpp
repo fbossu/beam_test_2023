@@ -46,7 +46,7 @@ void DetectorTable::buildTable(){
 		throw std::runtime_error("ERROR: map file not found");
 	}
 
-	std::string line, fcnt, fch, fstripNb, faxis, fpitch, finter, fngh, fposX, fposY;
+	std::string line, fcnt, fch, fstripNb, faxis, fpitch, finter, fngh, fposx, fposy;
 	// float inter = 0;
 	float pitch = 0;
 	char axis = 'n';
