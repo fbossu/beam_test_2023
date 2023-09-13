@@ -44,7 +44,7 @@ void clusterSizeRegion(TChain* chain, std::string detname, StripTable det) {
   }
 
   // TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
-  TH2F *h2c = new TH2F("h2c", "cluster map", 195,-129,29,195,-29,129);
+  TH2F *h2c = new TH2F("h2c", "cluster map", 158,-129,29,158,-29,129);
   h2c->SetXTitle("centroid on y direction strips");
   h2c->SetYTitle("centroid on x direction strips");
 
