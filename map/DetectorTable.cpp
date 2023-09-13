@@ -46,13 +46,14 @@ void DetectorTable::buildTable(){
 		throw std::runtime_error("ERROR: map file not found");
 	}
 
-	std::string line, fcnt, fch, fstripNb, faxis, fpitch, finter, fngh;
+	std::string line, fcnt, fch, fstripNb, faxis, fpitch, finter, fngh, fposX, fposY;
 	// float inter = 0;
 	float pitch = 0;
 	char axis = 'n';
 	std::vector<int> ngh;
 	std::vector<float> inter;
 	int cnt = 0, ch=0, stripNb = 0;
+	double posX =0, posY = 0;
 
 	std::getline(infile, line);
 
@@ -66,12 +67,17 @@ void DetectorTable::buildTable(){
 		std::getline(fline, fpitch, ',');
 		std::getline(fline, finter, ',');
 		std::getline(fline, fngh, ',');
+		std::getline(fline, fposX, ',');
+		std::getline(fline, fposY, ',');
 
 		cnt = std::stoi(fcnt);
 		ch = std::stoi(fch);
 		stripNb = std::stoi(fstripNb);
 		axis = faxis[0];
 		pitch = std::stod(fpitch);
+		posX = std::stod(fposX);
+		posY = std::stod(fposY);
+
 		// inter = std::stod(finter);
 
 		int GBchannel = cnt*64 + ch;
@@ -90,6 +96,8 @@ void DetectorTable::buildTable(){
 		mapPitch[GBchannel] = pitch;
 		mapInter[GBchannel] = inter;
 		mapNgh[GBchannel] = ngh;
+		mapPosX[GBchannel] = posX;
+		mapPosY[GBchannel] = posY;
 	}
 }
 

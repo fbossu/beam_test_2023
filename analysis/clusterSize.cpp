@@ -1,5 +1,18 @@
 #include "clusterSize.h"
 
+
+// void stripMap(TChain* chain, std::string detname, StripTable det){
+
+// }
+
+// void stripMapLims(TChain* chain, std::string detname, StripTable det, std::vector<int> xlim, std::vector<int> ylim){
+
+// }
+
+// // x,y map of the clusters in the detector by position
+// void posMap(TChain* chain, std::string detname, StripTable det);
+// void posMapLims(TChain* chain, std::string detname, StripTable det, std::vector<int> xlim, std::vector<int> ylim);
+
 void clusterSizeRegion(TChain* chain, std::string detname, StripTable det) {
 
   std::string graphMap = detname+"_Map.png";
@@ -30,7 +43,8 @@ void clusterSizeRegion(TChain* chain, std::string detname, StripTable det) {
     hclSizeX[i]->SetXTitle("cluster size"); hclSizeY[i]->SetXTitle("cluster size");
   }
 
-  TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
+  // TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
+  TH2F *h2c = new TH2F("h2c", "cluster map", 150,-129,29,150,-29,129);
   h2c->SetXTitle("centroid on y direction strips");
   h2c->SetYTitle("centroid on x direction strips");
 
@@ -54,7 +68,7 @@ void clusterSizeRegion(TChain* chain, std::string detname, StripTable det) {
       for(auto y = clY.begin(); y < clY.end(); y++){
         int zone = det.zone(int(x->stripCentroid), int(y->stripCentroid));
         if(zone>=0){
-          h2c->Fill(y->stripCentroid, x->stripCentroid);
+          h2c->Fill(det.posY(y->stripCentroid)[0], det.posX(x->stripCentroid)[1]);
           hcentroidX[zone]->Fill(x->stripCentroid);
           hcentroidY[zone]->Fill(y->stripCentroid);
 

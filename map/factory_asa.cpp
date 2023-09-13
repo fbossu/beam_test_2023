@@ -15,12 +15,13 @@ int main(int argc, char const *argv[])
 	//Output 
 	std::ofstream outfile;
 	outfile.open("asa_map.txt");
-	outfile << "connector,conectorChannel,stripNb,axis,pitch(mm),interpitch(mm),neighbours(:separated)" << std::endl;
+	outfile << "connector,conectorChannel,stripNb,axis,pitch(mm),interpitch(mm),neighbours(:separated),xGerber,yGerber" << std::endl;
 
 	double pitch = 0, inter = 0;
 	char axis = 'n';
 	std::vector<int> ngh;
 	int cnt = 0, stripNb = 0;
+	double posX = 0, posY = 0;
 
 	// Connector 0 (bottom left on gerber)
 	for(int i=0; i<64; i++){
@@ -32,10 +33,14 @@ int main(int argc, char const *argv[])
 		if(i<32){
 			axis = 'x';
 			stripNb = 31 - i;
+			posX = -113.15;
+			posY = 50.15 + pitch*stripNb;
 		}
 		else{
 			axis = 'y';
 			stripNb = i - 32;
+			posX = -112.15 + pitch*stripNb;
+			posY = 51.15;
 		}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
@@ -44,8 +49,9 @@ int main(int argc, char const *argv[])
 		
 		for(int j=0; j<ngh.size(); j++){
 			if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-			else outfile<<ngh[j]<<std::endl;
+			else outfile<<ngh[j]<<",";
 		}
+		outfile<<posX<<","<<posY<<std::endl;
 	}
 
 	// Connector 1 (bottom right on gerber)
@@ -58,10 +64,14 @@ int main(int argc, char const *argv[])
 	  	if(i<32){
 	  		axis = 'y';
 	  		stripNb = 32 + i;
+	  		posX = -97.565 + pitch*i;
+			posY = 2.819;
 	  	}
 	  	else{
 	  		axis = 'x';
 	  		stripNb = i;
+	  		posX = -98.065;
+			posY = 2.319 + pitch*(stripNb-32);
 	  	}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
@@ -70,8 +80,9 @@ int main(int argc, char const *argv[])
 	  	
 	  	for(int j=0; j<ngh.size(); j++){
 	  		if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-	  		else outfile<<ngh[j]<<std::endl;
+	  		else outfile<<ngh[j]<<",";
 	  	}
+	  	outfile<<posX<<","<<posY<<std::endl;
 	}
 
 
@@ -86,11 +97,15 @@ int main(int argc, char const *argv[])
 	  		axis = 'x';
 	  		// stripNb = 31-i;
 	  		stripNb = 64 + i;
+	  		posX = -30.65;
+			posY = 5.45 + pitch*i;
 	  	}
 	  	else{
 	  		axis = 'y';
 	  		// stripNb = 63-i;
 	  		stripNb = 127-i;
+	  		posX = -30.25 + pitch*(stripNb-64);
+			posY = 5.851;
 	  	}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
@@ -99,8 +114,9 @@ int main(int argc, char const *argv[])
 	  	
 	  	for(int j=0; j<ngh.size(); j++){
 	  		if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-	  		else outfile<<ngh[j]<<std::endl;
+	  		else outfile<<ngh[j]<<",";
 	  	}
+	  	outfile<<posX<<","<<posY<<std::endl;
 	}
 
 	// Connector 3 (right up on gerber)
@@ -114,11 +130,15 @@ int main(int argc, char const *argv[])
 	  		axis = 'x';
 	  		// stripNb = 31-i;
 	  		stripNb = 96+i;
+	  		posX = -41.805;
+			posY = 58.394 + pitch*i;
 	  	}
 	  	else{
 	  		axis = 'y';
 	  		// stripNb = 63-i;
 	  		stripNb = 159-i;
+	  		posX = -41.055 + pitch*(stripNb-96);
+			posY = 59.144;
 	  	}
 	  	if(i!=0 && i!=32) ngh.push_back(i-1);
 	  	if(i!=31 && i!=63) ngh.push_back(i+1);
@@ -127,8 +147,9 @@ int main(int argc, char const *argv[])
 	  	
 	  	for(int j=0; j<ngh.size(); j++){
 	  		if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-	  		else outfile<<ngh[j]<<std::endl;
+	  		else outfile<<ngh[j]<<",";
 	  	}
+	  	outfile<<posX<<","<<posY<<std::endl;
 	}
 
 	outfile.close();
