@@ -53,7 +53,7 @@ void DetectorTable::buildTable(){
 	std::vector<int> ngh;
 	std::vector<float> inter;
 	int cnt = 0, ch=0, stripNb = 0;
-	double posX =0, posY = 0;
+	double posx = 0, posy = 0;
 
 	std::getline(infile, line);
 
@@ -67,16 +67,16 @@ void DetectorTable::buildTable(){
 		std::getline(fline, fpitch, ',');
 		std::getline(fline, finter, ',');
 		std::getline(fline, fngh, ',');
-		std::getline(fline, fposX, ',');
-		std::getline(fline, fposY, ',');
+		std::getline(fline, fposx, ',');
+		std::getline(fline, fposy, ',');
 
 		cnt = std::stoi(fcnt);
 		ch = std::stoi(fch);
 		stripNb = std::stoi(fstripNb);
 		axis = faxis[0];
 		pitch = std::stod(fpitch);
-		posX = std::stod(fposX);
-		posY = std::stod(fposY);
+		posx = std::stod(fposx);
+		posy = std::stod(fposy);
 
 		// inter = std::stod(finter);
 
@@ -96,8 +96,8 @@ void DetectorTable::buildTable(){
 		mapPitch[GBchannel] = pitch;
 		mapInter[GBchannel] = inter;
 		mapNgh[GBchannel] = ngh;
-		mapPosX[GBchannel] = posX;
-		mapPosY[GBchannel] = posY;
+		mapPosx[GBchannel] = posx;
+		mapPosy[GBchannel] = posy;
 	}
 }
 
