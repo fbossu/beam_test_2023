@@ -25,6 +25,8 @@ public:
 	float getPitch(int GBch){return mapPitch[GBch];};
 	float getInter(int GBch, int GBchPerp = -1);
 	std::vector<int> getNeighbours(int GBch){return mapNgh[GBch];};
+	double getPosx(int GBch){return mapPosx[GBch];};
+	double getPosy(int GBch){return mapPosy[GBch];};
 
 	// for debug purposes
 	std::string printAll(int GBch);
@@ -38,6 +40,8 @@ protected:
 	std::map<int, std::vector<float>> mapInter;
 	std::map<int, int> mapStripNb;
 	std::map<int, std::vector<int>> mapNgh;
+	std::map<int, double> mapPosx;
+	std::map<int, double> mapPosy;
 };
 
 #endif

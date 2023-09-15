@@ -18,6 +18,7 @@ int main(int argc, char const *argv[])
 	char axis = 'n';
 	std::vector<int> ngh;
 	int cnt = 0, stripNb = 0;
+	double posX = 0, posY = 0;
 
 	// Connector 0 (bottom left on gerber)
 	for(int i=0; i<64; i++){
@@ -28,6 +29,9 @@ int main(int argc, char const *argv[])
 		axis = 'y';
 		stripNb = i;
 
+		posX = -113.875 + pitch*i;
+		posY = -13.45;
+
 	  	if(i!=0) ngh.push_back(i-1);
 	  	if(i!=63) ngh.push_back(i+1);
 
@@ -35,8 +39,9 @@ int main(int argc, char const *argv[])
 		
 		for(int j=0; j<ngh.size(); j++){
 			if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-			else outfile<<ngh[j]<<std::endl;
+			else outfile<<ngh[j]<<",";
 		}
+		outfile<<posX<<","<<posY<<std::endl;
 	}
 
 	// Connector 1 (bottom right on gerber)
@@ -48,6 +53,9 @@ int main(int argc, char const *argv[])
 	  	pitch = 1.;
 	  	inter = "0.67:0.5";  //mm
 
+	  	posX = -49.75 + pitch*i;
+		posY = -13.45;
+
 	  	if(i!=0) ngh.push_back(i-1);
 	  	if(i!=63) ngh.push_back(i+1);
 	  	
@@ -55,8 +63,9 @@ int main(int argc, char const *argv[])
 	  	
 	  	for(int j=0; j<ngh.size(); j++){
 	  		if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-	  		else outfile<<ngh[j]<<std::endl;
+	  		else outfile<<ngh[j]<<",";
 	  	}
+	  	outfile<<posX<<","<<posY<<std::endl;
 	}
 
 
@@ -69,6 +78,9 @@ int main(int argc, char const *argv[])
 	  	pitch = 1.;
 	  	inter = "0.1";
 
+	  	posX = -113.875;
+		posY = -13.45 + pitch*i;
+
 	  	if(i!=0) ngh.push_back(i-1);
 	  	if(i!=63) ngh.push_back(i+1);
 	  	
@@ -76,8 +88,9 @@ int main(int argc, char const *argv[])
 	  	
 	  	for(int j=0; j<ngh.size(); j++){
 	  		if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-	  		else outfile<<ngh[j]<<std::endl;
+	  		else outfile<<ngh[j]<<",";
 	  	}
+	  	outfile<<posX<<","<<posY<<std::endl;
 	}
 
 	// Connector 3 (right up on gerber)
@@ -89,6 +102,9 @@ int main(int argc, char const *argv[])
 	  	pitch = 1.;
 	  	inter = "0.1";
 
+	  	posX = -113.875;
+		posY = 50.55 + pitch*i;
+
 	  	if(i!=0) ngh.push_back(i-1);
 	  	if(i!=63) ngh.push_back(i+1);
 	  	
@@ -96,8 +112,9 @@ int main(int argc, char const *argv[])
 	  	
 	  	for(int j=0; j<ngh.size(); j++){
 	  		if(j!=ngh.size()-1) outfile<<ngh[j]<<":";
-	  		else outfile<<ngh[j]<<std::endl;
+	  		else outfile<<ngh[j]<<",";
 	  	}
+	  	outfile<<posX<<","<<posY<<std::endl;
 	}
 
 	outfile.close();

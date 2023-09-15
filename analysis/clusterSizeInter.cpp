@@ -13,9 +13,13 @@
 #include "../map/StripTable.h"
 #include "clusterSize.h"
 
-
 int main(int argc, char const *argv[])
 {
+
+  std::string basedir = argv[0];
+  basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
+  std::cout << basedir << std::endl;
+
   TChain* chain = new TChain("events");
   std::string detName = "test";
   for( int i = 1; i < argc; i++) {
@@ -31,7 +35,7 @@ int main(int argc, char const *argv[])
     }
   }
 
-  StripTable det("../map/inter_map.txt");
+  StripTable det(basedir+"../map/inter_map.txt");
 
   clusterSizeRegion(chain, detName, det);
   clusterSizeLims(chain, detName, det, {80, 90}, {90, 100});

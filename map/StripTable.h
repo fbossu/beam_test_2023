@@ -22,6 +22,10 @@ public:
 	float interX(int sn);
 	float interY(int sn, int snPerp);
 
+	std::vector<double> pos(double sn, char axis);
+	std::vector<double> posX(double sn){return this->pos(sn, 'x');};
+	std::vector<double> posY(double sn){return this->pos(sn, 'y');};
+
 	int zone(int snx, int sny);
 	int nbZone(){return zonePitch.size();};
 	std::string zoneLabel(int z);

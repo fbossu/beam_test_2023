@@ -36,6 +36,18 @@ float StripTable::interX(int sn){
 	return this->getInter(GBch);
 }
 
+std::vector<double> StripTable::pos(double sn, char axis){
+	int snmin = int(sn);
+	int snmax = snmin + 1;
+	int GBchmin = this->toGB(snmin, axis);	
+	int GBchmax = this->toGB(snmax, axis);
+	if(GBchmin<0 or GBchmax<0) return {-1., -1.};
+	std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*abs(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
+							  this->getPosy(GBchmin) + (sn - snmin)*abs(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
+	// std::vector<double> v = { this->getPosx(GBchmin), this->getPosy(GBchmin)};
+	return v;
+}
+
 float StripTable::interY(int sn, int snPerp){
 	int GBch = this->toGB(sn, 'y');
 	if(GBch<0) return -1;
