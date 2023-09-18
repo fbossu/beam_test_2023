@@ -150,19 +150,13 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 		ahit.clusterId = -1;
 
     while(currentTrg != *trgNum && *trgNum > 0){
-      //if(currentTrg != *trgNum){
 			eventId = currentTrg;
-			if(eventId%1000==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
+			if(eventId%10000==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
 			findClusters(hits, cls);
 			outTree->Fill();
 			hits->clear();
 			cls->clear();
 			currentTrg ++;
-			// in case of empty events
-      //currentTrg++;
-      //eventId = currentTrg;
-      //outTree->Fill();
-      //}
 		}
 		hits->push_back(ahit);
 	}
@@ -173,6 +167,12 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 
 int main(int argc, char const *argv[])
 {
+
+  if( argc < 3 ) {
+    std::cerr << "You need to specify two arguments: the data and the noise files\n";
+    return -1;
+  }
+
 	std::string fnameIn = argv[1];
 	std::string fnameOut = fnameIn;
   //std::string noise = "multinoiseScan_230610_102306_NOBEAM-B0-ladder163.root";

@@ -15,4 +15,5 @@ decode_banco: decode_banco.cpp definition_banco.h linkdefBanco.h
 # 	g++ -c ../map/DetectorTable.cpp -o ../map/DetectorTable.o
 
 clean:
-	rm decode_banco
+	rm decode_banco Dict*
+
