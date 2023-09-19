@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <fstream>
 #include <iostream>
 #include <iomanip>
 
@@ -31,20 +32,57 @@ namespace banco {
       void SetTranslation( XYZVectorF t ){ translation = t; }
       void SetReference( XYZVectorF r ){ reference = r; }
 
+      void LoadGeometry( std::string, std::string );
     private:
       float pitch;
-      Rotation3D rotation;
-      XYZVectorF translation;
       XYZVectorF reference;
+      XYZVectorF translation;
+      Rotation3D rotation;
 
   };
 
-  struct positions {
-    std::vector<XYZVector>  ref;
-    std::vector<XYZVector>  pos;
-    std::vector<Rotation3D> rot;
-  };
 };
+
+void banco::Ladder::LoadGeometry( std::string name, std::string fname ){
+  std::ifstream fin;
+  fin.open( fname );
+
+  if( fin.is_open() ){
+    
+    std::string line;
+    while( std::getline( fin, line ) ){
+      if( line == name ){
+        // read reference
+        std::getline(fin, line );
+        std::stringstream strstr(line);
+        float x,y,z;
+        strstr >> x >> y >> z;
+        reference.SetXYZ(x,y,z);
+
+        // read translation
+        std::getline(fin, line );
+        strstr.str(line);
+        strstr >> x >> y >> z;
+        translation.SetXYZ(x,y,z);
+
+        // read rotation
+        std::getline(fin, line );
+        strstr.str(line);
+        float xx,xy,xz;
+        float yx,yy,yz;
+        float zx,zy,zz;
+        strstr  >> xx >> xy >> xz
+                >> yx >> yy >> yz
+                >> zx >> zy >> zz;
+
+      }
+    }
+
+  }
+  fin.close();
+  
+  
+}
 
 void banco::Ladder::CentroidToLocal( float col, float row, XYZVector *pos ){
   pos->SetXYZ( col * pitch, row * pitch, 0. );
