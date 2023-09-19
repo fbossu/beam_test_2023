@@ -4,6 +4,9 @@
 #include "TTreeReader.h"
 #include "definition_banco.h"
 
+#include "TGraphErrors.h"
+#include "TFitResult.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -19,6 +22,38 @@
 #include "ladder.h"
 
 using namespace ROOT::Math;
+
+// =================================================================
+
+banco::track Fit( std::vector<XYZVector> seed ){
+
+  TGraphErrors grx;
+  TGraphErrors gry;
+  for( int i=0; i<seed.size(); i++ ){
+    auto p = seed[i];
+    grx.SetPoint(i,p.Z(),p.X());
+    gry.SetPoint(i,p.Z(),p.Y());
+    grx.SetPointError(i,0,0.025);
+    gry.SetPointError(i,0,0.025);
+  }
+
+  auto ptrx = grx.Fit("pol1","Q0S");
+  auto ptry = gry.Fit("pol1","Q0S");
+
+  banco::track tr;
+  tr.x0 = ptrx->Parameter(0);
+  tr.mx = ptrx->Parameter(1);
+  tr.ex0 = ptrx->Error(0);
+  tr.emx = ptrx->Error(1);
+  tr.chi2x = ptrx->Chi2()/ptrx->Ndf();
+  tr.y0 = ptry->Parameter(0);
+  tr.my = ptry->Parameter(1);
+  tr.ey0 = ptry->Error(0);
+  tr.emy = ptry->Error(1);
+  tr.chi2y = ptry->Chi2()/ptry->Ndf();
+
+  return tr;
+}
 
 // =================================================================
 
@@ -47,6 +82,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   }
 	TTreeReader reader( tree );
 
+  TTreeReaderValue<int> eventId( reader, "eventId");
 
   // link the cluster branches for the different ladders
   // use a map for accessing them by name "ladder#"
@@ -68,9 +104,17 @@ void recoBanco(std::vector<std::string> fnamesIn){
   }
 
 
-  // some plots
-  // ----------
-  TFile *fout = TFile::Open( "fout.root", "recreate" );
+  // some outputs
+  // -------------
+  TFile *fout =TFile::Open( "fout.root", "recreate" );
+  // tree
+  TTree *nt = new TTree("events","");
+  int trEvId = 0;
+  std::vector<banco::track> *tracks = new std::vector<banco::track>();
+  nt->Branch("tracks", &tracks);
+  nt->Branch("eventId", &trEvId);
+
+  // histograms
   auto hdir = fout->mkdir("histos");
 
   axis *acy = createAxis( "centroid y", 2000, 0, 128. ); 
@@ -91,7 +135,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   int i=0;
   while( reader.Next() && i<10 ){
     //i++;
-
+    trEvId = *eventId;
     //fill some histos
     for( auto s : tnames ){
       for( auto cl : *(*cls[s]) ) { 
@@ -101,21 +145,33 @@ void recoBanco(std::vector<std::string> fnamesIn){
       }
     }
 
-    //XYZVector c0;
-    //XYZVector c1;
-    ////std::cout << (*cls[tnames[0]])->size() << " " << (*cls[tnames[1]])->size() << "\n";
-    //for( auto cls0 = (*cls[tnames[0]])->begin(); cls0 < (*cls[tnames[0]])->end(); cls0++ ){
-      //geom[tnames[0]].CentroidToLocal( cls0->colCentroid, cls0->rowCentroid, &c0);
-      //for( auto cls1 = (*cls[tnames[1]])->begin(); cls1 < (*cls[tnames[1]])->end(); cls1++ ){
-        //geom[tnames[1]].CentroidToLocal( cls1->colCentroid, cls1->rowCentroid, &c1);
-        
-        ////std::cout <<  c0.X() << " " <<  c1.X() << "\n";
-        ////std::cout <<  c0.Y() << " " <<  c1.Y() << "\n";
-        //hcorx->Fill( c0.X(), c1.X() );
-        //hcory->Fill( c0.Y(), c1.Y() );
-      //}
-    //}
-    
+    // clean events: no more than 1 cluster per ladder
+    bool good = true;
+    for( auto s : tnames ){
+      if( (*cls[s])->size() != 1 ) good = false;
+    }
+    if( ! good ){
+      nt->Fill();
+      tracks->clear();
+      continue; 
+    }
+
+    // find combinations of clusters and consider them as a seed
+    //std::vector< std::vector<XYZVector> > lseeds;
+    std::vector<XYZVector> seed;
+
+    // loop over the ladders
+    for( auto icl : cls ){
+      XYZVector p;
+      geom[icl.first].CentroidToLocal( (*icl.second)->at(0), &p ); // TODO check if there are any cls
+      geom[icl.first].LocalToGlobal(&p);
+      seed.push_back(p);
+    }
+
+    auto track = Fit( seed );
+    tracks->push_back(track);
+    nt->Fill();
+    tracks->clear();
   }
 
   fout->Write();

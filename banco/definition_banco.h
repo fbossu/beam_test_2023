@@ -19,6 +19,15 @@ namespace banco {
     uint16_t id;
     uint16_t ladderId;
   };
+
+  struct track {
+    float x0, y0;
+    float mx, my;
+    float ex0, ey0;
+    float emx, emy;
+    float chi2x;
+    float chi2y;
+  };
 }
 
 #endif
