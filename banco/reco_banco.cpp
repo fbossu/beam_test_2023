@@ -33,6 +33,9 @@ namespace banco {
       void SetReference( XYZVectorF r ){ reference = r; }
 
       void LoadGeometry( std::string, std::string );
+
+      void PrintGeometry();
+
     private:
       float pitch;
       XYZVectorF reference;
@@ -43,6 +46,12 @@ namespace banco {
 
 };
 
+void banco::Ladder::PrintGeometry(){
+  std::cout << "\nreference \n"   << reference
+            << "\ntranslation \n" << translation
+            << "\nrotation " << rotation << std::endl;
+}
+
 void banco::Ladder::LoadGeometry( std::string name, std::string fname ){
   std::ifstream fin;
   fin.open( fname );
@@ -51,29 +60,35 @@ void banco::Ladder::LoadGeometry( std::string name, std::string fname ){
     
     std::string line;
     while( std::getline( fin, line ) ){
+
       if( line == name ){
         // read reference
         std::getline(fin, line );
-        std::stringstream strstr(line);
         float x,y,z;
-        strstr >> x >> y >> z;
+        std::stringstream strref(line);
+        strref >> x >> y >> z;
         reference.SetXYZ(x,y,z);
 
         // read translation
         std::getline(fin, line );
-        strstr.str(line);
-        strstr >> x >> y >> z;
+        std::stringstream strtrans(line);
+        strtrans >> x >> y >> z;
         translation.SetXYZ(x,y,z);
 
         // read rotation
         std::getline(fin, line );
-        strstr.str(line);
         float xx,xy,xz;
         float yx,yy,yz;
         float zx,zy,zz;
-        strstr  >> xx >> xy >> xz
+        std::stringstream strrot(line);
+        strrot  >> xx >> xy >> xz
                 >> yx >> yy >> yz
                 >> zx >> zy >> zz;
+        rotation.SetComponents(
+                    xx , xy , xz ,
+                    yx , yy , yz ,
+                    zx , zy , zz 
+                  );
 
       }
     }
@@ -135,10 +150,10 @@ void recoBanco(std::vector<std::string> fnamesIn){
   std::map< std::string, banco::Ladder > geom;
   for( auto s : tnames ){
     geom[s];
-    geom[s].LoadGeometry(s,"geometry.txt");
-    // TODO: read conf from file
-    //geom[s].SetRotation( Rotation3D(0,1,0,-1,0,0,0,0,1) );
-    //geom[s].SetTranslation( XYZVectorF(0,0,10) );
+    geom[s].LoadGeometry(s,"geometries.txt");
+
+    std::cout << s << std::endl;
+    geom[s].PrintGeometry();
   }
 
 
