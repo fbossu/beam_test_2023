@@ -135,6 +135,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   std::map< std::string, banco::Ladder > geom;
   for( auto s : tnames ){
     geom[s];
+    geom[s].LoadGeometry(s,"geometry.txt");
     // TODO: read conf from file
     //geom[s].SetRotation( Rotation3D(0,1,0,-1,0,0,0,0,1) );
     //geom[s].SetTranslation( XYZVectorF(0,0,10) );
