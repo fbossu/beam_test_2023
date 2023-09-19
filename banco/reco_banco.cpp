@@ -16,98 +16,9 @@
 
 #include "utils.h"
 
+#include "ladder.h"
+
 using namespace ROOT::Math;
-
-namespace banco {
-  class Ladder {
-    public:
-      Ladder() { pitch = 0.025; } // 25µm
-      virtual ~Ladder() {};
-      
-      void CentroidToLocal( float, float, XYZVector * ); // col (x), row (y)
-      void LocalToGlobal( XYZVector * );
-      void SetPitch( float p ) { pitch = p; }
-
-      void SetRotation( Rotation3D r ){ rotation = r; }
-      void SetTranslation( XYZVectorF t ){ translation = t; }
-      void SetReference( XYZVectorF r ){ reference = r; }
-
-      void LoadGeometry( std::string, std::string );
-
-      void PrintGeometry();
-
-    private:
-      float pitch;
-      XYZVectorF reference;
-      XYZVectorF translation;
-      Rotation3D rotation;
-
-  };
-
-};
-
-void banco::Ladder::PrintGeometry(){
-  std::cout << "\nreference \n"   << reference
-            << "\ntranslation \n" << translation
-            << "\nrotation " << rotation << std::endl;
-}
-
-void banco::Ladder::LoadGeometry( std::string name, std::string fname ){
-  std::ifstream fin;
-  fin.open( fname );
-
-  if( fin.is_open() ){
-    
-    std::string line;
-    while( std::getline( fin, line ) ){
-
-      if( line == name ){
-        // read reference
-        std::getline(fin, line );
-        float x,y,z;
-        std::stringstream strref(line);
-        strref >> x >> y >> z;
-        reference.SetXYZ(x,y,z);
-
-        // read translation
-        std::getline(fin, line );
-        std::stringstream strtrans(line);
-        strtrans >> x >> y >> z;
-        translation.SetXYZ(x,y,z);
-
-        // read rotation
-        std::getline(fin, line );
-        float xx,xy,xz;
-        float yx,yy,yz;
-        float zx,zy,zz;
-        std::stringstream strrot(line);
-        strrot  >> xx >> xy >> xz
-                >> yx >> yy >> yz
-                >> zx >> zy >> zz;
-        rotation.SetComponents(
-                    xx , xy , xz ,
-                    yx , yy , yz ,
-                    zx , zy , zz 
-                  );
-
-      }
-    }
-
-  }
-  fin.close();
-  
-  
-}
-
-void banco::Ladder::CentroidToLocal( float col, float row, XYZVector *pos ){
-  pos->SetXYZ( col * pitch, row * pitch, 0. );
-}
-
-void banco::Ladder::LocalToGlobal( XYZVector *pos ){
-  *pos = (*pos) - reference ;
-  *pos = rotation*(*pos);
-  *pos = translation + (*pos);
-}
 
 // =================================================================
 
@@ -150,17 +61,17 @@ void recoBanco(std::vector<std::string> fnamesIn){
   std::map< std::string, banco::Ladder > geom;
   for( auto s : tnames ){
     geom[s];
-    geom[s].LoadGeometry(s,"geometries.txt");
+    geom[s].LoadGeometry(s,"geometries.txt"); // TODO relative paths
 
-    std::cout << s << std::endl;
-    geom[s].PrintGeometry();
+    //std::cout << s << std::endl;
+    //geom[s].PrintGeometry();
   }
 
 
   // some plots
   // ----------
-  axis *acx = createAxis( "centroid x", 4000, 0, 128. ); 
-  axis *acy = createAxis( "centroid y", 400, 0, 12.8 );
+  axis *acx = createAxis( "centroid x", 2000, 0, 128. ); 
+  axis *acy = createAxis( "centroid y", 200, 0, 12.8 );
 
   TH2F *hcorx = create2DHisto( "hcorx", "corr x", acx, acx );
   TH2F *hcory = create2DHisto( "hcory", "corr y", acy, acy );
@@ -170,6 +81,9 @@ void recoBanco(std::vector<std::string> fnamesIn){
   int i=0;
   while( reader.Next() && i<10 ){
     //i++;
+
+    //clean events
+
     XYZVector c0;
     XYZVector c1;
     //std::cout << (*cls[tnames[0]])->size() << " " << (*cls[tnames[1]])->size() << "\n";
