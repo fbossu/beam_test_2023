@@ -65,10 +65,12 @@ void banco::Ladder::LoadGeometry( std::string name, std::string fname ){
   
 }
 
-void banco::Ladder::CentroidToLocal( float col, float row, XYZVector *pos ){
+void banco::Ladder::CentroidToLocal( banco::cluster cl, XYZVector *pos ){
+  float col = cl.colCentroid;
+  float row = cl.rowCentroid;
   pos->SetXYZ( 
-      (flipx ? 5*1024-col : col) * pitch, 
-      (flipy ? 512-row : row) * pitch, 
+      (flipx ? 512-row : row) * pitch, 
+      (flipy ? 5*1024-col : col) * pitch, 
       0. );
 }
 

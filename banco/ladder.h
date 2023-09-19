@@ -3,6 +3,8 @@
 #include "Math/Rotation3D.h"
 #include "Math/Vector3D.h"
 
+#include "definition_banco.h"
+
 using namespace ROOT::Math;
 
 namespace banco {
@@ -15,7 +17,7 @@ namespace banco {
       } 
       virtual ~Ladder() {};
       
-      void CentroidToLocal( float, float, XYZVector * ); // col (x), row (y)
+      void CentroidToLocal( cluster, XYZVector * ); // col (x), row (y)
       void LocalToGlobal( XYZVector * );
       void SetPitch( float p ) { pitch = p; }
 

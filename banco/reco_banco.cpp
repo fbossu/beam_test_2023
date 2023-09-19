@@ -70,11 +70,21 @@ void recoBanco(std::vector<std::string> fnamesIn){
 
   // some plots
   // ----------
-  axis *acx = createAxis( "centroid x", 2000, 0, 128. ); 
-  axis *acy = createAxis( "centroid y", 200, 0, 12.8 );
+  TFile *fout = TFile::Open( "fout.root", "recreate" );
+  auto hdir = fout->mkdir("histos");
 
+  axis *acy = createAxis( "centroid y", 2000, 0, 128. ); 
+  axis *acx = createAxis( "centroid x", 200, 0, 12.8 );
+
+  std::map<std::string, TH2F*> mh2xy;
+  for( auto s : tnames ){
+    mh2xy[s] = create2DHisto( Form("h2xy_%s",s.c_str()), Form("xy %s",s.c_str()), acx, acy );
+    mh2xy[s]->SetDirectory(hdir);
+  }
   TH2F *hcorx = create2DHisto( "hcorx", "corr x", acx, acx );
+  hcorx->SetDirectory(hdir);
   TH2F *hcory = create2DHisto( "hcory", "corr y", acy, acy );
+  hcory->SetDirectory(hdir);
 
   // loop over events
   // ================
@@ -82,27 +92,34 @@ void recoBanco(std::vector<std::string> fnamesIn){
   while( reader.Next() && i<10 ){
     //i++;
 
-    //clean events
-
-    XYZVector c0;
-    XYZVector c1;
-    //std::cout << (*cls[tnames[0]])->size() << " " << (*cls[tnames[1]])->size() << "\n";
-    for( auto cls0 = (*cls[tnames[0]])->begin(); cls0 < (*cls[tnames[0]])->end(); cls0++ ){
-      geom[tnames[0]].CentroidToLocal( cls0->colCentroid, cls0->rowCentroid, &c0);
-      for( auto cls1 = (*cls[tnames[1]])->begin(); cls1 < (*cls[tnames[1]])->end(); cls1++ ){
-        geom[tnames[1]].CentroidToLocal( cls1->colCentroid, cls1->rowCentroid, &c1);
-        
-        //std::cout <<  c0.X() << " " <<  c1.X() << "\n";
-        //std::cout <<  c0.Y() << " " <<  c1.Y() << "\n";
-        hcorx->Fill( c0.X(), c1.X() );
-        hcory->Fill( c0.Y(), c1.Y() );
+    //fill some histos
+    for( auto s : tnames ){
+      for( auto cl : *(*cls[s]) ) { 
+        XYZVector c0;
+        geom[s].CentroidToLocal( cl, &c0 );
+        mh2xy[s]->Fill( c0.X(), c0.Y() );
       }
     }
+
+    //XYZVector c0;
+    //XYZVector c1;
+    ////std::cout << (*cls[tnames[0]])->size() << " " << (*cls[tnames[1]])->size() << "\n";
+    //for( auto cls0 = (*cls[tnames[0]])->begin(); cls0 < (*cls[tnames[0]])->end(); cls0++ ){
+      //geom[tnames[0]].CentroidToLocal( cls0->colCentroid, cls0->rowCentroid, &c0);
+      //for( auto cls1 = (*cls[tnames[1]])->begin(); cls1 < (*cls[tnames[1]])->end(); cls1++ ){
+        //geom[tnames[1]].CentroidToLocal( cls1->colCentroid, cls1->rowCentroid, &c1);
+        
+        ////std::cout <<  c0.X() << " " <<  c1.X() << "\n";
+        ////std::cout <<  c0.Y() << " " <<  c1.Y() << "\n";
+        //hcorx->Fill( c0.X(), c1.X() );
+        //hcory->Fill( c0.Y(), c1.Y() );
+      //}
+    //}
     
   }
-  hcorx->SaveAs("hcorx.root");
-  hcory->SaveAs("hcory.root");
 
+  fout->Write();
+  fout->Close();
 }
 
 int main(int argc, char const *argv[])
