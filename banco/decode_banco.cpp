@@ -161,6 +161,8 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 		hits->push_back(ahit);
 	}
 
+  eventId = currentTrg;
+  outTree->Fill();
 	outTree->Write();
 	fout->Close();
 }

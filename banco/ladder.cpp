@@ -69,8 +69,8 @@ void banco::Ladder::CentroidToLocal( banco::cluster cl, XYZVector *pos ){
   float col = cl.colCentroid;
   float row = cl.rowCentroid;
   pos->SetXYZ( 
-      (flipx ? 512-row : row) * pitch, 
-      (flipy ? 5*1024-col : col) * pitch, 
+      (flipx ? 5*1024-col : col) * pitchx, 
+      (flipy ? 512-row : row) * pitchy, 
       0. );
 }
 

@@ -11,7 +11,8 @@ namespace banco {
   class Ladder {
     public:
       Ladder() { 
-        pitch = 0.025; // mm ; 25 µm
+        pitchx = 0.028; // mm ; 28 µm
+        pitchy = 0.028; // mm ; 28 µm
         flipx = false;
         flipy = false;
       } 
@@ -19,7 +20,8 @@ namespace banco {
       
       void CentroidToLocal( cluster, XYZVector * ); // col (x), row (y)
       void LocalToGlobal( XYZVector * );
-      void SetPitch( float p ) { pitch = p; }
+      void SetPitchX( float p ) { pitchx = p; }
+      void SetPitchY( float p ) { pitchy = p; }
 
       void SetRotation( Rotation3D r ){ rotation = r; }
       void SetTranslation( XYZVectorF t ){ translation = t; }
@@ -32,7 +34,7 @@ namespace banco {
       void PrintGeometry();
 
     private:
-      float pitch;
+      float pitchx, pitchy;
       bool flipx, flipy;
       XYZVectorF reference;
       XYZVectorF translation;

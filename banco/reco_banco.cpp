@@ -25,16 +25,17 @@ using namespace ROOT::Math;
 
 // =================================================================
 
-banco::track Fit( std::vector<XYZVector> seed ){
+banco::track Fit( std::vector<XYZVector> seed, int ignore=-1 ){
 
   TGraphErrors grx;
   TGraphErrors gry;
   for( int i=0; i<seed.size(); i++ ){
+    if( i==ignore) continue;
     auto p = seed[i];
     grx.SetPoint(i,p.Z(),p.X());
     gry.SetPoint(i,p.Z(),p.Y());
-    grx.SetPointError(i,0,0.025);
-    gry.SetPointError(i,0,0.025);
+    grx.SetPointError(i,0,0.025/sqrt(12));
+    gry.SetPointError(i,0,0.025/sqrt(12));
   }
 
   auto ptrx = grx.Fit("pol1","Q0S");
@@ -135,22 +136,28 @@ void recoBanco(std::vector<std::string> fnamesIn){
   // histograms
   auto hdir = fout->mkdir("histos");
 
-  axis *acy = createAxis( "centroid y", 2000, 0, 128. ); 
-  axis *acx = createAxis( "centroid x", 200, 0, 12.8 );
+  axis *acy = createAxis( "centroid y (mm)", 2000, 0, 150. ); 
+  axis *acx = createAxis( "centroid x (mm)", 200, 0, 15. );
 
-  axis *arescx = createAxis( "residual x", 300, -1.2, 1.2 ); 
-  axis *arescy = createAxis( "residual y", 300, -1.2, 1.2 ); 
+  axis *arescx = createAxis( "residual x (mm)", 500, -.15, .15 ); 
+  axis *arescy = createAxis( "residual y (mm)", 500, -.15, .15 ); 
 
   std::map<std::string, TH2F*> mh2xy;
   std::map<std::string, TH1F*> mhresx;
   std::map<std::string, TH1F*> mhresy;
+  std::map<std::string, TH1F*> mhUresx;
+  std::map<std::string, TH1F*> mhUresy;
   for( auto s : tnames ){
     mh2xy[s] = create2DHisto( Form("h2xy_%s",s.c_str()), Form("xy %s",s.c_str()), acx, acy );
     mh2xy[s]->SetDirectory(hdir);
-    mhresx[s] = createHisto( Form("hresx_%s",s.c_str()), Form("res x %s",s.c_str()), arescx );
+    mhresx[s] = createHisto( Form("hresx_%s",s.c_str()), Form(" biased res x %s",s.c_str()), arescx );
     mhresx[s]->SetDirectory(hdir);
-    mhresy[s] = createHisto( Form("hresy_%s",s.c_str()), Form("res y %s",s.c_str()), arescy );
+    mhresy[s] = createHisto( Form("hresy_%s",s.c_str()), Form("biased res y %s",s.c_str()), arescy );
     mhresy[s]->SetDirectory(hdir);
+    mhUresx[s] = createHisto( Form("hUresx_%s",s.c_str()), Form("unbiased res x %s",s.c_str()), arescx );
+    mhUresx[s]->SetDirectory(hdir);
+    mhUresy[s] = createHisto( Form("hUresy_%s",s.c_str()), Form("unbiased res y %s",s.c_str()), arescy );
+    mhUresy[s]->SetDirectory(hdir);
   }
   TH2F *hcorx = create2DHisto( "hcorx", "corr x", acx, acx );
   hcorx->SetDirectory(hdir);
@@ -160,9 +167,22 @@ void recoBanco(std::vector<std::string> fnamesIn){
   // loop over events
   // ================
   int i=0;
-  while( reader.Next() && i<5e4 ){
+  int nentries = reader.GetEntries();
+  //while( reader.Next() && i<5e4 ){
+  while( reader.Next() ){
     i++;
     trEvId = *eventId;
+    
+    if( i%1000 == 0 ){
+      std::cout << " [ ";
+      for( int j=0; j < (float)i/nentries * 50; j++ )
+        std::cout << "-";
+      for( float j = (float)i/nentries * 50; j < 50 ; j++ )
+        std::cout << " ";
+      std::cout<<" ] - " << std::setw(8) << i << "/" << nentries << "\r";
+
+    }
+
     //fill some histos
     for( auto s : tnames ){
       for( auto cl : *(*cls[s]) ) { 
@@ -183,7 +203,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
       continue; 
     }
 
-    // find combinations of clusters and consider them as a seed
+    // find combinations of clusters and consider them as a seed // TODO, allow for combinatorics
     //std::vector< std::vector<XYZVector> > lseeds;
     std::vector<XYZVector> seed;
     std::vector<std::string> seeddet;
@@ -206,6 +226,14 @@ void recoBanco(std::vector<std::string> fnamesIn){
           Residuals( trk, seed[i], mhresy[seeddet.at(i)], 'y');
         }
     }
+
+    // unbiased residuals
+    for( int i=0;i<seed.size(); i++){
+      auto trk = Fit( seed, i );
+      Residuals( trk, seed[i], mhUresx[seeddet.at(i)], 'x');
+      Residuals( trk, seed[i], mhUresy[seeddet.at(i)], 'y');
+    }
+
 
     nt->Fill();
     tracks->clear();
