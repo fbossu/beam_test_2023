@@ -176,7 +176,7 @@ int main(int argc, char const *argv[])
   }
 
 	std::string fnameIn = argv[1];
-	std::string fnameOut = "dec.root";
+	std::string fnameOut = "fdec.root";
   //std::string noise = "multinoiseScan_230610_102306_NOBEAM-B0-ladder163.root";
 	std::string noise = argv[2];
 	// fnameOut.insert(fnameIn.find(".root"), "_dec");
