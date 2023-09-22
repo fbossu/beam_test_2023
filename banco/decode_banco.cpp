@@ -17,7 +17,7 @@
 // takes the path to the noise root file and returns a vector with the pixId of all noisy pixels
 std::vector<int> noiseVect(std::string fname){
 
-	int threshold = 0;
+	int threshold = 1;
 	
 	TFile* fin = TFile::Open(fname.c_str(),"read");
 
@@ -179,7 +179,7 @@ int main(int argc, char const *argv[])
 	std::string fnameOut = fnameIn;
   //std::string noise = "multinoiseScan_230610_102306_NOBEAM-B0-ladder163.root";
 	std::string noise = argv[2];
-	fnameOut.insert(fnameIn.find(".root"), "_decoTh0");
+	fnameOut.insert(fnameIn.find(".root"), "_dec");
 
 	decodeBanco(fnameIn, fnameOut, noise);
 
