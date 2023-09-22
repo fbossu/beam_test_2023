@@ -149,9 +149,9 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 		ahit.chipId = *chipId;
 		ahit.clusterId = -1;
 
-    while(currentTrg != *trgNum && *trgNum > 0){
+    	while(currentTrg != *trgNum && *trgNum > 0){
 			eventId = currentTrg;
-			if(eventId%10000==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
+			if(eventId%1==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
 			findClusters(hits, cls);
 			outTree->Fill();
 			hits->clear();
@@ -161,8 +161,8 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 		hits->push_back(ahit);
 	}
 
-  eventId = currentTrg;
-  outTree->Fill();
+	eventId = currentTrg;
+	outTree->Fill();
 	outTree->Write();
 	fout->Close();
 }
