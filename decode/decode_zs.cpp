@@ -58,6 +58,7 @@ int main( int argc, const char **argv) {
 
   // useful vairables
   bool isEvent = false;  // check the end of the event
+  bool isFT    = false;  // on if FT is reached and set off by the header
   int i = 0;             // just a counter
   bool debug = false;     // printing stuff
   char prev = cout.fill(); // for debug formatting
@@ -81,7 +82,8 @@ int main( int argc, const char **argv) {
   // loop over the file
   while( true ){
 
-    //if( i > 10 ) break;
+    //if( i > 600 ) break;
+    //if( i > 574 ) debug = true;
 
     // FEU header
     // ---------
@@ -90,6 +92,7 @@ int main( int argc, const char **argv) {
       // then we loop over all the FEU header data
 
       isEvent = true; // we are in an event
+      isFT = false;
 
       timestamp = 0;      
       delta_timestamp = 0;      
@@ -99,7 +102,6 @@ int main( int argc, const char **argv) {
 
       // loop over the FEU header data
       while ( is_Feu_header( data ) ){
-
         if( iFeuH == 0 ){
           FeuID = get_Feu_ID( data );
           sampleID = data & 0x800;
@@ -148,7 +150,7 @@ int main( int argc, const char **argv) {
       // end of the header lines, we can now reset the counter of the headers
       iFeuH=0;
     }
-    else if( is_data_zs( data ) && isEvent ) {
+    else if( is_data_zs( data ) && isEvent && ! isFT ) {
       // read data
       // =======================================
       // first line dreamId and channel Id
@@ -159,8 +161,9 @@ int main( int argc, const char **argv) {
       dreamID   = get_dream_ID_ZS( data );
 
       if( debug ){
+        print_data(data);
         prev = cout.fill('0');
-        cout << setw(4)  << hex << data << "   "; 
+        cout << isEvent << "  "  << setw(4)  << hex << data << "   "; 
       }
       // read next line
       read16(is,data);
@@ -171,6 +174,7 @@ int main( int argc, const char **argv) {
         cout << setw(4)  << hex << data << endl;
         cout << dec ;
         cout.fill( prev);
+        print_data(data);
       }
 
 
@@ -185,6 +189,7 @@ int main( int argc, const char **argv) {
       // read the final trailer
       // =====================
  
+      isFT = true;
       // check if this is the end of the event (EoE)
       if(  get_EoE(data) == 1  ) { 
 
@@ -219,8 +224,8 @@ int main( int argc, const char **argv) {
       read16(is,data);
 
       if( debug ){
-        cout << setw(4)  << hex << data << endl;
-        cout << dec ;
+        cout << setw(4)  << hex << data<< "  " << isEvent << endl;
+        cout << dec  ;
         cout.fill( prev);
       }
     
