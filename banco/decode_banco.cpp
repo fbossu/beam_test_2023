@@ -151,7 +151,7 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 
     	while(currentTrg != *trgNum && *trgNum > 0){
 			eventId = currentTrg;
-			if(eventId%1==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
+			if(eventId%50000==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
 			findClusters(hits, cls);
 			outTree->Fill();
 			hits->clear();
