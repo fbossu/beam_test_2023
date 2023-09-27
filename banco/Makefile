@@ -1,4 +1,4 @@
-all: decode_banco
+all: decode_banco reco_banco
 
 decode_banco: decode_banco.cpp definition_banco.h linkdefBanco.h
 	rootcling -f DictBanco.cxx definition_banco.h linkdefBanco.h

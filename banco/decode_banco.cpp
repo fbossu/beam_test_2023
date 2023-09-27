@@ -17,7 +17,7 @@
 // takes the path to the noise root file and returns a vector with the pixId of all noisy pixels
 std::vector<int> noiseVect(std::string fname){
 
-	int threshold = 0;
+	int threshold = 1;
 	
 	TFile* fin = TFile::Open(fname.c_str(),"read");
 
@@ -47,7 +47,7 @@ std::vector<int> noiseVect(std::string fname){
 	for(std::map<int,int>::iterator iter = count.begin(); iter != count.end(); ++iter){
 		if(iter->second > threshold){
 			noise.push_back(iter->first);
-			std::cout<<"noise pixId: "<<iter->first<<std::endl;
+			// std::cout<<"noise pixId: "<<iter->first<<std::endl;
 		}
 	}
 
@@ -149,9 +149,9 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 		ahit.chipId = *chipId;
 		ahit.clusterId = -1;
 
-    while(currentTrg != *trgNum && *trgNum > 0){
+    	while(currentTrg != *trgNum && *trgNum > 0){
 			eventId = currentTrg;
-			if(eventId%10000==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
+			if(eventId%50000==0) std::cout<<eventId<<" "<< *trgNum <<std::endl;
 			findClusters(hits, cls);
 			outTree->Fill();
 			hits->clear();
@@ -161,8 +161,8 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 		hits->push_back(ahit);
 	}
 
-  eventId = currentTrg;
-  outTree->Fill();
+	eventId = currentTrg;
+	outTree->Fill();
 	outTree->Write();
 	fout->Close();
 }
@@ -176,10 +176,10 @@ int main(int argc, char const *argv[])
   }
 
 	std::string fnameIn = argv[1];
-	std::string fnameOut = fnameIn;
+	std::string fnameOut = "fdec.root";
   //std::string noise = "multinoiseScan_230610_102306_NOBEAM-B0-ladder163.root";
 	std::string noise = argv[2];
-	fnameOut.insert(fnameIn.find(".root"), "_decoTh0");
+	// fnameOut.insert(fnameIn.find(".root"), "_dec");
 
 	decodeBanco(fnameIn, fnameOut, noise);
 
