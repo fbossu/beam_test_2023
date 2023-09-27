@@ -40,15 +40,19 @@ void residu(std::string fnameBanco, std::string fnameDet, StripTable det, double
       std::cout<<"WARNING: Missing banco event"<<std::endl; 
       continue;
     }
+    std:cout<<"cc"<<std::endl;
     for(auto tr : *tracks){
       double xdet = tr.x0 + zpos*tr.mx;
       double ydet = tr.y0 + zpos*tr.my;
+      std::cout<<xdet<<" "<<ydet<<std::endl;
       for(auto cl : *cls){
         if(cl.axis == 'x') hx->Fill(ydet - det.posX(cl.stripCentroid)[1]);
         if(cl.axis == 'y') hy->Fill(xdet - det.posY(cl.stripCentroid)[0]);
       }
     }
   }
+
+  if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   c->Divide(2,1);
