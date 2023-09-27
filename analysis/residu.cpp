@@ -40,7 +40,7 @@ void residu(std::string fnameBanco, std::string fnameDet, StripTable det, double
       std::cout<<"WARNING: Missing banco event"<<std::endl; 
       continue;
     }
-    std:cout<<"cc"<<std::endl;
+    std::cout<<"cc"<<std::endl;
     for(auto tr : *tracks){
       double xdet = tr.x0 + zpos*tr.mx;
       double ydet = tr.y0 + zpos*tr.my;
