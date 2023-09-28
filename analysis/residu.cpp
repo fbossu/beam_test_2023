@@ -29,13 +29,14 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
   TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, -90, -40.);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - (centroid - meanPosition))", 200, -20, 20.);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, 180, 230.);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - (centroid - meanPosition))", 200, -20, 20.);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
-  TH1F *hxstrip = new TH1F("hxstrip", "", 200,0,128);
-  TH1F *hystrip = new TH1F("hystrip", "", 200,0,128);
+  std::vector<float> Xstrip, Ystrip;
+  std::vector<float> xtrack, ytrack;
+
 
   while( MM.Next() ){
     bool isBanco = banco.Next();
@@ -49,18 +50,29 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
       double ydet = tr.y0 + zpos*tr.my;
       for(auto cl : *cls){
         if(cl.axis == 'x'){
-          hx->Fill(ydet - det.posX(cl.stripCentroid)[1]);
-          hxstrip->Fill(cl.stripCentroid);
+          Xstrip.push_back(cl.stripCentroid);
+          ytrack.push_back(ydet);
         }
         if(cl.axis == 'y'){
-          hy->Fill(xdet - det.posY(cl.stripCentroid)[0]);
-          hystrip->Fill(cl.stripCentroid);
+          Ystrip.push_back(cl.stripCentroid);
+          xtrack.push_back(xdet);
         }
       }
     }
   }
 
   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
+
+  double xbeam = det.posY(std::reduce(Ystrip.begin(), Ystrip.end(), 0.0) / Ystrip.size())[0];
+  double ybeam = det.posX(std::reduce(Xstrip.begin(), Xstrip.end(), 0.0) / Xstrip.size())[1];
+
+  for( int i=0; i<Xstrip.size(); i++){
+    hx->Fill(ytrack[i] - (det.posY(Xstrip[i])[0] - ybeam));
+  }
+
+  for( int i=0; i<Ystrip.size(); i++){
+    hy->Fill(xtrack[i] - (det.posY(Ystrip[i])[0] - xbeam));
+  }
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   TLatex latex;
