@@ -64,7 +64,7 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   TLatex latex;
-  latex.SetTextSize(0.4);
+  latex.SetTextSize(0.04);
   std::string label;
 
   c->Divide(2,1);
