@@ -64,7 +64,7 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   TLatex latex;
-  latex.SetTextSize(0.04);
+  latex.SetTextSize(0.1);
   std::string label;
 
   c->Divide(2,1);
@@ -72,10 +72,10 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   hx->Draw();
   hx->Draw("same");
   label = "pitch: "+ std::to_string(det.pitchX(hxstrip->GetMean())).substr(0, 5);
-  latex.DrawLatex(50., 8000,(label).c_str());
+  latex.DrawLatex(0.7, 0.5,(label).c_str());
 
   label = "inter: "+ std::to_string(det.interX(hxstrip->GetMean())).substr(0, 5);
-  latex.DrawLatex(50., 6000,(label).c_str());
+  latex.DrawLatex(0.7, 0.1,(label).c_str());
 
   c->cd(2);
   hy->SetLineColor(kRed);
@@ -83,10 +83,10 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   hy->Draw("same");
   
   label = "pitch: "+ std::to_string(det.pitchY(hystrip->GetMean())).substr(0, 5);
-  latex.DrawLatex(50., 8000,(label).c_str());
+  latex.DrawLatex(0.7, 0.5,(label).c_str());
 
   label = "inter: "+ std::to_string(det.interY(hystrip->GetMean(), hxstrip->GetMean())).substr(0, 5);
-  latex.DrawLatex(50., 6000,(label).c_str());
+  latex.DrawLatex(0.7, 0.1,(label).c_str());
 
   c->Print(graphname.c_str(), "png");
 }
