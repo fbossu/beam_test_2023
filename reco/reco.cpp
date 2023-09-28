@@ -54,7 +54,7 @@ void reco( string name, DreamTable det) {
 
   //
   name = name.substr( name.rfind('/')+1  ).insert( 0, "rec_");
-  TFile *fout  = TFile::Open( name.data(), "recreate");
+  TFile *fout  = TFile::Open( "frec.root", "recreate");
   TTree outnt( "events","test_beam_2023");
   outnt.SetDirectory( fout );
 
