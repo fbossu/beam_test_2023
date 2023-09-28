@@ -106,7 +106,7 @@ int main(int argc, char const *argv[])
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
   std::cout<<fnameMM<<" pos: "<<pos<<std::endl;
-  std::string graphname = "residue_POS"+std::to_string(pos);
+  std::string graphname = "residue_POS"+std::to_string(pos)+".png";
 
   residu(fnameBanco, fnameMM, det, -305.2, graphname);
 }
