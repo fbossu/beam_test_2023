@@ -30,9 +30,9 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
   TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - (cenPosition))", 200, -20, 20.);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - (centroid - meanPosition))", 200, -0, 20.);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - (centroid - meanPosition))", 200, -20, 20.);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - (centroid - meanPosition))", 200, -200, 200.);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
   std::vector<float> Xstrip, Ystrip;
@@ -71,11 +71,11 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   double ybeam = det.posX(avgXstrip)[1];
 
   for( int i=0; i<Xstrip.size(); i++){
-    hx->Fill((det.posX(Xstrip[i])[1] - ybeam));
+    hx->Fill(ytrack[i] - (det.posX(Xstrip[i])[1] - ybeam));
   }
 
   for( int i=0; i<Ystrip.size(); i++){
-    hy->Fill((det.posY(Ystrip[i])[0] - xbeam));
+    hy->Fill(xtrack[i] - (det.posY(Ystrip[i])[0] - xbeam));
   }
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
