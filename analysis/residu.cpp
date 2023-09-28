@@ -29,9 +29,9 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
   TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, -150, 50.);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, -90, -40.);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, 100, 300.);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, 180, 230.);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
   while( MM.Next() ){
