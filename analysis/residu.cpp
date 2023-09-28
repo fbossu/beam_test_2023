@@ -32,7 +32,7 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
 
   TH1F* hx = new TH1F("hx", "residu X strips (track - (centroid - meanPosition))", 200, -0, 20.);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - (centroid - meanPosition))", 200, 110, 150.);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - (centroid - meanPosition))", 200, 120, 140.);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
   std::vector<float> Xstrip, Ystrip;
