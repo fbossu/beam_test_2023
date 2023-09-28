@@ -64,7 +64,7 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   TLatex latex;
-  latex.SetTextSize(0.1);
+  latex.SetTextSize(0.05);
   std::string label;
 
   c->Divide(2,1);
@@ -75,7 +75,7 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   latex.DrawLatexNDC(0.7, 0.5,(label).c_str());
 
   label = "inter: "+ std::to_string(det.interX(hxstrip->GetMean())).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.1,(label).c_str());
+  latex.DrawLatexNDC(0.7, 0.45,(label).c_str());
 
   c->cd(2);
   hy->SetLineColor(kRed);
@@ -86,7 +86,7 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   latex.DrawLatexNDC(0.7, 0.5,(label).c_str());
 
   label = "inter: "+ std::to_string(det.interY(hystrip->GetMean(), hxstrip->GetMean())).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.1,(label).c_str());
+  latex.DrawLatexNDC(0.7, 0.45,(label).c_str());
 
   c->Print(graphname.c_str(), "png");
 }
