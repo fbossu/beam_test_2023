@@ -18,12 +18,12 @@
 #include "clusterSize.h"
 
 
-void residu(std::string fnameBanco, std::string fnameDet, StripTable det, double zpos){
+void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double zpos){
 
   TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
-  TFile *fdet = TFile::Open(fnameDet.c_str(), "read");
+  TFile *fMM = TFile::Open(fnameMM.c_str(), "read");
 
-  TTreeReader MM("events", fdet);
+  TTreeReader MM("events", fMM);
   TTreeReader banco("events", fbanco);
 
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
@@ -44,7 +44,7 @@ void residu(std::string fnameBanco, std::string fnameDet, StripTable det, double
     for(auto tr : *tracks){
       double xdet = tr.x0 + zpos*tr.mx;
       double ydet = tr.y0 + zpos*tr.my;
-      std::cout<<xdet<<" "<<ydet<<std::endl;
+      std::cout<<tr.x0<<" "<<tr.y0<<std::endl;
       for(auto cl : *cls){
         if(cl.axis == 'x') hx->Fill(ydet - det.posX(cl.stripCentroid)[1]);
         if(cl.axis == 'y') hy->Fill(xdet - det.posY(cl.stripCentroid)[0]);
