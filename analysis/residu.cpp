@@ -1,4 +1,5 @@
 #include <string>
+#include <numeric>
 
 #include "TFile.h"
 #include "TChain.h"
@@ -63,8 +64,11 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
 
   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
-  double xbeam = det.posY(std::reduce(Ystrip.begin(), Ystrip.end(), 0.0) / Ystrip.size())[0];
-  double ybeam = det.posX(std::reduce(Xstrip.begin(), Xstrip.end(), 0.0) / Xstrip.size())[1];
+  float avgXstrip = std::accumulate(Xstrip.begin(), Xstrip.end(), decltype(Xstrip)::value_type(0)) / Xstrip.size();
+  float avgYstrip = std::accumulate(Ystrip.begin(), Ystrip.end(), decltype(Ystrip)::value_type(0)) / Ystrip.size();
+  
+  double xbeam = det.posY(avgYstrip)[0];
+  double ybeam = det.posX(avgXstrip)[1];
 
   for( int i=0; i<Xstrip.size(); i++){
     hx->Fill(ytrack[i] - (det.posY(Xstrip[i])[0] - ybeam));
@@ -83,10 +87,10 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   c->cd(1);
   hx->Draw();
   hx->Draw("same");
-  label = "pitch: "+ std::to_string(det.pitchX(hxstrip->GetMean())).substr(0, 5);
+  label = "pitch: "+ std::to_string(det.pitchX(avgXstrip)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.5,(label).c_str());
 
-  label = "inter: "+ std::to_string(det.interX(hxstrip->GetMean())).substr(0, 5);
+  label = "inter: "+ std::to_string(det.interX(avgXstrip)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.45,(label).c_str());
 
   c->cd(2);
@@ -94,10 +98,10 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   hy->Draw();
   hy->Draw("same");
   
-  label = "pitch: "+ std::to_string(det.pitchY(hystrip->GetMean())).substr(0, 5);
+  label = "pitch: "+ std::to_string(det.pitchY(avgYstrip)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.5,(label).c_str());
 
-  label = "inter: "+ std::to_string(det.interY(hystrip->GetMean(), hxstrip->GetMean())).substr(0, 5);
+  label = "inter: "+ std::to_string(det.interY(avgYstrip, avgXstrip)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.45,(label).c_str());
 
   c->Print(graphname.c_str(), "png");
