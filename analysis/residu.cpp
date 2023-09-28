@@ -18,7 +18,7 @@
 #include "clusterSize.h"
 
 
-void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double zpos){
+void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double zpos, std::string graphname = "residue.png"){
 
   TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
   TFile *fMM = TFile::Open(fnameMM.c_str(), "read");
@@ -34,6 +34,9 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, 180, 230.);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
+  TH1F *hxstrip = new TH1F("hxstrip", "", 200,0,128);
+  TH1F *hystrip = new TH1F("hystrip", "", 200,0,128);
+
   while( MM.Next() ){
     bool isBanco = banco.Next();
     if(!isBanco){
@@ -45,8 +48,14 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
       double xdet = tr.x0 + zpos*tr.mx;
       double ydet = tr.y0 + zpos*tr.my;
       for(auto cl : *cls){
-        if(cl.axis == 'x') hx->Fill(ydet - det.posX(cl.stripCentroid)[1]);
-        if(cl.axis == 'y') hy->Fill(xdet - det.posY(cl.stripCentroid)[0]);
+        if(cl.axis == 'x'){
+          hx->Fill(ydet - det.posX(cl.stripCentroid)[1]);
+          hxstrip->Fill(cl.stripCentroid);
+        }
+        if(cl.axis == 'y'){
+          hy->Fill(xdet - det.posY(cl.stripCentroid)[0]);
+          hystrip->Fill(cl.stripCentroid);
+        }
       }
     }
   }
@@ -54,16 +63,32 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
+  TLatex latex;
+  latex.SetTextSize(0.04);
+  std::string label;
+
   c->Divide(2,1);
   c->cd(1);
   hx->Draw();
   hx->Draw("same");
+  label = "pitch: "+ std::to_string(det.pitchX(hxstrip->GetMean())).substr(0, 5);
+  latex.DrawLatex(50., 8000,(label).c_str());
+
+  label = "inter: "+ std::to_string(det.interX(hxstrip->GetMean())).substr(0, 5);
+  latex.DrawLatex(50., 6000,(label).c_str());
 
   c->cd(2);
   hy->SetLineColor(kRed);
   hy->Draw();
   hy->Draw("same");
-  c->Print("residue.png", "png");
+  
+  label = "pitch: "+ std::to_string(det.pitchY(hystrip->GetMean())).substr(0, 5);
+  latex.DrawLatex(50., 8000,(label).c_str());
+
+  label = "inter: "+ std::to_string(det.interY(hystrip->GetMean())).substr(0, 5);
+  latex.DrawLatex(50., 6000,(label).c_str());
+
+  c->Print(graphname.c_str(), "png");
 }
 
 
@@ -79,6 +104,9 @@ int main(int argc, char const *argv[])
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
-  residu(fnameBanco, fnameMM, det, -305.2);
+  int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
+  std::cout<<fnameMM<<" pos: "<<pos<<std::endl;
+
+  residu(fnameBanco, fnameMM, det, -305.2, "residue_POS11.png");
 }
 
