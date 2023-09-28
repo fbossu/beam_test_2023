@@ -53,7 +53,7 @@ void reco( string name, DreamTable det) {
   nt->SetBranchAddress( "ftst", &ftst );
 
   //
-  name = name.substr( name.rfind('/')+1  ).insert( 0, "rec_");
+  // name = name.substr( name.rfind('/')+1  ).insert( 0, "rec_");
   TFile *fout  = TFile::Open( "frec.root", "recreate");
   TTree outnt( "events","test_beam_2023");
   outnt.SetDirectory( fout );
