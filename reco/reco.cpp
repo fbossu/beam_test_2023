@@ -58,22 +58,43 @@ void reco( string name, DreamTable det) {
   TTree outnt( "events","test_beam_2023");
   outnt.SetDirectory( fout );
 
+  uint64_t out_eventId   = 1;
+  uint64_t out_timestamp = 0;
+  uint64_t out_delta_timestamp = 0;
+  uint16_t out_ftst = 0;
   hit ahit;
   vector<hit> *hits = new vector<hit>();
   vector<cluster> *cls = new vector<cluster>();
   outnt.Branch( "hits", &hits );
   outnt.Branch( "clusters", &cls );
-  outnt.Branch( "eventId", &eventId );
-  outnt.Branch( "timestamp", &timestamp );
-  outnt.Branch( "delta_timestamp", &delta_timestamp);
-  outnt.Branch( "ftst", &ftst );
+  outnt.Branch( "eventId", &out_eventId );
+  outnt.Branch( "timestamp", &out_timestamp );
+  outnt.Branch( "delta_timestamp", &out_delta_timestamp);
+  outnt.Branch( "ftst", &out_ftst );
 
+  uint64_t tmp_evId = 1;
   // loop over the events
   // --------------------
   for ( int iev=0; iev<nt->GetEntries() ; iev++){
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
 
     nt->GetEntry(iev);
+
+    // add empty events for those that have been lost
+    while( tmp_evId < eventId ){
+      out_timestamp = -1;
+      out_delta_timestamp = -1;
+      out_ftst = -1;
+      out_eventId = tmp_evId;
+      outnt.Fill();
+      tmp_evId++;
+    }
+    out_timestamp = timestamp;
+    out_delta_timestamp = delta_timestamp;
+    out_ftst = ftst;
+    out_eventId = eventId;
+    tmp_evId = out_eventId + 1;
+      //
 
     map<uint16_t,uint16_t> maxamp;
     map<uint16_t,uint16_t> sampmax;
