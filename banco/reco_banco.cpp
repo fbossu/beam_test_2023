@@ -74,10 +74,11 @@ void Residuals( banco::track trk, XYZVector p, TH1F *hres, char ax = 'x' ){
   hres->Fill( r );
 }
 
+std::string basedir = "";
+
 // =================================================================
 
 void recoBanco(std::vector<std::string> fnamesIn){
-
   // chain the N ladders together
   TTree *tree = 0x0;
 
@@ -101,7 +102,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   }
 	TTreeReader reader( tree );
 
-  TTreeReaderValue<unsigned long> eventId( reader, "eventId");
+  TTreeReaderValue<uint64_t> eventId( reader, "eventId");
 
   // link the cluster branches for the different ladders
   // use a map for accessing them by name "ladder#"
@@ -115,11 +116,11 @@ void recoBanco(std::vector<std::string> fnamesIn){
   // --------
   std::map< std::string, banco::Ladder > geom;
   for( auto s : tnames ){
+    std::cout << s << std::endl;
     geom[s];
-    geom[s].LoadGeometry(s,"geometries.txt"); // TODO relative paths
+    geom[s].LoadGeometry(s,Form("%s/geometries.txt",basedir.c_str())); // TODO relative paths
 
-    //std::cout << s << std::endl;
-    //geom[s].PrintGeometry();
+    geom[s].PrintGeometry();
   }
 
 
@@ -128,7 +129,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   TFile *fout =TFile::Open( "fout.root", "recreate" );
   // tree
   TTree *nt = new TTree("events","");
-  int trEvId = 0;
+  uint64_t trEvId = 0;
   std::vector<banco::track> *tracks = new std::vector<banco::track>();
   nt->Branch("tracks", &tracks);
   nt->Branch("eventId", &trEvId);
@@ -171,7 +172,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   //while( reader.Next() && i<5e4 ){
   while( reader.Next() ){
     i++;
-    trEvId = *eventId;
+    trEvId = *eventId + 1;
     
     if( i%1000 == 0 ){
       std::cout << " [ ";
@@ -180,6 +181,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
       for( float j = (float)i/nentries * 50; j < 50 ; j++ )
         std::cout << " ";
       std::cout<<" ] - " << std::setw(8) << i << "/" << nentries << "\r";
+      std::cout << std::flush;
 
     }
 
@@ -245,6 +247,10 @@ void recoBanco(std::vector<std::string> fnamesIn){
 
 int main(int argc, char const *argv[])
 {
+  basedir = argv[0];
+  basedir = basedir.substr(0, basedir.size()-10);
+  std::cout << basedir << std::endl;
+
   std::vector<std::string> fnames;
   for( int i=1; i<argc; i++){
 	  std::string fnameIn = argv[i];

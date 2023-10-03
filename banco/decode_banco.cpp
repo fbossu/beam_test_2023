@@ -125,7 +125,7 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 	TFile* fout = TFile::Open(fnameOut.c_str(),"recreate");
 	TTree* outTree = new TTree("events","");
 
-	int eventId = 0;
+	uint64_t eventId = 0;
 	std::vector<banco::hit> *hits = new std::vector<banco::hit>();
 	std::vector<banco::cluster> *cls = new std::vector<banco::cluster>();
 	
