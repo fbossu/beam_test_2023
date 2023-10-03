@@ -101,7 +101,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   }
 	TTreeReader reader( tree );
 
-  TTreeReaderValue<int> eventId( reader, "eventId");
+  TTreeReaderValue<unsigned long> eventId( reader, "eventId");
 
   // link the cluster branches for the different ladders
   // use a map for accessing them by name "ladder#"

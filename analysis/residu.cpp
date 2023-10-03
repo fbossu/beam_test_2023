@@ -30,14 +30,21 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
   TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - (centroid - meanPosition))", 200, -0, 20.);
+  TH1F* hx = new TH1F("hx", "residu X strips ( (track-beamPositionBanco) - (centroid-beamPositionMM) )", 200, -15, 15.);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - (centroid - meanPosition))", 200, 120, 140.);
+  TH1F* hy = new TH1F("hy", "residu Y strips ( (track-beamPositionBanco) - (centroid-beamPositionMM) )", 200, -15, 15.);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
+
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,-29,129, 200, -15, 15.);
+  h2x->GetXaxis()->SetTitle("position y axis (mm)");
+  h2x->GetYaxis()->SetTitle("residue (mm)");
+
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,-129,29, 200, -15, 15.);
+  h2y->GetXaxis()->SetTitle("position x axis (mm)");
+  h2y->GetYaxis()->SetTitle("residue (mm)");
 
   std::vector<float> Xstrip, Ystrip;
   std::vector<float> xtrack, ytrack;
-
 
   while( MM.Next() ){
     bool isBanco = banco.Next();
@@ -66,24 +73,29 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
 
   float avgXstrip = std::accumulate(Xstrip.begin(), Xstrip.end(), decltype(Xstrip)::value_type(0)) / Xstrip.size();
   float avgYstrip = std::accumulate(Ystrip.begin(), Ystrip.end(), decltype(Ystrip)::value_type(0)) / Ystrip.size();
+
+  float xtrackBeam = std::accumulate(xtrack.begin(), xtrack.end(), decltype(xtrack)::value_type(0)) / xtrack.size();
+  float ytrackBeam = std::accumulate(ytrack.begin(), ytrack.end(), decltype(ytrack)::value_type(0)) / ytrack.size();
   
   double xbeam = det.posY(avgYstrip)[0];
   double ybeam = det.posX(avgXstrip)[1];
 
   for( int i=0; i<Xstrip.size(); i++){
-    hx->Fill(ytrack[i] - (det.posX(Xstrip[i])[1] - ybeam));
+    hx->Fill((ytrack[i] - ytrackBeam) - (det.posX(Xstrip[i])[1] - ybeam));
+    h2x->Fill( det.posX(Xstrip[i])[1], (ytrack[i] - ytrackBeam) - (det.posX(Xstrip[i])[1] - ybeam));
   }
 
   for( int i=0; i<Ystrip.size(); i++){
-    hy->Fill(xtrack[i] - (det.posY(Ystrip[i])[0] - xbeam));
+    hy->Fill((xtrack[i] - xtrackBeam) - (det.posY(Ystrip[i])[0] - xbeam));
+    h2y->Fill(det.posY(Ystrip[i])[0], (xtrack[i] - xtrackBeam) - (det.posY(Ystrip[i])[0] - xbeam));
   }
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   TLatex latex;
-  latex.SetTextSize(0.03);
+  latex.SetTextSize(0.025);
   std::string label;
 
-  c->Divide(2,1);
+  c->Divide(2,2);
   c->cd(1);
   hx->Draw();
   hx->Draw("same");
@@ -91,7 +103,13 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
 
   label = "inter: "+ std::to_string(det.interX(avgXstrip)).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.45, (label).c_str());
+  latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
+
+  label = "MM <ybeam> =  "+ std::to_string(ybeam).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.44, (label).c_str());
+
+  label = "Banco <ybeam> =  "+ std::to_string(ytrackBeam).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.41, (label).c_str());
 
   c->cd(2);
   hy->SetLineColor(kRed);
@@ -102,7 +120,19 @@ void residu(std::string fnameBanco, std::string fnameMM, StripTable det, double 
   latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
 
   label = "inter: "+ std::to_string(det.interY(avgYstrip, avgXstrip)).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.45, (label).c_str());
+  latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
+
+  label = "MM <xbeam> =  "+ std::to_string(xbeam).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.44, (label).c_str());
+
+  label = "Banco <xbeam> =  "+ std::to_string(xtrackBeam).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.41, (label).c_str());
+
+  c->cd(3);
+  h2x->Draw("colz");
+
+  c->cd(4);
+  h2y->Draw("colz");
 
   c->Print(graphname.c_str(), "png");
 }
@@ -115,15 +145,20 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
-  StripTable det(basedir+"../map/strip_map.txt");
+  // StripTable det(basedir+"../map/strip_map.txt");
+  StripTable det(basedir+"../map/asa_map.txt");
 
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
   std::cout<<fnameMM<<" pos: "<<pos<<std::endl;
-  std::string graphname = "residue_POS"+std::to_string(pos)+".png";
+  // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_flipedxy.png";
+  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4_flipedxy.png";
 
-  residu(fnameBanco, fnameMM, det, -305.2, graphname);
+  // z pos on murwell strip: -305.2
+  // z pos of asa strip: -785.6
+  // residu(fnameBanco, fnameMM, det, -305.2, graphname);
+  residu(fnameBanco, fnameMM, det, -785.6, graphname);
 }
 
