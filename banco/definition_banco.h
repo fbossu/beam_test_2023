@@ -7,7 +7,7 @@ namespace banco {
     uint16_t row;
     uint16_t ladderId;
     uint16_t chipId;
-    uint32_t trgTime;
+    uint64_t trgTime;
     int col;
     int pixId;
     int clusterId;

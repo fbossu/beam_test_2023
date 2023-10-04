@@ -119,7 +119,7 @@ void decodeBanco(std::string fnameIn, std::string fnameOut, std::string fnameNoi
 	TTreeReaderValue<UInt_t> chipCol(reader, "fData.col");
 	TTreeReaderValue<UInt_t> ladderId(reader, "fData.deviceType");
 	TTreeReaderValue<UInt_t> chipId(reader, "fData.chipId");
-	TTreeReaderValue<UInt_t> trgTime(reader, "fData.trgTime");
+	TTreeReaderValue<ULong64_t> trgTime(reader, "fData.trgTime");
 
 	// output file
 	TFile* fout = TFile::Open(fnameOut.c_str(),"recreate");
