@@ -16,6 +16,8 @@
 
 #include "Math/Rotation3D.h"
 #include "Math/Vector3D.h"
+#include <getopt.h>
+#include <cstdlib>
 
 #include "utils.h"
 
@@ -74,7 +76,11 @@ void Residuals( banco::track trk, XYZVector p, TH1F *hres, char ax = 'x' ){
   hres->Fill( r );
 }
 
+// global settings
 std::string basedir = "";
+int NEVENTS = -1;
+bool DoRES = false;
+float MaxR = 1.;
 
 // =================================================================
 
@@ -140,8 +146,8 @@ void recoBanco(std::vector<std::string> fnamesIn){
   axis *acy = createAxis( "centroid y (mm)", 2000, 0, 150. ); 
   axis *acx = createAxis( "centroid x (mm)", 200, 0, 15. );
 
-  axis *arescx = createAxis( "residual x (mm)", 500, -.15, .15 ); 
-  axis *arescy = createAxis( "residual y (mm)", 500, -.15, .15 ); 
+  axis *arescx = createAxis( "residual x (mm)", 500, -MaxR, MaxR ); 
+  axis *arescy = createAxis( "residual y (mm)", 500, -MaxR, MaxR ); 
 
   std::map<std::string, TH2F*> mh2xy;
   std::map<std::string, TH1F*> mhresx;
@@ -171,9 +177,11 @@ void recoBanco(std::vector<std::string> fnamesIn){
   int nentries = reader.GetEntries();
   //while( reader.Next() && i<5e4 ){
   while( reader.Next() ){
+
+    if( NEVENTS > 0 && i > NEVENTS ) break;
     i++;
     trEvId = *eventId + 1;
-    
+ 
     if( i%1000 == 0 ){
       std::cout << " [ ";
       for( int j=0; j < (float)i/nentries * 50; j++ )
@@ -229,11 +237,13 @@ void recoBanco(std::vector<std::string> fnamesIn){
         }
     }
 
-    // unbiased residuals
-    for( int i=0;i<seed.size(); i++){
-      auto trk = Fit( seed, i );
-      Residuals( trk, seed[i], mhUresx[seeddet.at(i)], 'x');
-      Residuals( trk, seed[i], mhUresy[seeddet.at(i)], 'y');
+    if( DoRES ){
+      // unbiased residuals
+      for( int i=0;i<seed.size(); i++){
+        auto trk = Fit( seed, i );
+        Residuals( trk, seed[i], mhUresx[seeddet.at(i)], 'x');
+        Residuals( trk, seed[i], mhUresy[seeddet.at(i)], 'y');
+      }
     }
 
 
@@ -245,17 +255,46 @@ void recoBanco(std::vector<std::string> fnamesIn){
   fout->Close();
 }
 
-int main(int argc, char const *argv[])
+
+int main(int argc, char *argv[])
 {
   basedir = argv[0];
   basedir = basedir.substr(0, basedir.size()-10);
-  std::cout << basedir << std::endl;
+  std::cout << " basedir " <<  basedir << std::endl;
+
+  // reading some options
+  int opt;
+  while((opt = getopt(argc, argv, "rn:m:")) != -1) { 
+    switch(opt) { 
+      case 'r':
+        DoRES = true;
+        std::cout << "RES ON " << DoRES << std::endl;
+        break;
+      case 'm':
+        MaxR=std::atof(optarg);
+        std::cout << "limits res hists "<< MaxR << std::endl;
+        break;
+      case 'n':
+        NEVENTS=std::atoi(optarg);
+        std::cout << "N Events "<< NEVENTS << std::endl;
+        break;
+      default:
+      break;
+    }
+  }
+  
 
   std::vector<std::string> fnames;
   for( int i=1; i<argc; i++){
-	  std::string fnameIn = argv[i];
-    std::cout << fnameIn << std::endl;
-    fnames.push_back( fnameIn );
+    std::string fnameIn = argv[i];
+    if( fnameIn.find( ".root" ) != std::string::npos ){
+      std::cout << fnameIn << std::endl;
+       fnames.push_back( fnameIn );
+	  }
+  }
+  if( fnames.size() < 3 ) {
+    std::cout << "not enough ladder files\n";
+    return -1;
   }
   recoBanco(fnames);
 	return 0;
