@@ -194,7 +194,7 @@ int main(int argc, char const *argv[])
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
   // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_flipedxy.png";
-  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4_flipedxy.png";
+  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
   double zpos = -785.6;
 
   // z pos on murwell strip: -305.2

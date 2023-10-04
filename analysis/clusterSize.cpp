@@ -169,10 +169,10 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   for(int i=0; i<6; i++){
     std::string label = "h2amp"+std::to_string(i);
     std::string title = "clusters size"+std::to_string(i+1);
-    h2ampX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), xlim[1]-xlim[0]+1, xlim[0]-0.5, xlim[1]+0.5, 500, 200, 700);
-    h2ampY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), ylim[1]-ylim[0]+1, ylim[0]-0.5, ylim[1]+0.5, 500, 200, 700);
+    h2ampX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 7, -3.5, 3.5, 50, 0., 1.);
+    h2ampY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 7, -3.5, 3.5, 50, 0., 1.);
     h2ampX[i]->SetXTitle("strip number"); h2ampY[i]->SetXTitle("strip number");
-    h2ampX[i]->SetYTitle("amplitude"); h2ampY[i]->SetYTitle("amplitude");
+    h2ampX[i]->SetYTitle("amplitude normalised"); h2ampY[i]->SetYTitle("amplitude normalised");
   }
 
   cluster clX, clY;
@@ -185,51 +185,55 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     int maxSizeX = 0;
     int maxSizeY = 0;
 
-    for(auto h : *hits){
-      if(h.axis == 'x' and h.strip>xlim[0] and h.strip<xlim[1]) hX.push_back(h);
-      if(h.axis == 'y' and h.strip>ylim[0] and h.strip<ylim[1]) hY.push_back(h);
-    }
-
     for( auto c : *cls ){
       if( c.axis == 'x' and c.stripCentroid>xlim[0] and c.stripCentroid<xlim[1] ){
-        if(c.size>maxSizeX) clX = c;
+        if(c.size>maxSizeX) {
+          clX = c;
+          maxSizeX = c.size;
+        }
       }
       else if( c.axis == 'y' and c.stripCentroid>ylim[0] and c.stripCentroid<ylim[1] ){
-        if(c.size>maxSizeY) clY = c;
-        
+        if(c.size>maxSizeY) {
+          clY = c;
+          maxSizeY = c.size;
+        }
       }
+    }
+
+    for(auto h : *hits){
+      if(h.axis == 'x' and h.clusterId == clX.id) hX.push_back(h);
+      if(h.axis == 'y' and h.clusterId == clY.id) hY.push_back(h);
     }
 
     if( hX.size() > 0 ){
       hcentroidX->Fill(clX.stripCentroid);
       hclSizeX->Fill(clX.size);
-      int centerStrip = int(round(clX.stripCentroid));
-      if(clX.size<7){
+      auto maxHit = *std::max_element(hX.begin(), hX.end(),
+                             [](const hit& a,const hit& b) { return a.maxamp < b.maxamp; });
+      if(clX.size == 1){
+        hampCenterX->Fill(maxHit.maxamp);
+        hampSampleX->Fill(maxHit.samplemax);
+      }
+      else if(clX.size<7){
         for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
-          if(hitx->clusterId == clX.id){
-            h2ampX[clX.size-1]->Fill(hitx->strip, hitx->maxamp);
-            if(hitx->strip == centerStrip){
-              hampCenterX->Fill(hitx->maxamp);
-              hampSampleX->Fill(hitx->samplemax);
-            }
-          }
+          h2ampX[clX.size-1]->Fill(hitx->strip-maxHit.strip, hitx->maxamp/maxHit.maxamp);
         }
       }
     }
 
+
     if( hY.size() > 0 ){
       hcentroidY->Fill(clY.stripCentroid);
       hclSizeY->Fill(clY.size);
-      int centerStrip = int(round(clY.stripCentroid));
-      if(clY.size<7){
+      auto maxHit = *std::max_element(hY.begin(), hY.end(),
+                             [](const hit& a,const hit& b) { return a.maxamp < b.maxamp; });
+      if(clY.size == 1){
+        hampCenterY->Fill(maxHit.maxamp);
+        hampSampleY->Fill(maxHit.samplemax);
+      }
+      else if(clY.size<7){
         for( auto hity = hY.begin(); hity < hY.end(); hity++){
-          if(hity->clusterId == clY.id){
-            h2ampY[clY.size-1]->Fill(hity->strip, hity->maxamp);
-            if(hity->strip == centerStrip){
-              hampCenterY->Fill(hity->maxamp);
-              hampSampleY->Fill(hity->samplemax);
-            }
-          }
+          h2ampY[clY.size-1]->Fill(hity->strip-maxHit.strip, hity->maxamp/maxHit.maxamp);
         }
       }
     }
@@ -295,8 +299,12 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   campX->Divide(3, 2);
   for(int i=0; i<6; i++){
     campX->cd(i+1);
-    h2ampX[i]->SetStats(0);
-    h2ampX[i]->Draw("colz");
+    if(i==0){
+      hampCenterX->Draw();
+    }else{
+     h2ampX[i]->SetStats(0);
+     h2ampX[i]->Draw("colz");
+    }
   }
   campX->Print(graphAmpX.c_str(), "png");
 
@@ -304,8 +312,12 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   campY->Divide(3, 2);
   for(int i=0; i<6; i++){
     campY->cd(i+1);
-    h2ampY[i]->SetStats(0);
-    h2ampY[i]->Draw("colz");
+    if(i==0){
+      hampCenterY->Draw();
+    }else{
+     h2ampY[i]->SetStats(0);
+     h2ampY[i]->Draw("colz");
+    }
   }
   campY->Print(graphAmpY.c_str(), "png");
 }
