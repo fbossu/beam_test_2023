@@ -36,8 +36,8 @@ banco::track Fit( std::vector<XYZVector> seed, int ignore=-1 ){
     auto p = seed[i];
     grx.SetPoint(i,p.Z(),p.X());
     gry.SetPoint(i,p.Z(),p.Y());
-    grx.SetPointError(i,0,0.025/sqrt(12));
-    gry.SetPointError(i,0,0.025/sqrt(12));
+    grx.SetPointError(i,0,0.028/sqrt(12));
+    gry.SetPointError(i,0,0.028/sqrt(12));
   }
 
   auto ptrx = grx.Fit("pol1","Q0S");
@@ -143,7 +143,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   // histograms
   auto hdir = fout->mkdir("histos");
 
-  axis *acy = createAxis( "centroid y (mm)", 2000, 0, 150. ); 
+  axis *acy = createAxis( "centroid y (mm)", 200, 0, 15. ); 
   axis *acx = createAxis( "centroid x (mm)", 200, 0, 15. );
 
   axis *arescx = createAxis( "residual x (mm)", 500, -MaxR, MaxR ); 
@@ -166,10 +166,25 @@ void recoBanco(std::vector<std::string> fnamesIn){
     mhUresy[s] = createHisto( Form("hUresy_%s",s.c_str()), Form("unbiased res y %s",s.c_str()), arescy );
     mhUresy[s]->SetDirectory(hdir);
   }
-  TH2F *hcorx = create2DHisto( "hcorx", "corr x", acx, acx );
-  hcorx->SetDirectory(hdir);
-  TH2F *hcory = create2DHisto( "hcory", "corr y", acy, acy );
-  hcory->SetDirectory(hdir);
+  std::vector<std::pair<std::string,std::string>> hcornames;
+  hcornames.push_back( {"ladder162","ladder157"} );
+  hcornames.push_back( {"ladder162","ladder163"} );
+  hcornames.push_back( {"ladder162","ladder160"} );
+  hcornames.push_back( {"ladder157","ladder163"} );
+  hcornames.push_back( {"ladder157","ladder160"} );
+  hcornames.push_back( {"ladder163","ladder160"} );
+  std::map<std::pair<std::string,std::string>, TH2F *> mh2corx;
+  std::map<std::pair<std::string,std::string>, TH2F *> mh2cory;
+  for( auto a : hcornames ){
+    auto n = "h" + a.first + a.second;
+    TH2F *hcorx12 = create2DHisto( (n+"x").c_str(), n.c_str(), acx, acx );
+    hcorx12->SetDirectory(hdir);
+    mh2corx[a] = hcorx12;
+    TH2F *hcory12 = create2DHisto( (n+"y").c_str(), n.c_str(), acy, acy );
+    hcory12->SetDirectory(hdir);
+    mh2cory[a] = hcory12;
+
+  }
 
   // loop over events
   // ================
@@ -198,7 +213,27 @@ void recoBanco(std::vector<std::string> fnamesIn){
       for( auto cl : *(*cls[s]) ) { 
         XYZVector c0;
         geom[s].CentroidToLocal( cl, &c0 );
+        geom[s].LocalToGlobal(  &c0 );
         mh2xy[s]->Fill( c0.X(), c0.Y() );
+      }
+    }
+    for( auto a : hcornames ){
+      auto d1 = a.first;
+      auto d2 = a.second;
+      for( auto cl1 : *(*cls[d1]) ){
+        XYZVector c1;
+        geom[d1].CentroidToLocal( cl1, &c1 );
+        geom[d1].LocalToGlobal(  &c1 );
+
+        for( auto cl2 : *(*cls[d2]) ){ 
+          XYZVector c2;
+          geom[d2].CentroidToLocal( cl2, &c2 );
+          geom[d2].LocalToGlobal(  &c2 );
+
+          mh2corx[a]->Fill( c1.X(), c2.X() );
+          mh2cory[a]->Fill( c1.Y(), c2.Y() );
+          
+        }
       }
     }
 
@@ -297,5 +332,6 @@ int main(int argc, char *argv[])
     return -1;
   }
   recoBanco(fnames);
+  std::cout<<std::endl;
 	return 0;
 }
