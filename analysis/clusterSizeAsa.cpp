@@ -39,10 +39,10 @@ int main(int argc, char const *argv[])
   StripTable det(basedir+"../map/asa_map.txt");
 
   clusterSizeRegion(chain, detName, det);
-  clusterSizeLims(chain, detName, det, {2, 16}, {15, 25});
-  clusterSizeLims(chain, detName, det, {37, 52}, {50, 65});
-  clusterSizeLims(chain, detName, det, {70, 90}, {65, 85});
-  clusterSizeLims(chain, detName, det, {100, 110}, {105, 115});
+  // clusterSizeLims(chain, detName, det, {2, 16}, {15, 25});
+  // clusterSizeLims(chain, detName, det, {37, 52}, {50, 65});
+  // clusterSizeLims(chain, detName, det, {70, 90}, {65, 85});
+  // clusterSizeLims(chain, detName, det, {100, 110}, {105, 115});
 
   return 0;
 }

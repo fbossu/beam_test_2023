@@ -1,4 +1,4 @@
-all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu
+all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs )
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -28,3 +28,6 @@ correlation: correlation.cpp
 residu: residu.cpp
 # 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
 	g++ residu.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o residu $(DT) $(ROOT)
+
+banco_coincidence: banco_coincidence.cpp
+	g++ banco_coincidence.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o banco_coincidence $(DT) $(ROOT)

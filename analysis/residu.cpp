@@ -102,45 +102,59 @@ void residueRel(StripTable det, std::vector<float> Xstrip, std::vector<float> Ys
 
 
 // Absolute residue
-void residueAbs(StripTable det, std::vector<float> Xstrip, std::vector<float> Ystrip, std::vector<float> xtrack, std::vector<float> ytrack, std::string graphname = "residue.png"){
+void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet, std::vector<float> xtrack, std::vector<float> ytrack, std::string graphname = "residue.png"){
 
-  std::vector<float> Xresidue, Yresidue;
+  std::vector<float> xresidue, yresidue;
 
-  for(int i=0; i<Xstrip.size(); i++){
-    Xresidue.push_back(ytrack[i] - det.posX(Xstrip[i])[1]);
+  for(int i=0; i<xdet.size(); i++){
+    xresidue.push_back(xtrack[i] - xdet[i]);
   }
 
-  for(int i=0; i<Ystrip.size(); i++){
-    Yresidue.push_back(xtrack[i] - det.posY(Ystrip[i])[0]);
+  for(int i=0; i<ydet.size(); i++){
+    yresidue.push_back(ytrack[i] - ydet[i]);
   }
 
-  float avgXresidue = std::accumulate(Xresidue.begin(), Xresidue.end(), decltype(Xresidue)::value_type(0)) / Xresidue.size();
-  float avgYresidue = std::accumulate(Yresidue.begin(), Yresidue.end(), decltype(Yresidue)::value_type(0)) / Yresidue.size();
+  float avgxresidue = std::accumulate(xresidue.begin(), xresidue.end(), decltype(xresidue)::value_type(0)) / xresidue.size();
+  float avgyresidue = std::accumulate(yresidue.begin(), yresidue.end(), decltype(yresidue)::value_type(0)) / yresidue.size();
   
-  float avgXstrip = std::accumulate(Xstrip.begin(), Xstrip.end(), decltype(Xstrip)::value_type(0)) / Xstrip.size();
-  float avgYstrip = std::accumulate(Ystrip.begin(), Ystrip.end(), decltype(Ystrip)::value_type(0)) / Ystrip.size();
+  float avgxdet = std::accumulate(xdet.begin(), xdet.end(), decltype(xdet)::value_type(0)) / xdet.size();
+  float avgydet = std::accumulate(ydet.begin(), ydet.end(), decltype(ydet)::value_type(0)) / ydet.size();
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, avgXresidue-15, avgXresidue+15);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, avgyresidue-10, avgyresidue+10);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, avgYresidue-15, avgYresidue+15);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, avgxresidue-10, avgxresidue+10);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
-  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,-29,129, 200, avgXresidue-15, avgXresidue+15);
+  TH1F* hbsx = new TH1F("hbsx", "Beam spot X strips", 300, -29, 129);
+  hbsx->GetXaxis()->SetTitle("cluter position on y axis (mm)");
+  TH1F* hbsy = new TH1F("hbsy", "Beam spot Y strips", 300, -129, 29);
+  hbsy->GetXaxis()->SetTitle("cluter position on x axis (mm)");
+
+  TH1F* hbsx_tracks = new TH1F("hbsx_tracks", "Beam spot tracks", 300, -30, 30);
+  hbsx_tracks->GetXaxis()->SetTitle("cluter position on x axis (mm)");
+  TH1F* hbsy_tracks = new TH1F("hbsy_tracks", "Beam spot tracks", 300, -30, 30);
+  hbsy_tracks->GetXaxis()->SetTitle("cluter position on y axis (mm)");
+
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,-29,129, 200, avgyresidue-10, avgyresidue+10);
   h2x->GetXaxis()->SetTitle("position y axis (mm)");
   h2x->GetYaxis()->SetTitle("residue (mm)");
 
-  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,-129,29, 200, avgYresidue-15, avgYresidue+15);
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,-129,29, 200, avgxresidue-10, avgxresidue+10);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
 
-  for( int i=0; i<Xstrip.size(); i++){
-    hx->Fill(Xresidue[i]);
-    h2x->Fill( det.posX(Xstrip[i])[1], Xresidue[i]);
+  for( int i=0; i<ydet.size(); i++){
+    hx->Fill(yresidue[i]);
+    h2x->Fill( ydet[i], yresidue[i]);
+    hbsx->Fill(ydet[i]);
+    hbsx_tracks->Fill(xtrack[i]);
   }
 
-  for( int i=0; i<Ystrip.size(); i++){
-    hy->Fill(Yresidue[i]);
-    h2y->Fill(det.posY(Ystrip[i])[0], Yresidue[i]);
+  for( int i=0; i<xdet.size(); i++){
+    hy->Fill(xresidue[i]);
+    h2y->Fill(xdet[i], xresidue[i]);
+    hbsy->Fill(xdet[i]);
+    hbsy_tracks->Fill(ytrack[i]);
   }
   
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
@@ -151,22 +165,20 @@ void residueAbs(StripTable det, std::vector<float> Xstrip, std::vector<float> Ys
   c->Divide(2,2);
   c->cd(1);
   hx->Draw();
-  hx->Draw("same");
-  label = "pitch: "+ std::to_string(det.pitchX(avgXstrip)).substr(0, 5);
+  label = "pitch: "+ std::to_string(det.pitchX(avgydet)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
 
-  label = "inter: "+ std::to_string(det.interX(avgXstrip)).substr(0, 5);
+  label = "inter: "+ std::to_string(det.interX(avgydet)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
 
   c->cd(2);
   hy->SetLineColor(kRed);
   hy->Draw();
-  hy->Draw("same");
   
-  label = "pitch: "+ std::to_string(det.pitchY(avgYstrip)).substr(0, 5);
+  label = "pitch: "+ std::to_string(det.pitchY(avgxdet)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
 
-  label = "inter: "+ std::to_string(det.interY(avgYstrip, avgXstrip)).substr(0, 5);
+  label = "inter: "+ std::to_string(det.interY(avgxdet, avgydet)).substr(0, 5);
   latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
 
   c->cd(3);
@@ -176,6 +188,27 @@ void residueAbs(StripTable det, std::vector<float> Xstrip, std::vector<float> Ys
   h2y->Draw("colz");
 
   c->Print(graphname.c_str(), "png");
+
+  TCanvas *c1 = new TCanvas("c1", "c1", 1600,1000);
+
+  c1->Print(("BS"+graphname).c_str(), "png");
+  c1->Divide(2,2);
+  c1->cd(1);
+  hbsx->Draw();
+
+  c1->cd(2);
+  // hbsy->SetLineColor(kRed);
+  hbsy->Draw();
+
+  c1->cd(3);
+  hbsx_tracks->SetLineColor(kRed);
+  hbsx_tracks->Draw();
+
+  c1->cd(4);
+  hbsy_tracks->SetLineColor(kRed);
+  hbsy_tracks->Draw();
+
+  c1->Print(("BS"+graphname).c_str(), "png");
 }
 
 
@@ -186,16 +219,20 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
-  // StripTable det(basedir+"../map/strip_map.txt");
-  StripTable det(basedir+"../map/asa_map.txt");
+  StripTable det(basedir+"../map/strip_map.txt");
+  // StripTable det(basedir+"../map/asa_map.txt");
 
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
-  // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_flipedxy.png";
-  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
-  double zpos = -785.6;
+  std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_minuit.png";
+  // std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
+  // double zpos = -785.6;
+  // double zpos = -305.2;
+  // double zpos = -305.2  , Ty = 0;       // stripFEU1
+  // double zpos = -205.377, Ty = 93.7917; // POS16 stripFEU1 minuit
+  double zpos = -197.07,  Ty = 10.117; // POS05 stripFEU1 minuit
 
   // z pos on murwell strip: -305.2
   // z pos of asa strip: -785.6
@@ -210,7 +247,7 @@ int main(int argc, char const *argv[])
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
   TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
 
-  std::vector<float> Xstrip, Ystrip;
+  std::vector<float> xdet, ydet;
   std::vector<float> xtrack, ytrack;
 
   while( MM.Next() ){
@@ -221,16 +258,16 @@ int main(int argc, char const *argv[])
     }
 
     for(auto tr : *tracks){
-      double xdet = tr.x0 + zpos*tr.mx;
-      double ydet = tr.y0 + zpos*tr.my;
+      double xdetTrack = tr.x0 + zpos*tr.mx;
+      double ydetTrack = tr.y0 + zpos*tr.my;
       for(auto cl : *cls){
         if(cl.axis == 'x'){
-          Xstrip.push_back(cl.stripCentroid);
-          ytrack.push_back(ydet);
+          ydet.push_back(det.posX(cl.stripCentroid)[1] - Ty);
+          ytrack.push_back(ydetTrack);
         }
         if(cl.axis == 'y'){
-          Ystrip.push_back(cl.stripCentroid);
-          xtrack.push_back(xdet);
+          xdet.push_back(det.posY(cl.stripCentroid)[0]);
+          xtrack.push_back(xdetTrack);
         }
       }
     }
@@ -238,7 +275,7 @@ int main(int argc, char const *argv[])
 
   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
-  residueRel(det, Xstrip, Ystrip, xtrack, ytrack, "rel_"+graphname);
-  residueAbs(det, Xstrip, Ystrip, xtrack, ytrack, "abs_"+graphname);
+  // residueRel(det, xdet, ydet, xtrack, ytrack, "rel_"+graphname);
+  residueAbs(det, xdet, ydet, xtrack, ytrack, "abs_"+graphname);
 }
 
