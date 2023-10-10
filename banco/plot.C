@@ -43,6 +43,23 @@ void plot() {
     c->SaveAs( (s + ".pdf").c_str() );
   }
 
+  // draw slopes
+  TCanvas *cm = new TCanvas("cm","slopes");
+  TLegend *l = new TLegend(.1,0.6,.3,.9);
+  auto nt = fin->Get<TTree>("events");
+  TH1F *hmx = new TH1F("hmx", "slope", 300, -0.05, 0.05 );
+  hmx->SetLineColor(kBlack);
+  nt->Draw("tracks.mx>>hmx");
+  l->AddEntry(hmx,"l","x");
+  TH1F *hmy = new TH1F("hmy", "slope", 300, -0.05, 0.05 );
+  hmy->SetLineColor(kRed);
+  nt->Draw("tracks.my>>hmy","","same");
+  l->AddEntry(hmy,"l","y");
+
+  cout << "mean"  << setw(10) << hmx->GetMean() << setw(10) << hmy->GetMean() << endl;
+  cout << "angle" << setw(10) << 
+          atan( hmx->GetMean() ) << setw(10) << 
+          atan( hmy->GetMean() )<< endl;
 
 }
 
