@@ -110,6 +110,25 @@ void RotateTrack( banco::track &trk, float ax, float ay ){
   trk.my = m.Y()/m.Z();
 }
 
+struct gRotation {
+  float axz = 0.; // angle around the y axis
+  float ayz = 0.; // angle around the x axis
+  void Read( std::string );
+};
+void gRotation::Read(std::string fname ){
+  std::ifstream fin;
+  fin.open( fname );
+  if( fin.is_open() ){
+    std::string line;
+    while( std::getline( fin, line ) ){
+      if( line[0] == '#' ) continue;
+      std::stringstream strfl(line);
+      strfl >> axz >> ayz;
+      break;
+    }
+  }
+  else { std::cerr << "error in opening rotation file, keeping defalt setting\n"; }
+}
 
 // global settings
 std::string basedir = "";
@@ -164,6 +183,8 @@ void recoBanco(std::vector<std::string> fnamesIn){
     geom[s].PrintGeometry();
   }
 
+  gRotation globalrot;
+  globalrot.Read( Form("%s/global_rotation.txt",basedir.c_str() ) );
 
   // some outputs
   // -------------
@@ -325,7 +346,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
     }
 
     for( auto &t : *tracks )
-      RotateTrack( t, 0.0106 , -0.00102 ); // TODO read it from configuration file
+      RotateTrack( t, globalrot.axz, globalrot.ayz ); // TODO read it from configuration file
 
     nt->Fill();
     tracks->clear();
