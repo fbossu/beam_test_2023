@@ -1,3 +1,7 @@
+// beam test 2023
+// decode BANCO hits into an event based tree
+// author: S. Polcher-Rafael
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>

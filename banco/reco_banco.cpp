@@ -1,3 +1,7 @@
+// beam test 2023
+// reconstruction and tracking of BANCO
+// author: F. Bossù
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -58,7 +62,7 @@ banco::track Fit( std::vector<XYZVector> seed, int ignore=-1 ){
   return tr;
 }
 
-void Residuals( banco::track trk, XYZVector p, TH1F *hres, char ax = 'x' ){
+void Residuals( banco::track trk, XYZVector p, TH1 *hres, char ax = 'x' ){
   float z = p.Z();
   float c = 0.;
   float m = 0.;
@@ -73,7 +77,57 @@ void Residuals( banco::track trk, XYZVector p, TH1F *hres, char ax = 'x' ){
     m = trk.my;
     r = ( c + m*z ) - p.Y();
   }
-  hres->Fill( r );
+  if( strcmp( hres->ClassName() , "TH2F" ) == 0 )
+    hres->Fill( (c+m*z) , r );
+  else
+    hres->Fill( r );
+}
+
+void RotateTrack( banco::track &trk, float ax, float ay ){
+
+  XYZVectorF x0 = { trk.x0, trk.y0, 0};
+  XYZVectorF m  = { trk.mx, trk.my, 1};
+
+  Rotation3D XZ; // a rotation around the y axis
+  XZ.SetComponents(
+        cos(ax),  0, -sin(ax),
+             0,   1,        0,
+        sin(ax),  0,  cos(ax)
+      );
+
+  Rotation3D YZ; // a rotation around the x axis
+  YZ.SetComponents(
+             1,   0,        0,
+             0, cos(ay),  sin(ay),
+             0,-sin(ay),  cos(ay)
+      );
+  x0 = XZ*YZ*x0;
+  m  = XZ*YZ*m;
+  trk.x0 = x0.X();
+  trk.y0 = x0.Y();
+  //trk.z0 = x0.Z(); // do we need z0?
+  trk.mx = m.X()/m.Z();
+  trk.my = m.Y()/m.Z();
+}
+
+struct gRotation {
+  float axz = 0.; // angle around the y axis
+  float ayz = 0.; // angle around the x axis
+  void Read( std::string );
+};
+void gRotation::Read(std::string fname ){
+  std::ifstream fin;
+  fin.open( fname );
+  if( fin.is_open() ){
+    std::string line;
+    while( std::getline( fin, line ) ){
+      if( line[0] == '#' ) continue;
+      std::stringstream strfl(line);
+      strfl >> axz >> ayz;
+      break;
+    }
+  }
+  else { std::cerr << "error in opening rotation file, keeping defalt setting\n"; }
 }
 
 // global settings
@@ -129,6 +183,8 @@ void recoBanco(std::vector<std::string> fnamesIn){
     geom[s].PrintGeometry();
   }
 
+  gRotation globalrot;
+  globalrot.Read( Form("%s/global_rotation.txt",basedir.c_str() ) );
 
   // some outputs
   // -------------
@@ -154,6 +210,8 @@ void recoBanco(std::vector<std::string> fnamesIn){
   std::map<std::string, TH1F*> mhresy;
   std::map<std::string, TH1F*> mhUresx;
   std::map<std::string, TH1F*> mhUresy;
+  std::map<std::string, TH2F*> mh2Uresx;
+  std::map<std::string, TH2F*> mh2Uresy;
   for( auto s : tnames ){
     mh2xy[s] = create2DHisto( Form("h2xy_%s",s.c_str()), Form("xy %s",s.c_str()), acx, acy );
     mh2xy[s]->SetDirectory(hdir);
@@ -165,6 +223,10 @@ void recoBanco(std::vector<std::string> fnamesIn){
     mhUresx[s]->SetDirectory(hdir);
     mhUresy[s] = createHisto( Form("hUresy_%s",s.c_str()), Form("unbiased res y %s",s.c_str()), arescy );
     mhUresy[s]->SetDirectory(hdir);
+    mh2Uresx[s] = create2DHisto( Form("h2Uresx_%s",s.c_str()), Form("unbiased res x %s",s.c_str()), acx, arescx );
+    mh2Uresx[s]->SetDirectory(hdir);
+    mh2Uresy[s] = create2DHisto( Form("h2Uresy_%s",s.c_str()), Form("unbiased res y %s",s.c_str()), acy, arescy );
+    mh2Uresy[s]->SetDirectory(hdir);
   }
   std::vector<std::pair<std::string,std::string>> hcornames;
   hcornames.push_back( {"ladder162","ladder157"} );
@@ -278,9 +340,13 @@ void recoBanco(std::vector<std::string> fnamesIn){
         auto trk = Fit( seed, i );
         Residuals( trk, seed[i], mhUresx[seeddet.at(i)], 'x');
         Residuals( trk, seed[i], mhUresy[seeddet.at(i)], 'y');
+        Residuals( trk, seed[i], mh2Uresx[seeddet.at(i)], 'x');
+        Residuals( trk, seed[i], mh2Uresy[seeddet.at(i)], 'y');
       }
     }
 
+    for( auto &t : *tracks )
+      RotateTrack( t, globalrot.axz, globalrot.ayz ); // TODO read it from configuration file
 
     nt->Fill();
     tracks->clear();
@@ -331,7 +397,9 @@ int main(int argc, char *argv[])
     std::cout << "not enough ladder files\n";
     return -1;
   }
+  
   recoBanco(fnames);
-  std::cout<<std::endl;
+
+  std::cout << std::setw(100) << " " <<std::endl;
 	return 0;
 }
