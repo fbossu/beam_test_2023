@@ -200,7 +200,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   auto hdir = fout->mkdir("histos");
 
   axis *acy = createAxis( "centroid y (mm)", 200, 0, 15. ); 
-  axis *acx = createAxis( "centroid x (mm)", 200, 0, 15. );
+  axis *acx = createAxis( "centroid x (mm)", 200, 0, 150. );
 
   axis *arescx = createAxis( "residual x (mm)", 500, -MaxR, MaxR ); 
   axis *arescy = createAxis( "residual y (mm)", 500, -MaxR, MaxR ); 
@@ -228,13 +228,13 @@ void recoBanco(std::vector<std::string> fnamesIn){
     mh2Uresy[s] = create2DHisto( Form("h2Uresy_%s",s.c_str()), Form("unbiased res y %s",s.c_str()), acy, arescy );
     mh2Uresy[s]->SetDirectory(hdir);
   }
+
   std::vector<std::pair<std::string,std::string>> hcornames;
-  hcornames.push_back( {"ladder162","ladder157"} );
-  hcornames.push_back( {"ladder162","ladder163"} );
-  hcornames.push_back( {"ladder162","ladder160"} );
-  hcornames.push_back( {"ladder157","ladder163"} );
-  hcornames.push_back( {"ladder157","ladder160"} );
-  hcornames.push_back( {"ladder163","ladder160"} );
+  for( auto i = tnames.begin(); i<tnames.end(); i++ ){
+    for( auto j = i+1; j<tnames.end(); j++ ){
+      hcornames.push_back( {*i,*j} );
+    }
+  }
   std::map<std::pair<std::string,std::string>, TH2F *> mh2corx;
   std::map<std::pair<std::string,std::string>, TH2F *> mh2cory;
   for( auto a : hcornames ){
@@ -365,8 +365,12 @@ int main(int argc, char *argv[])
 
   // reading some options
   int opt;
-  while((opt = getopt(argc, argv, "rn:m:")) != -1) { 
+  while((opt = getopt(argc, argv, "rn:m:g:")) != -1) { 
     switch(opt) { 
+      case 'g':
+        basedir = optarg;
+        std::cout << " basedir " <<  basedir << std::endl;
+        break;
       case 'r':
         DoRES = true;
         std::cout << "RES ON " << DoRES << std::endl;
