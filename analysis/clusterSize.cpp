@@ -130,15 +130,16 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   int zone = det.zone((xlim[0]+xlim[1])/2, (ylim[0]+ylim[1])/2);
 
   float pitch = det.pitchX(xlim[0]);
-  std::string strpitch = std::to_string(pitch).substr(0,3);
+  std::string strpitchX = std::to_string(pitch).substr(0,3);
+  std::string strpitchY = std::to_string( det.pitchX(ylim[0])).substr(0,3);
 
-  std::string graphMap = detname+"_ref"+strpitch+"_Map.png";
-  std::string graphStrip = detname+"_ref"+strpitch+"_strips.png";
-  std::string graphClSize = detname+"_ref"+strpitch+"_ClSize.png";
-  std::string graphAmpX = detname+"_ref"+strpitch+"_AmpX.png";
-  std::string graphAmpY = detname+"_ref"+strpitch+"_AmpY.png";
-  std::string graphampCenter = detname+"_ref"+strpitch+"_CenterAmp.png";
-  std::string graphMax = detname+"_ref"+strpitch+"_Max.png";
+  std::string graphMap = detname+"_ref"+std::to_string(zone)+"_Map.png";
+  std::string graphStrip = detname+"_ref"+std::to_string(zone)+"_strips.png";
+  std::string graphClSize = detname+"_ref"+std::to_string(zone)+"_ClSize.png";
+  std::string graphAmpX = detname+"_ref"+std::to_string(zone)+"_AmpX.png";
+  std::string graphAmpY = detname+"_ref"+std::to_string(zone)+"_AmpY.png";
+  std::string graphampCenter = detname+"_ref"+std::to_string(zone)+"_CenterAmp.png";
+  std::string graphMax = detname+"_ref"+std::to_string(zone)+"_Max.png";
 
   TTreeReader reader(chain);
 
