@@ -127,11 +127,13 @@ void gRotation::Read(std::string fname ){
       break;
     }
   }
-  else { std::cerr << "error in opening rotation file, keeping defalt setting\n"; }
+  else { std::cerr << "error in opening rotation file, keeping default setting\n"; }
 }
 
 // global settings
 std::string basedir = "";
+std::string geofname = "geometries.txt";
+std::string rotfname = "global_rotation.txt";
 int NEVENTS = -1;
 bool DoRES = false;
 float MaxR = 1.;
@@ -178,13 +180,13 @@ void recoBanco(std::vector<std::string> fnamesIn){
   for( auto s : tnames ){
     std::cout << s << std::endl;
     geom[s];
-    geom[s].LoadGeometry(s,Form("%s/geometries.txt",basedir.c_str())); // TODO relative paths
+    geom[s].LoadGeometry(s,(basedir+"/"+geofname).c_str()); 
 
     geom[s].PrintGeometry();
   }
 
   gRotation globalrot;
-  globalrot.Read( Form("%s/global_rotation.txt",basedir.c_str() ) );
+  globalrot.Read( (basedir+"/"+rotfname).c_str() );
 
   // some outputs
   // -------------
@@ -200,7 +202,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
   auto hdir = fout->mkdir("histos");
 
   axis *acy = createAxis( "centroid y (mm)", 200, 0, 15. ); 
-  axis *acx = createAxis( "centroid x (mm)", 200, 0, 150. );
+  axis *acx = createAxis( "centroid x (mm)", 200, 0, 15. );
 
   axis *arescx = createAxis( "residual x (mm)", 500, -MaxR, MaxR ); 
   axis *arescy = createAxis( "residual y (mm)", 500, -MaxR, MaxR ); 
@@ -365,11 +367,19 @@ int main(int argc, char *argv[])
 
   // reading some options
   int opt;
-  while((opt = getopt(argc, argv, "rn:m:g:")) != -1) { 
+  while((opt = getopt(argc, argv, "rn:m:d:g:R:")) != -1) { 
     switch(opt) { 
-      case 'g':
+      case 'd':
         basedir = optarg;
         std::cout << " basedir " <<  basedir << std::endl;
+        break;
+      case 'g':
+        geofname = optarg;
+        std::cout << " geometry file: " <<  geofname << std::endl;
+        break;
+      case 'R':
+        rotfname = optarg;
+        std::cout << " global rotation file: " <<  rotfname << std::endl;
         break;
       case 'r':
         DoRES = true;
