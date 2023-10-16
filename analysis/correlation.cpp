@@ -64,6 +64,8 @@ std::vector<double> beamPosition(std::string fname, StripTable det, TH2F* map=NU
 }
 
 
+// void correlation1pos(int fname)
+
 int main(int argc, char const *argv[])
 {
 

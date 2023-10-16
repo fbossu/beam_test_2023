@@ -120,9 +120,9 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   float avgxdet = std::accumulate(xdet.begin(), xdet.end(), decltype(xdet)::value_type(0)) / xdet.size();
   float avgydet = std::accumulate(ydet.begin(), ydet.end(), decltype(ydet)::value_type(0)) / ydet.size();
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, avgyresidue-10, avgyresidue+10);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, avgyresidue-8, avgyresidue+8);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, avgxresidue-10, avgxresidue+10);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, avgxresidue-8, avgxresidue+8);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
   TH1F* hbsx = new TH1F("hbsx", "Beam spot X strips", 300, -29, 129);
@@ -130,16 +130,16 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   TH1F* hbsy = new TH1F("hbsy", "Beam spot Y strips", 300, -129, 29);
   hbsy->GetXaxis()->SetTitle("cluter position on x axis (mm)");
 
-  TH1F* hbsx_tracks = new TH1F("hbsx_tracks", "Beam spot tracks", 300, -30, 30);
+  TH1F* hbsx_tracks = new TH1F("hbsx_tracks", "Beam spot tracks", 300, -30, 138);
   hbsx_tracks->GetXaxis()->SetTitle("cluter position on x axis (mm)");
   TH1F* hbsy_tracks = new TH1F("hbsy_tracks", "Beam spot tracks", 300, -30, 30);
   hbsy_tracks->GetXaxis()->SetTitle("cluter position on y axis (mm)");
 
-  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,-29,129, 200, avgyresidue-10, avgyresidue+10);
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,-29,129, 200, avgyresidue-5, avgyresidue+5);
   h2x->GetXaxis()->SetTitle("position y axis (mm)");
   h2x->GetYaxis()->SetTitle("residue (mm)");
 
-  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,-129,29, 200, avgxresidue-10, avgxresidue+10);
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,-129,29, 200, avgxresidue-5, avgxresidue+5);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
 
@@ -165,21 +165,21 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   c->Divide(2,2);
   c->cd(1);
   hx->Draw();
-  label = "pitch: "+ std::to_string(det.pitchX(avgydet)).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
+  // label = "pitch: "+ std::to_string(det.pitchX(avgydet)).substr(0, 5);
+  // latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
 
-  label = "inter: "+ std::to_string(det.interX(avgydet)).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
+  // label = "inter: "+ std::to_string(det.interX(avgydet)).substr(0, 5);
+  // latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
 
   c->cd(2);
   hy->SetLineColor(kRed);
   hy->Draw();
   
-  label = "pitch: "+ std::to_string(det.pitchY(avgxdet)).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
+  // label = "pitch: "+ std::to_string(det.pitchY(avgxdet)).substr(0, 5);
+  // latex.DrawLatexNDC(0.7, 0.5, (label).c_str());
 
-  label = "inter: "+ std::to_string(det.interY(avgxdet, avgydet)).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
+  // label = "inter: "+ std::to_string(det.interY(avgxdet, avgydet)).substr(0, 5);
+  // latex.DrawLatexNDC(0.7, 0.47, (label).c_str());
 
   c->cd(3);
   h2x->Draw("colz");
@@ -219,21 +219,21 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
-  StripTable det(basedir+"../map/strip_map.txt");
-  // StripTable det(basedir+"../map/asa_map.txt");
+  // StripTable det(basedir+"../map/strip_map.txt");
+  StripTable det(basedir+"../map/asa_map.txt");
 
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
-  std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_minuit.png";
-  // std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
-  // double zpos = -785.6;
+  // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_11.png";
+  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
+  double zpos = -785.6, Ty = 0;
   // double zpos = -305.2;
   // double zpos = -305.2  , Ty = 0;       // stripFEU1
   // double zpos = -205.377, Ty = 93.7917; // POS16 stripFEU1 minuit
-  double zpos = -197.07,  Ty = 10.117; // POS05 stripFEU1 minuit
-
+  // double zpos = -197.07,  Ty = 10.117; // POS05 stripFEU1 minuit
+// -197.07
   // z pos on murwell strip: -305.2
   // z pos of asa strip: -785.6
   // residu(fnameBanco, fnameMM, det, -305.2, graphname);
