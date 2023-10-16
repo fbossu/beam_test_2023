@@ -1,4 +1,7 @@
-all: inter strip asa DetectorTable.o DreamTable.o StripTable.o
+ROOT = $(shell root-config --cflags) $(shell root-config --libs )
+DT = ../map/DetectorTable.o ../map/StripTable.o
+
+all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment
 
 asa: factory_asa.cpp
 	g++ factory_asa.cpp -o factory_asa
@@ -17,3 +20,6 @@ DreamTable.o: DreamTable.cpp DreamTable.h DetectorTable.cpp DetectorTable.h
 
 StripTable.o: StripTable.cpp StripTable.h DetectorTable.cpp DetectorTable.h
 	g++ -c StripTable.cpp
+
+alignment: alignment.cpp
+	g++ alignment.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o alignment $(DT) $(ROOT)
