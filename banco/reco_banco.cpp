@@ -127,11 +127,13 @@ void gRotation::Read(std::string fname ){
       break;
     }
   }
-  else { std::cerr << "error in opening rotation file, keeping defalt setting\n"; }
+  else { std::cerr << "error in opening rotation file, keeping default setting\n"; }
 }
 
 // global settings
 std::string basedir = "";
+std::string geofname = "geometries.txt";
+std::string rotfname = "global_rotation.txt";
 int NEVENTS = -1;
 bool DoRES = false;
 float MaxR = 1.;
@@ -178,13 +180,13 @@ void recoBanco(std::vector<std::string> fnamesIn){
   for( auto s : tnames ){
     std::cout << s << std::endl;
     geom[s];
-    geom[s].LoadGeometry(s,Form("%s/geometries.txt",basedir.c_str())); // TODO relative paths
+    geom[s].LoadGeometry(s,(basedir+"/"+geofname).c_str()); 
 
     geom[s].PrintGeometry();
   }
 
   gRotation globalrot;
-  globalrot.Read( Form("%s/global_rotation.txt",basedir.c_str() ) );
+  globalrot.Read( (basedir+"/"+rotfname).c_str() );
 
   // some outputs
   // -------------
@@ -228,13 +230,13 @@ void recoBanco(std::vector<std::string> fnamesIn){
     mh2Uresy[s] = create2DHisto( Form("h2Uresy_%s",s.c_str()), Form("unbiased res y %s",s.c_str()), acy, arescy );
     mh2Uresy[s]->SetDirectory(hdir);
   }
+
   std::vector<std::pair<std::string,std::string>> hcornames;
-  hcornames.push_back( {"ladder162","ladder157"} );
-  hcornames.push_back( {"ladder162","ladder163"} );
-  hcornames.push_back( {"ladder162","ladder160"} );
-  hcornames.push_back( {"ladder157","ladder163"} );
-  hcornames.push_back( {"ladder157","ladder160"} );
-  hcornames.push_back( {"ladder163","ladder160"} );
+  for( auto i = tnames.begin(); i<tnames.end(); i++ ){
+    for( auto j = i+1; j<tnames.end(); j++ ){
+      hcornames.push_back( {*i,*j} );
+    }
+  }
   std::map<std::pair<std::string,std::string>, TH2F *> mh2corx;
   std::map<std::pair<std::string,std::string>, TH2F *> mh2cory;
   for( auto a : hcornames ){
@@ -365,8 +367,20 @@ int main(int argc, char *argv[])
 
   // reading some options
   int opt;
-  while((opt = getopt(argc, argv, "rn:m:")) != -1) { 
+  while((opt = getopt(argc, argv, "rn:m:d:g:R:")) != -1) { 
     switch(opt) { 
+      case 'd':
+        basedir = optarg;
+        std::cout << " basedir " <<  basedir << std::endl;
+        break;
+      case 'g':
+        geofname = optarg;
+        std::cout << " geometry file: " <<  geofname << std::endl;
+        break;
+      case 'R':
+        rotfname = optarg;
+        std::cout << " global rotation file: " <<  rotfname << std::endl;
+        break;
       case 'r':
         DoRES = true;
         std::cout << "RES ON " << DoRES << std::endl;

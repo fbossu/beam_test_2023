@@ -29,6 +29,7 @@ namespace banco {
       void SetFlipX( bool f ){ flipx = f; }
       void SetFlipY( bool f ){ flipy = f; }
   
+      XYZVectorF GetTranslation(){ return translation; }
       void LoadGeometry( std::string, std::string );
 
       void PrintGeometry();
