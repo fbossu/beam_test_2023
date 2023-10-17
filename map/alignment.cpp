@@ -40,7 +40,7 @@ struct XstripChi2 {
    	// calculate distance line-point
    	double chi2(banco::track tr, cluster cl, const double *p) {
    		double ytr = tr.y0 + p[0]*tr.my;
-   		double res = ytr - (det.posX(cl.stripCentroid)[1] - p[1]);
+   		double res = ytr - (det.posX(cl.stripCentroid)[1] + p[1]);
    		double err2 = pow(tr.ey0,2) + pow(tr.my*tr.emy,2) + pow(det.pitchX(int(cl.stripCentroid))/sqrt(12),2);
    		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
    		return (res*res)/err2;
@@ -73,7 +73,7 @@ struct YstripChi2 {
    	// calculate distance line-point
    	double chi2(banco::track tr, cluster cl, const double *p) {
    		double xtr = tr.x0 + p[0]*tr.mx;
-   		double res = xtr - (det.posY(cl.stripCentroid)[0] - p[1]);
+   		double res = xtr - (det.posY(cl.stripCentroid)[0] + p[1]);
    		double err2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(cl.stripCentroid))/sqrt(12),2);
    		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
    		return (res*res)/err2;
@@ -95,7 +95,7 @@ struct YstripChi2 {
 };
 
 
-std::string alignX(int pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, double *pStart){
+std::string alignX(int pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, double *pStart, bool fixZ=false){
 	ROOT::Fit::Fitter fitter;
 	first = true;
 
@@ -109,6 +109,7 @@ std::string alignX(int pos, StripTable det, std::vector<banco::track> tracks, st
 	// set step sizes different than default ones (0.3 times parameter values)
 	fitter.Config().ParSettings(0).SetStepSize(1.);
 	fitter.Config().ParSettings(1).SetStepSize(0.05);
+	if(fixZ) fitter.Config().ParSettings(0).Fix();
 
 	bool ok = fitter.FitFCN();
 	if (!ok) {
@@ -124,7 +125,7 @@ std::string alignX(int pos, StripTable det, std::vector<banco::track> tracks, st
 	       +std::to_string(result.Parameter(1))+","+std::to_string(result.ParError(1));
 }
 
-std::string alignY(int pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Ycls, double *pStart){
+std::string alignY(int pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Ycls, double *pStart, bool fixZ=false){
 	ROOT::Fit::Fitter fitter;
 	first = true;
 
@@ -138,6 +139,7 @@ std::string alignY(int pos, StripTable det, std::vector<banco::track> tracks, st
 	// set step sizes different than default ones (0.3 times parameter values)
 	fitter.Config().ParSettings(0).SetStepSize(1.);
 	fitter.Config().ParSettings(1).SetStepSize(0.05);
+	if(fixZ) fitter.Config().ParSettings(0).Fix();
 
 	bool ok = fitter.FitFCN();
 	if (!ok) {
@@ -160,9 +162,9 @@ int main(int argc, char const *argv[])
 
 	StripTable det(basedir+"../map/strip_map.txt");
 	// StripTable det(basedir+"../map/asa_map.txt");
-	// double zpos = -305.6, Ty = 94;
-	double zpos = -305.6, Ty = 10;
-	double Tx = -31;
+	double zpos = -305.6, Ty = 94;
+	// double zpos = -785.6, Ty = -10;
+	double Tx = 31;
   	// double zpos = -785.6, Ty = -94;
 
   	double pStartX[2] = {zpos, Ty};
@@ -222,8 +224,8 @@ int main(int argc, char const *argv[])
 
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
-	std::string outX = alignX(pos, det, tracksFit, XclsFit, pStartX);
-	std::string outY = alignY(pos, det, tracksFit, YclsFit, pStartY);
+	std::string outX = alignX(pos, det, tracksFit, XclsFit, pStartX, true);
+	std::string outY = alignY(pos, det, tracksFit, YclsFit, pStartY, true);
 	std::cout<<outX<<std::endl;
 	std::cout<<outY<<std::endl;
 

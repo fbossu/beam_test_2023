@@ -228,8 +228,8 @@ int main(int argc, char const *argv[])
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
   // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_11.png";
   std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
-  double zpos = -785.6, Ty = 0;
-  // double zpos = -305.2;
+  double zpos = -785.6, Ty = -10.3813, Tx = 28.05;
+  // double zpos = -305.2, Ty = -7.4934, Tx = 29.08;
   // double zpos = -305.2  , Ty = 0;       // stripFEU1
   // double zpos = -205.377, Ty = 93.7917; // POS16 stripFEU1 minuit
   // double zpos = -197.07,  Ty = 10.117; // POS05 stripFEU1 minuit
@@ -262,11 +262,11 @@ int main(int argc, char const *argv[])
       double ydetTrack = tr.y0 + zpos*tr.my;
       for(auto cl : *cls){
         if(cl.axis == 'x'){
-          ydet.push_back(det.posX(cl.stripCentroid)[1] - Ty);
+          ydet.push_back(det.posX(cl.stripCentroid)[1] + Ty);
           ytrack.push_back(ydetTrack);
         }
         if(cl.axis == 'y'){
-          xdet.push_back(det.posY(cl.stripCentroid)[0]);
+          xdet.push_back(det.posY(cl.stripCentroid)[0] + Tx);
           xtrack.push_back(xdetTrack);
         }
       }

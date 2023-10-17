@@ -23,7 +23,7 @@ clusterSizeInter: clusterSizeInter.cpp ../reco/definitions.h ../reco/linkdef.h $
 
 correlation: correlation.cpp
 # 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
-	g++ correlation.cpp ../reco/Dict.cxx -o corelation $(DT) $(ROOT)
+	g++ correlation.cpp ../reco/Dict.cxx -o correlation $(DT) $(ROOT)
 
 residu: residu.cpp
 # 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h

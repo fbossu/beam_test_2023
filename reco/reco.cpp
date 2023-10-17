@@ -287,7 +287,7 @@ int main( int argc, char **argv ){
   else if(nbFeu == 2){
     det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
     // det.setInversion(true, true, false, false);
-    det.setInversion(false, false, false, true);
+    det.setInversion(false, false, true, true);
   }
   else if(nbFeu == 3){
     det = DreamTable(basedir + "../map/strip_map.txt", 4, 5, 6, 7);
@@ -295,7 +295,7 @@ int main( int argc, char **argv ){
   }
   else if(nbFeu == 4){
     det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
-    det.setInversion(false, false, false, true);
+    det.setInversion(false, false, true, true);
   }
   else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
   else {cerr << "Feu number is invalid \n"; return 1;}
