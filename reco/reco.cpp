@@ -14,6 +14,7 @@
 
 using namespace std;
 
+// =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
 void niceBar( int tot, int i, int N=50 ){
@@ -26,6 +27,9 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
+// =====================================================================
+bool JustHits = false;
+// =====================================================================
 void reco( string name, DreamTable det) {
 
   TFile *infile = TFile::Open(name.data());
@@ -107,7 +111,7 @@ void reco( string name, DreamTable det) {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
-      if(!det.isConnected(jch)) continue;
+      //if(!JustHits && !det.isConnected(jch)) continue;
          
       amplitudes[jch].push_back( ampl->at(j));
 
@@ -165,7 +169,7 @@ void reco( string name, DreamTable det) {
     cls->clear();
     int oldch = -1;
     uint16_t clId = 1;
-    for( auto it = hits->begin(); it < hits->end(); ){
+    for( auto it = hits->begin(); !JustHits && it < hits->end(); ){ // skip this portion if JustHits is true
       // std::cout<<"channel: "<<it->channel<<std::endl;
       // start a new cluster
       if( oldch < 0 ){
@@ -297,7 +301,7 @@ int main( int argc, char **argv ){
     det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
     det.setInversion(false, false, false, true);
   }
-  else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
+  else if(nbFeu == 5) {cout << "WARNING: P2 map not yet implemented, just making hits \n"; JustHits = true; }
   else {cerr << "Feu number is invalid \n"; return 1;}
   reco( fname, det );
 
