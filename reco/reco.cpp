@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <iostream>
 #include <iomanip>
 
@@ -100,10 +100,11 @@ void reco( string name, DreamTable det) {
     tmp_evId = out_eventId + 1;
       //
 
-    map<uint16_t,uint16_t> maxamp;
-    map<uint16_t,uint16_t> sampmax;
-    map<uint16_t,float> flex;
-    map<uint16_t,vector<uint16_t>> amplitudes;
+    unordered_map<uint16_t,uint16_t> maxamp;
+    unordered_map<uint16_t,uint16_t> sampmax;
+    unordered_map<uint16_t,float> flex;
+    unordered_map<uint16_t,float> tmax;
+    unordered_map<uint16_t,vector<uint16_t>> amplitudes;
 
     // make hits
     // ---------
@@ -141,6 +142,24 @@ void reco( string name, DreamTable det) {
       flex[a.first] = (float)(2*imax+1)/2.;
     }
 
+    // find the time of max with a parabolic fit of the three bins around the sampmax
+    for( auto &sm : sampmax){
+      auto amp = amplitudes[sm.first];
+      if( sm.second == 0 || sm.second==15 ) { tmax[sm.first] = sm.second; continue; } // TODO fix max
+
+      float x0 = (float) (sm.second - 1.);
+      float x1 = (float) (sm.second) ;
+      float x2 = (float) (sm.second + 1.);
+      float y0 = (float) (amp.at( sm.second - 1 ));
+      float y1 = (float) (amp.at( sm.second  ));
+      float y2 = (float) (amp.at( sm.second + 1 ));
+
+      float max = ( x0*x0*y1 - x0*x0*y2 - x1*x1*y0 + x1*x1*y2 + x2*x2*y0 - x2*x2*y1  )\
+                  /(2*(x0*y1 - x0*y2 - x1*y0 + x1*y2 + x2*y0 - x2*y1 ));
+      tmax[sm.first] = max;
+
+    }
+    
 
     // fill a vector of hits
     hits->clear();
@@ -151,6 +170,7 @@ void reco( string name, DreamTable det) {
       ahit.axis      = det.axis(m.first);
       ahit.samplemax = sampmax[m.first];
       ahit.inflex    = flex[m.first];
+      ahit.timeofmax = tmax[m.first];
       ahit.samples.assign( amplitudes[m.first].begin(),  amplitudes[m.first].end() );
       hits->push_back(ahit);
     }
@@ -232,7 +252,7 @@ void reco( string name, DreamTable det) {
 
     outnt.Fill();
 
-    //if( eventId > 10  )break;
+    //if( eventId > 20  )break;
 
   }
   fout->Write();
