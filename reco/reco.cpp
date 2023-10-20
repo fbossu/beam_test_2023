@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <iostream>
 #include <iomanip>
 
@@ -14,6 +14,7 @@
 
 using namespace std;
 
+// =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
 void niceBar( int tot, int i, int N=50 ){
@@ -26,6 +27,9 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
+// =====================================================================
+bool JustHits = false;
+// =====================================================================
 void reco( string name, DreamTable det) {
 
   TFile *infile = TFile::Open(name.data());
@@ -96,10 +100,11 @@ void reco( string name, DreamTable det) {
     tmp_evId = out_eventId + 1;
       //
 
-    map<uint16_t,uint16_t> maxamp;
-    map<uint16_t,uint16_t> sampmax;
-    map<uint16_t,float> flex;
-    map<uint16_t,vector<uint16_t>> amplitudes;
+    unordered_map<uint16_t,uint16_t> maxamp;
+    unordered_map<uint16_t,uint16_t> sampmax;
+    unordered_map<uint16_t,float> flex;
+    unordered_map<uint16_t,float> tmax;
+    unordered_map<uint16_t,vector<uint16_t>> amplitudes;
 
     // make hits
     // ---------
@@ -107,7 +112,7 @@ void reco( string name, DreamTable det) {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
-      if(!det.isConnected(jch)) continue;
+      if(!JustHits && !det.isConnected(jch)) continue;
          
       amplitudes[jch].push_back( ampl->at(j));
 
@@ -137,6 +142,24 @@ void reco( string name, DreamTable det) {
       flex[a.first] = (float)(2*imax+1)/2.;
     }
 
+    // find the time of max with a parabolic fit of the three bins around the sampmax
+    for( auto &sm : sampmax){
+      auto amp = amplitudes[sm.first];
+      if( sm.second == 0 || sm.second==15 ) { tmax[sm.first] = sm.second; continue; } // TODO fix max
+
+      float x0 = (float) (sm.second - 1.);
+      float x1 = (float) (sm.second) ;
+      float x2 = (float) (sm.second + 1.);
+      float y0 = (float) (amp.at( sm.second - 1 ));
+      float y1 = (float) (amp.at( sm.second  ));
+      float y2 = (float) (amp.at( sm.second + 1 ));
+
+      float max = ( x0*x0*y1 - x0*x0*y2 - x1*x1*y0 + x1*x1*y2 + x2*x2*y0 - x2*x2*y1  )\
+                  /(2*(x0*y1 - x0*y2 - x1*y0 + x1*y2 + x2*y0 - x2*y1 ));
+      tmax[sm.first] = max;
+
+    }
+    
 
     // fill a vector of hits
     hits->clear();
@@ -147,6 +170,7 @@ void reco( string name, DreamTable det) {
       ahit.axis      = det.axis(m.first);
       ahit.samplemax = sampmax[m.first];
       ahit.inflex    = flex[m.first];
+      ahit.timeofmax = tmax[m.first];
       ahit.samples.assign( amplitudes[m.first].begin(),  amplitudes[m.first].end() );
       hits->push_back(ahit);
     }
@@ -165,7 +189,7 @@ void reco( string name, DreamTable det) {
     cls->clear();
     int oldch = -1;
     uint16_t clId = 1;
-    for( auto it = hits->begin(); it < hits->end(); ){
+    for( auto it = hits->begin(); !JustHits && it < hits->end(); ){ // skip this portion if JustHits is true
       // std::cout<<"channel: "<<it->channel<<std::endl;
       // start a new cluster
       if( oldch < 0 ){
@@ -228,7 +252,7 @@ void reco( string name, DreamTable det) {
 
     outnt.Fill();
 
-    //if( eventId > 10  )break;
+    //if( eventId > 20  )break;
 
   }
   fout->Write();
@@ -297,7 +321,7 @@ int main( int argc, char **argv ){
     det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
     det.setInversion(false, false, true, true);
   }
-  else if(nbFeu == 5) {cerr << "P2 map not yet implemented \n"; return 1;}
+  else if(nbFeu == 5) {cout << "WARNING: P2 map not yet implemented, just making hits \n"; JustHits = true; }
   else {cerr << "Feu number is invalid \n"; return 1;}
   reco( fname, det );
 
