@@ -17,6 +17,42 @@
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
 
+
+void plotStripMap(StripTable det, std::string fname){
+
+  TFile *fMM = TFile::Open(fname.c_str(), "read");
+
+  TTreeReader MM("events", fMM);
+  TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
+
+  TH2F *h2test = new TH2F("h2test", "strip number test", 128, -0.5, 127.5, 128, -0.5, 127.5);
+
+  while( MM.Next()){
+    if(cls->size() == 0) continue;
+
+    std::vector<cluster> Xcls, Ycls;
+    std::copy_if (cls->begin(), cls->end(), std::back_inserter(Xcls),
+                  [](const cluster& c){return c.axis=='x';} );
+    std::copy_if (cls->begin(), cls->end(), std::back_inserter(Ycls),
+                  [](const cluster& c){return c.axis=='y';} );
+
+    if(Xcls.empty() or Ycls.empty()) continue;
+
+    auto maxX = *std::max_element(Xcls.begin(), Xcls.end(),
+                       [](const cluster& a,const cluster& b) { return a.size < b.size; });
+    auto maxY = *std::max_element(Ycls.begin(), Ycls.end(),
+                       [](const cluster& a,const cluster& b) { return a.size < b.size; });
+
+    h2test->Fill(maxY.stripCentroid, maxX.stripCentroid);
+  }
+
+  TCanvas *c = new TCanvas("c", "c", 1000,1000);
+  h2test->Draw("colz");
+  gPad->SetLogz();
+  c->Print("test.png", "png");
+
+}
+
 int main(int argc, char const *argv[])
 {
 
@@ -30,12 +66,15 @@ int main(int argc, char const *argv[])
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
+  plotStripMap(det, fnameMM);
+
+
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 
   // std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_X100.png";
-  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_X78.png";
+  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_X26.png";
 
-  int stNb = 78; char axis = 'x';
+  int stNb = 26; char axis = 'x';
 
   // double zpos = -305.6;
   double zpos = -785.6;
@@ -47,12 +86,12 @@ int main(int argc, char const *argv[])
 
   // TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 1500, 4*1024*0.02688, 5*1024*0.02688, 1500, 0, 512*0.02924);
   // TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, 6, 16, 150, 2, 12);
-  TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, 11, 21, 150, 1, 11);
+  TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, -5, 20, 150, -5, 20);
   h2c->SetXTitle("x (mm)");
   h2c->SetYTitle("y (mm)");
 
   // TH2F *h2f = new TH2F("h2f", "full beam spot", 150, 6, 16, 150, 2, 12);
-  TH2F *h2f = new TH2F("h2f", "full beam spot", 150, 11, 21, 150, 1, 11);
+  TH2F *h2f = new TH2F("h2f", "full beam spot", 150, -5, 20, 150, -5, 20);
   h2f->SetXTitle("x (mm)");
   h2f->SetYTitle("y (mm)");
   
@@ -80,7 +119,7 @@ int main(int argc, char const *argv[])
     }
     ev++;
     if(hits->size() == 0) continue;
-    
+
     for(auto tr : *tracks){
       if(tr.chi2x>1. or tr.chi2y>1.) continue;
       double xdet = tr.x0 + zpos*tr.mx;

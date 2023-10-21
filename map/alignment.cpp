@@ -160,10 +160,10 @@ int main(int argc, char const *argv[])
 	std::string basedir = argv[0];
 	basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
 
-	StripTable det(basedir+"../map/strip_map.txt");
-	// StripTable det(basedir+"../map/asa_map.txt");
-	double zpos = -305.6, Ty = 94;
-	// double zpos = -785.6, Ty = -10;
+	// StripTable det(basedir+"../map/strip_map.txt");
+	StripTable det(basedir+"../map/asa_map.txt");
+	// double zpos = -305.6, Ty = 94;
+	double zpos = -785.6, Ty = -10;
 	double Tx = 31;
   	// double zpos = -785.6, Ty = -94;
 

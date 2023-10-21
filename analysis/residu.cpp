@@ -135,11 +135,11 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   TH1F* hbsy_tracks = new TH1F("hbsy_tracks", "Beam spot tracks", 300, -30, 30);
   hbsy_tracks->GetXaxis()->SetTitle("cluter position on y axis (mm)");
 
-  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,-29,129, 200, avgyresidue-5, avgyresidue+5);
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,avgydet-10,avgydet+10, 200, avgyresidue-8, avgyresidue+8);
   h2x->GetXaxis()->SetTitle("position y axis (mm)");
   h2x->GetYaxis()->SetTitle("residue (mm)");
 
-  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,-129,29, 200, avgxresidue-5, avgxresidue+5);
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,avgxdet-10,avgxdet+10, 200, avgxresidue-8, avgxresidue+8);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
 
@@ -219,21 +219,21 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
-  // StripTable det(basedir+"../map/strip_map.txt");
-  StripTable det(basedir+"../map/asa_map.txt");
+  StripTable det(basedir+"../map/strip_map.txt");
+  // StripTable det(basedir+"../map/asa_map.txt");
 
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
-  // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1_11.png";
-  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
-  double zpos = -785.6, Ty = -10.3813, Tx = 28.05;
-  // double zpos = -305.2, Ty = -7.4934, Tx = 29.08;
-  // double zpos = -305.2  , Ty = 0;       // stripFEU1
-  // double zpos = -205.377, Ty = 93.7917; // POS16 stripFEU1 minuit
-  // double zpos = -197.07,  Ty = 10.117; // POS05 stripFEU1 minuit
-// -197.07
+  std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1.png";
+  // std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
+
+  // double zpos = -785.6, Ty = -6.7189, Tx = 24.4; // POS05
+  double zpos = -305.2, Ty = -7.4934, Tx = 29.08; //POS05
+  // double zpos = -785.6, Ty = -61.5856, Tx = 24.817; // POS13
+  // double zpos = -305.6, Ty = -63.382, Tx = 28.377; //POS13
+  
   // z pos on murwell strip: -305.2
   // z pos of asa strip: -785.6
   // residu(fnameBanco, fnameMM, det, -305.2, graphname);

@@ -176,10 +176,10 @@ void correlation1pos(char const *argv[]){
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
   std::string graphname = "correlation_POS"+std::to_string(pos)+".png";
 
-  // double zposAsa = -785.6, TyAsa = -10.3813, TxAsa = 28.05; // POS05
-  // double zposStrip = -305.2, TyStrip = -7.4934, TxStrip = 29.08; //POS05
-  double zposAsa = -785.6, TyAsa = -61.5856, TxAsa = 24.817; // POS05
-  double zposStrip = -305.6, TyStrip = -63.382, TxStrip = 28.377; //POS05
+  double zposAsa = -785.6, TyAsa = -6.7189, TxAsa = 24.4; // POS05
+  double zposStrip = -305.2, TyStrip = -7.4934, TxStrip = 29.08; //POS05
+  // double zposAsa = -785.6, TyAsa = -61.5856, TxAsa = 24.817; // POS13
+  // double zposStrip = -305.6, TyStrip = -63.382, TxStrip = 28.377; //POS13
 
   TTreeReader asa("events", fasa);
   TTreeReader strip("events", fstrip);
@@ -188,10 +188,10 @@ void correlation1pos(char const *argv[]){
   StripTable detStrip("../map/strip_map.txt");
   StripTable detAsa("../map/asa_map.txt");
  
-  TH2F* h2x = new TH2F("hx", "Correlation X strip VS asaFEU4", 200,2,14, 200,2,14);
+  TH2F* h2x = new TH2F("hx", "Correlation X strip VS asaFEU4", 200,0,18, 200,0,18);
   h2x->GetXaxis()->SetTitle("position y axis stripFEU1 (mm)");
   h2x->GetYaxis()->SetTitle("position y axis asaFEU4 (mm)");
-  TH2F* h2y = new TH2F("hy", "Correlation Y strip VS asaFEU4",  200,2,14,  200,2,14);
+  TH2F* h2y = new TH2F("hy", "Correlation Y strip VS asaFEU4",  200,0,16,  200,0,16);
   h2y->GetXaxis()->SetTitle("position x axis stripFEU1 (mm)");
   h2y->GetYaxis()->SetTitle("position x axis asaFEU4 (mm)");
 
