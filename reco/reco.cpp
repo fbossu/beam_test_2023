@@ -309,7 +309,7 @@ int main( int argc, char **argv ){
   }
 
   else if(nbFeu == 2){
-    det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
+    det = DreamTable(basedir + "../map/asa_map.txt", -1, 5, 6, -1);
     // det.setInversion(true, true, false, false);
     det.setInversion(false, false, true, true);
   }
