@@ -179,8 +179,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     h2ampX[i]->SetXTitle("strip number"); h2ampY[i]->SetXTitle("strip number");
     h2ampX[i]->SetYTitle("amplitude normalised"); h2ampY[i]->SetYTitle("amplitude normalised");
 
-    h2timeX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 13, -6.5, 6.5, 12, -1.5, 10.5);
-    h2timeY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 13, -6.5, 6.5, 12, -1.5, 10.5);
+    h2timeX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 13, -6.5, 6.5, 16, -5.5, 10.5);
+    h2timeY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 13, -6.5, 6.5, 16, -5.5, 10.5);
     h2timeX[i]->SetXTitle("strip number"); h2timeY[i]->SetXTitle("strip number");
     h2timeX[i]->SetYTitle("hit.samplemax-maxHit.samplemax"); h2timeY[i]->SetYTitle("hit.samplemax-maxHit.samplemax");
   }
