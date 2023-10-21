@@ -12,6 +12,7 @@ struct hit {
   uint16_t maxamp;
   uint16_t samplemax;
   float    inflex;
+  float    timeofmax;
   uint16_t clusterId;
   uint16_t strip;
   char axis;
