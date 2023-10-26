@@ -126,20 +126,35 @@ void reco( string name, DreamTable det) {
       }
     }
 
-    // find the inflection point
+    // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
-      uint16_t max = 0;
+      int dmax = 0;
       uint16_t imax = 0;
+      int npos = 0;
+      int i=0;
+      uint16_t prev;
+      int diff = 0;
       //for( int i=0;i<a.second.size()-1; i++){
-      for( int i=0;i<a.second.size()-1; i++){
+      for( auto &s : a.second){
         if( i > sampmax[a.first] ) break;
-        uint16_t diff = a.second.at(i+1) - a.second.at(i);
-        if( diff > max ){
-          max = diff;
-          imax = i;
+        diff = s - prev;
+        if( i > 0) {
+          if( diff > 0 ) npos++;
+          if( diff > dmax ){
+            dmax = diff;
+            imax = i;
+          }
         }
+        prev = s;
+        i++;
       }
-      flex[a.first] = (float)(2*imax+1)/2.;
+      //flex[a.first] = (float)(2*imax+1)/2.;
+      //if( imax > 0  && a.second.at(imax)-a.second.at(imax-1) > 0){
+      if( imax > 0 ){
+        float m = a.second.at(imax) - a.second.at(imax-1);
+        flex[a.first] = (float)imax-1. - a.second.at(imax-1)/m ;
+      }
+      else flex[a.first] = 999.;
     }
 
     // find the time of max with a parabolic fit of the three bins around the sampmax
@@ -169,7 +184,7 @@ void reco( string name, DreamTable det) {
       ahit.strip     = det.stripNb(m.first);
       ahit.axis      = det.axis(m.first);
       ahit.samplemax = sampmax[m.first];
-      ahit.inflex    = flex[m.first];
+      ahit.tdiff     = flex[m.first];
       ahit.timeofmax = tmax[m.first];
       ahit.samples.assign( amplitudes[m.first].begin(),  amplitudes[m.first].end() );
       hits->push_back(ahit);
