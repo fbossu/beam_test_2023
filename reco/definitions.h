@@ -11,7 +11,7 @@ struct hit {
   uint16_t channel;
   uint16_t maxamp;
   uint16_t samplemax;
-  float    inflex;
+  float    tdiff;
   float    timeofmax;
   uint16_t clusterId;
   uint16_t strip;
