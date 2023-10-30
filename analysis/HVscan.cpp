@@ -20,7 +20,7 @@
 
 int main(int argc, char const *argv[])
 {
-	
+
 	std::map<std::string, double> HVasa;
 	HV["HVS01"] = 300; HV["HVS02"] = 350; HV["HVS03"] = 360; HV["HVS04"] = 370; HV["HVS04Again"] = 380;
 	HV["HVS05"] = 380; HV["HVS06"] = 390; HV["HVS07"] = 400; HV["HVS08"] = 410; HV["HVS09"] = 430; 
@@ -36,6 +36,7 @@ int main(int argc, char const *argv[])
 	HV["HVS05"] = 380; HV["HVS06"] = 390; HV["HVS07"] = 400; HV["HVS08"] = 410; HV["HVS09"] = 420; 
 	HV["HVS10"] = 430; HV["HVS11"] = 430;
 
-	/* code */
+	/*
+	*/
 	return 0;
 }
