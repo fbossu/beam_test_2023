@@ -159,8 +159,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
   hampCenterX->SetXTitle("amplitude (ADC counts)"); hampCenterY->SetXTitle("amplitude (ADC counts)");
 
-  TH1F *hampSampleX = new TH1F("hampSampleX", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-25,1);
-  TH1F *hampSampleY = new TH1F("hampSampleY", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-25,1);
+  TH1F *hampSampleX = new TH1F("hampSampleX", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-27,3);
+  TH1F *hampSampleY = new TH1F("hampSampleY", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-27,3);
   hampSampleX->SetXTitle("sample number"); hampSampleY->SetXTitle("sample number");
 
   TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
@@ -179,8 +179,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     h2ampX[i]->SetXTitle("strip number"); h2ampY[i]->SetXTitle("strip number");
     h2ampX[i]->SetYTitle("amplitude normalised"); h2ampY[i]->SetYTitle("amplitude normalised");
 
-    h2timeX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 100, -6.5, 6.5, 16, -25, 1);
-    h2timeY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 100, -6.5, 6.5, 16, -25, 1);
+    h2timeX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 13, -6.5, 6.5, 16, -27, 3);
+    h2timeY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 13, -6.5, 6.5, 16, -27, 3);
     h2timeX[i]->SetXTitle("strip number"); h2timeY[i]->SetXTitle("strip number");
     h2timeX[i]->SetYTitle("hit.tdiff-maxHit.tdiff"); h2timeY[i]->SetYTitle("hit.tdiff-maxHit.tdiff");
   }
