@@ -230,7 +230,7 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
       else if(clX.size<7){
         for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
           h2ampX[clX.size-1]->Fill(hitx->strip-maxHit.strip, (float)hitx->maxamp/(float)maxHit.maxamp);
-          h2timeX[clX.size-1]->Fill(hitx->strip-maxHit.strip, hitx->tdiff-maxHit.tdiff);
+          h2timeX[clX.size-1]->Fill(hitx->strip-maxHit.strip, maxHit.tdiff - hitx->tdiffmaxHit.tdiff);
           // std::cout<<hitx->maxamp<<" "<<maxHit.maxamp<<std::endl;
         }
       }
@@ -249,7 +249,7 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
       else if(clY.size<7){
         for( auto hity = hY.begin(); hity < hY.end(); hity++){
           h2ampY[clY.size-1]->Fill(hity->strip-maxHit.strip, (float)hity->maxamp/(float)maxHit.maxamp);
-          h2timeY[clY.size-1]->Fill(hity->strip-maxHit.strip, hity->tdiff-maxHit.tdiff);
+          h2timeY[clY.size-1]->Fill(hity->strip-maxHit.strip, maxHit.tdiff - hity->tdiff);
         }
       }
     }
