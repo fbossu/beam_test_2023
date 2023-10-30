@@ -161,7 +161,7 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
 
   TH1F *hampSampleX = new TH1F("hampSampleX", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-27,3);
   TH1F *hampSampleY = new TH1F("hampSampleY", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-27,3);
-  hampSampleX->SetXTitle("sample number"); hampSampleY->SetXTitle("sample number");
+  hampSampleX->SetXTitle("tdiff"); hampSampleY->SetXTitle("sample number");
 
   TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
   h2c->SetXTitle("centroid on y direction strips");
