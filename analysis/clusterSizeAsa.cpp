@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
   }
   // clusterSizeRegion(chain, detName, det);
 
-  for( int i = 1; i < argc; i++) {
+  for( int i = 2; i < argc; i++) {
     std::string fname = argv[i];
     int pos = std::stoi( fname.substr(fname.find("POS")+3, fname.find("POS")+5) );
     if(std::find(zoneRuns.begin(), zoneRuns.end(), pos) != zoneRuns.end()){
