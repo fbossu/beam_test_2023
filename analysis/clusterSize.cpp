@@ -383,9 +383,9 @@ void clSize_Amp(std::string fname, std::string detname, StripTable det){
   TH2F *h2clampX[3], *h2clampY[3];
   std::vector<std::string> titles = {"maxAmp strip", "2nd maxamp strip", "minAmp strip"};
   for(int i=0; i<3; i++){
-    h2clampX[i] = new TH2F(("h2clampX"+std::to_string(i)).c_str(), ("X: "+titles[i]).c_str(), 50,0,1.1,7,-0.5,6.5);
+    h2clampX[i] = new TH2F(("h2clampX"+std::to_string(i)).c_str(), ("X: "+titles[i]).c_str(), 150,0,1.1,7,-0.5,6.5);
     h2clampX[i]->SetXTitle("amplitude fraction carried by the strip"); h2clampX[i]->SetYTitle("cluster size");
-    h2clampY[i] = new TH2F(("h2clampY"+std::to_string(i)).c_str(), ("Y: "+titles[i]).c_str(), 50,0,1.1,7,-0.5,6.5);
+    h2clampY[i] = new TH2F(("h2clampY"+std::to_string(i)).c_str(), ("Y: "+titles[i]).c_str(), 150,0,1.1,7,-0.5,6.5);
   }
 
   double avgstX=0, avgstY=0; 
@@ -433,7 +433,7 @@ void clSize_Amp(std::string fname, std::string detname, StripTable det){
 
   
   TCanvas *c1 = new TCanvas("c1", "Cluster size vs amplitude fraction", 1200, 800);
-  c1->Divide(2,3,0.01,0.01);
+  c1->Divide(3,2,0.01,0.01);
   for(int i=0; i<3; i++){
     c1->cd(i+1);
     h2clampX[i]->SetStats(0);
@@ -444,7 +444,7 @@ void clSize_Amp(std::string fname, std::string detname, StripTable det){
     gPad->SetLogz();
   }
   c1->cd(0);
-  TLegend *leg = new TLegend(0.7,0.2,0.9,0.35);
+  TLegend *leg = new TLegend(0.7,0.7,0.8,0.8);
   // leg->AddEntry(h2clampX[0],"X","f");
   // leg->AddEntry(h2clampY[0],"Y","f");
   leg->AddEntry("", ("pitchX: "+ std::to_string(det.pitchX(avgstX/denoX)).substr(0, 5)).c_str(), "");
