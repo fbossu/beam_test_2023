@@ -445,7 +445,7 @@ void clSize_Amp(std::string fname, std::string detname, StripTable det){
     gPad->SetLogz();
   }
   c1->cd(0);
-  TLegend *leg = new TLegend(0.77,0.75,0.85,0.85);
+  TLegend *leg = new TLegend(0.8,0.8,0.9,0.9);
   // leg->AddEntry(h2clampX[0],"X","f");
   // leg->AddEntry(h2clampY[0],"Y","f");
   leg->AddEntry("", ("pitchX: "+ std::to_string(det.pitchX(avgstX/denoX)).substr(0, 5)).c_str(), "");
