@@ -438,20 +438,21 @@ void clSize_Amp(std::string fname, std::string detname, StripTable det){
     c1->cd(i+1);
     h2clampX[i]->SetStats(0);
     h2clampX[i]->Draw("colz");
+    gPad->SetLogz();
     c1->cd(i+4);
     h2clampY[i]->SetStats(0);
     h2clampY[i]->Draw("colz");
     gPad->SetLogz();
   }
   c1->cd(0);
-  TLegend *leg = new TLegend(0.7,0.7,0.8,0.8);
+  TLegend *leg = new TLegend(0.77,0.75,0.85,0.85);
   // leg->AddEntry(h2clampX[0],"X","f");
   // leg->AddEntry(h2clampY[0],"Y","f");
   leg->AddEntry("", ("pitchX: "+ std::to_string(det.pitchX(avgstX/denoX)).substr(0, 5)).c_str(), "");
   leg->AddEntry("", ("pitchY: "+ std::to_string(det.pitchY(avgstY/denoY)).substr(0, 5)).c_str(), "");
   leg->Draw();
   int zone = det.zone((int)avgstX/denoX, (int)avgstY/denoY);
-  std::string graph = detname+"_ref"+std::to_string(zone)+"_clAmpFr.png";
+  std::string graph = detname+"_ref"+std::to_string(zone)+"_clAmpFrColz.png";
   c1->SaveAs(graph.c_str());
 
 }
