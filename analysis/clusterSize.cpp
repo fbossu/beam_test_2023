@@ -373,10 +373,10 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
 
 
 void clSize_Amp(std::string fname, std::string detname, StripTable det){
-
+      std::cout<<"cc"<<std::endl;
   TFile *f = TFile::Open(fname.c_str(), "read");
   TTreeReader reader("events", f);
-
+      std::cout<<"cc"<<std::endl;
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
   TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
 
