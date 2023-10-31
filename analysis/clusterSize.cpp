@@ -438,8 +438,9 @@ void clSize_Amp(std::string fname, std::string detname, StripTable det){
     c1->cd(i+1);
     h2clampX[i]->SetStats(0);
     h2clampX[i]->Draw("colz");
-    h2clampY[i+3]->SetStats(0);
-    h2clampY[i+3]->Draw("colz");
+    c1->cd(i+4);
+    h2clampY[i]->SetStats(0);
+    h2clampY[i]->Draw("colz");
     gPad->SetLogz();
   }
   c1->cd(0);
