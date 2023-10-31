@@ -12,6 +12,9 @@
 #include "TStyle.h"
 #include "TLegend.h"
 #include <math.h>
+#include <functional>
+#include <iostream>
+#include <numeric>
 
 #include "../reco/definitions.h"
 #include "../map/StripTable.h"
@@ -29,5 +32,7 @@ void clusterSizeRegion(TChain* chain, std::string detname, StripTable det);
 
 // One cluter per event, one in X one in Y.
 void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::vector<int> xlim, std::vector<int> ylim);
+
+void clSize_Amp(std::string fname, std::string detname, StripTable det);
 
 #endif

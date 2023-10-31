@@ -2,6 +2,7 @@
 #define STRIPTABLE_H
 
 #include "DetectorTable.h"
+#include "TLegend.h"
 
 // can read DetectorTable from the strip number and axis
 // zones are defined as areas in the detector with different pitch/inter combinations. Numbered From left to right, top to botom.

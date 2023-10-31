@@ -19,7 +19,7 @@ DreamTable.o: DreamTable.cpp DreamTable.h DetectorTable.cpp DetectorTable.h
 	g++ -c DreamTable.cpp
 
 StripTable.o: StripTable.cpp StripTable.h DetectorTable.cpp DetectorTable.h
-	g++ -c StripTable.cpp
+	g++ -c StripTable.cpp $(ROOT)
 
 alignment: alignment.cpp
 	g++ alignment.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o alignment $(DT) $(ROOT)

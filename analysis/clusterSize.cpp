@@ -331,7 +331,10 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     campY->cd(i+1);
     if(i==0){
       hampCenterY->Draw();
-    }else{
+    }else{  TTreeReader reader(chain);
+
+  TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
+  TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
      h2ampY[i]->SetStats(0);
      h2ampY[i]->Draw("colz");
      gPad->SetLogz();
@@ -366,4 +369,92 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     }
   }
   ctimeY->Print(graphTimeY.c_str(), "png");
+}
+
+
+void clSize_Amp(std::string fname, std::string detname, StripTable det){
+
+  TFile *f = TFile::Open(fname.c_str(), "read");
+  TTreeReader reader("events", f);
+
+  TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
+  TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
+
+  TH2F *h2clampX[3], *h2clampY[3];
+  std::vector<std::string> titles = {"maxAmp strip", "2nd maxamp strip", "minAmp strip"};
+  for(int i=0; i<3; i++){
+    h2clampX[i] = new TH2F(("h2clampX"+std::to_string(i)).c_str(), titles[i].c_str(), 20,0,1.1,7,-0.5,6.5);
+    h2clampX[i]->SetXTitle("amplitude fraction carried by the strip"); h2clampX[i]->SetYTitle("cluster size");
+    h2clampY[i] = new TH2F(("h2clampY"+std::to_string(i)).c_str(), titles[i].c_str(), 20,0,1.1,7,-0.5,6.5);
+  }
+
+  double avgstX=0, avgstY=0; 
+  int denoX=0, denoY=0; 
+
+  while(reader.Next()){
+
+    if( hits->size() == 0 or cls->size() == 0 ) continue;
+    
+    for( auto c : *cls ){
+      if( c.axis == 'x' ){
+        avgstX += c.stripCentroid; denoX++;
+        std::vector<hit> clHits;
+        std::copy_if (hits->begin(), hits->end(), std::back_inserter(clHits),
+                  [&c](const hit& h){return c.id==h.clusterId;} );
+
+        std::sort(clHits.begin(), clHits.end(),
+                  [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
+
+        int sumAmp = std::accumulate(clHits.begin(), clHits.end(), 0,
+                  [](int sum, const hit& h){return sum+h.maxamp;});
+
+        h2clampX[0]->Fill((double)clHits[0].maxamp/sumAmp, c.size);
+        if(clHits.size()>1) h2clampX[1]->Fill((double)clHits[1].maxamp/sumAmp, c.size);
+        if(clHits.size()>2) h2clampX[2]->Fill((double)clHits[clHits.size()-1].maxamp/sumAmp, c.size);
+      }
+
+      if( c.axis == 'y' ){
+        avgstY += c.stripCentroid; denoY++;
+        std::vector<hit> clHits;
+        std::copy_if (hits->begin(), hits->end(), std::back_inserter(clHits),
+                  [&c](const hit& h){return c.id==h.clusterId;} );
+        std::sort(clHits.begin(), clHits.end(),
+                  [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
+        int sumAmp = std::accumulate(clHits.begin(), clHits.end(), 0,
+                  [](int sum, const hit& h){return sum+h.maxamp;});
+
+        h2clampY[0]->Fill((double)clHits[0].maxamp/sumAmp, c.size);
+        if(clHits.size()>1) h2clampY[1]->Fill((double)clHits[1].maxamp/sumAmp, c.size);
+        if(clHits.size()>2) h2clampY[2]->Fill((double)clHits[clHits.size()-1].maxamp/sumAmp, c.size);
+        if(c.size==0) std::cout<<clHits[0].maxamp<<std::endl;
+      }
+    }
+  }
+
+  
+  TCanvas *c1 = new TCanvas("c1", "Cluster size vs amplitude fraction", 1200, 800);
+  c1->Divide(2,2,0.01,0.01);
+  for(int i=0; i<3; i++){
+    c1->cd(i+1);
+    h2clampX[i]->SetStats(0);
+    h2clampX[i]->SetLineColorAlpha(kBlue, 1);
+    h2clampX[i]->SetFillColorAlpha(kBlue, 0.1);
+    h2clampX[i]->Draw("CANDLEX(12131)");
+    h2clampY[i]->SetStats(0);
+    h2clampY[i]->SetLineColorAlpha(kRed, 1);
+    h2clampY[i]->SetFillColorAlpha(kRed, 0.1);
+    h2clampY[i]->Draw("CANDLEX(12131)SAME");
+  // gPad->SetLogz();
+  }
+  c1->cd(0);
+  TLegend *leg = new TLegend(0.7,0.2,0.9,0.35);
+  leg->AddEntry(h2clampX[0],"X","f");
+  leg->AddEntry(h2clampY[0],"Y","f");
+  leg->AddEntry("", ("pitchX: "+ std::to_string(det.pitchX(avgstX/denoX)).substr(0, 5)).c_str(), "");
+  leg->AddEntry("", ("pitchY: "+ std::to_string(det.pitchY(avgstY/denoY)).substr(0, 5)).c_str(), "");
+  leg->Draw();
+  int zone = det.zone((int)avgstX/denoX, (int)avgstY/denoY);
+  std::string graph = detname+"_ref"+std::to_string(zone)+"_clAmpFr.png";
+  c1->SaveAs(graph.c_str());
+
 }
