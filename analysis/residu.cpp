@@ -259,18 +259,27 @@ int main(int argc, char const *argv[])
 
     for(auto tr : *tracks){
       if(tr.chi2x>1. or tr.chi2y>1.) continue;
+
       double xdetTrack = tr.x0 + zpos*tr.mx;
       double ydetTrack = tr.y0 + zpos*tr.my;
-      for(auto cl : *cls){
-        if(cl.axis == 'x'){
-          ydet.push_back(det.posX(cl.stripCentroid)[1] + Ty);
-          ytrack.push_back(ydetTrack);
-        }
-        if(cl.axis == 'y'){
-          xdet.push_back(det.posY(cl.stripCentroid)[0] + Tx);
-          xtrack.push_back(xdetTrack);
-        }
-      }
+      std::vector<cluster> clsX, clsY;
+
+      std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsX),
+                  [](const cluster& c){return c.axis=='x';} );
+      std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsY),
+                  [](const cluster& c){return c.axis=='y';} );
+      if(clsX.size() == 0 || clsY.size() == 0) continue;
+
+      auto maxX = *std::max_element(clsX.begin(), clsX.end(),
+                         [](const cluster& a,const cluster& b) { return a.size < b.size; });
+      auto maxY = *std::max_element(clsY.begin(), clsY.end(),
+                         [](const cluster& a,const cluster& b) { return a.size < b.size; });
+
+      ydet.push_back(det.posX(maxX.stripCentroid)[1] + Ty);
+      ytrack.push_back(ydetTrack);
+      
+      xdet.push_back(det.posY(maxY.stripCentroid)[0] + Tx);
+      xtrack.push_back(xdetTrack);
     }
   }
 
