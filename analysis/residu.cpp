@@ -258,6 +258,7 @@ int main(int argc, char const *argv[])
     }
 
     for(auto tr : *tracks){
+      if(tr.chi2x>1. or tr.chi2y>1.) continue;
       double xdetTrack = tr.x0 + zpos*tr.mx;
       double ydetTrack = tr.y0 + zpos*tr.my;
       for(auto cl : *cls){
