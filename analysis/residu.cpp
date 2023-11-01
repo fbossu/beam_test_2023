@@ -221,18 +221,18 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
-  // StripTable det(basedir+"../map/strip_map.txt");
-  StripTable det(basedir+"../map/asa_map.txt");
+  StripTable det(basedir+"../map/strip_map.txt");
+  // StripTable det(basedir+"../map/asa_map.txt");
 
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
-  // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1.png";
-  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
+  std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1.png";
+  // std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
 
   // double zpos = -785.6, Ty = -93.6933, Tx = 80.169; // POS16
-  double zpos = -785.6, Ty = -10.7614, Tx = 24.396110; // POS05
+  // double zpos = -785.6, Ty = -10.7614, Tx = 24.396110; // POS05
 
   // double zpos = -305.2, Ty = -7.4934, Tx = 29.08; //POS05
   // double zpos = -785.6, Ty = -61.5856, Tx = 24.817; // POS13
