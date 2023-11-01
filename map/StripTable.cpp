@@ -78,3 +78,12 @@ std::string StripTable::zoneLabel(int z){
 	label += " (y/x mm)";
 	return label;
 }
+
+float StripTable::pitchXzone(int zone) {
+    return zonePitch[zone][0];
+}
+
+float StripTable::pitchYzone(int zone) {
+    return zonePitch[zone][1];
+}
+

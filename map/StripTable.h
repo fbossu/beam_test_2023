@@ -30,6 +30,8 @@ public:
 	int zone(int snx, int sny);
 	int nbZone(){return zonePitch.size();};
 	std::string zoneLabel(int z);
+	float pitchXzone(int z);
+	float pitchYzone(int z);
 
 private:
 	std::vector<std::vector<float>> zonePitch;

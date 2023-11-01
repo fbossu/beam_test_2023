@@ -1,4 +1,4 @@
-all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence
+all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence xy_compare
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs )
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -31,3 +31,6 @@ residu: residu.cpp
 
 banco_coincidence: banco_coincidence.cpp
 	g++ banco_coincidence.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o banco_coincidence $(DT) $(ROOT)
+
+xy_compare: xy_compare.cpp
+	g++ xy_compare.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o xy_compare $(DT) $(ROOT)

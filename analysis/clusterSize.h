@@ -27,6 +27,12 @@
 // void posMap(TChain* chain, std::string detname, StripTable det);
 // void posMapLims(TChain* chain, std::string detname, StripTable det, std::vector<int> xlim, std::vector<int> ylim);
 
+// Useful analysis functions
+cluster* maxSizeClX(std::vector<cluster> cls);
+cluster* maxSizeClY(std::vector<cluster> cls);
+std::vector<hit> getHits(std::vector<hit> hits, int clId);
+int totAmp (std::vector<hit> hits, int clId);
+
 // All XYcluster combinations are considered and they are plotted by zone
 void clusterSizeRegion(TChain* chain, std::string detname, StripTable det);
 

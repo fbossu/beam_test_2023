@@ -1,17 +1,50 @@
 #include "clusterSize.h"
 
 
-// void stripMap(TChain* chain, std::string detname, StripTable det){
+cluster* maxSizeClX(std::vector<cluster> cls){
+  std::vector<cluster> clsX;
 
-// }
+  std::copy_if (cls.begin(), cls.end(), std::back_inserter(clsX),
+                [](const cluster& c){return c.axis=='x';} );
+  if(clsX.empty()) return NULL;
 
-// void stripMapLims(TChain* chain, std::string detname, StripTable det, std::vector<int> xlim, std::vector<int> ylim){
+  auto maxX = std::max_element(clsX.begin(), clsX.end(),
+                               [](const cluster& a,const cluster& b) { return a.size < b.size; });
+  return &(*maxX);
+}
 
-// }
+cluster* maxSizeClY(std::vector<cluster> cls){
+  std::vector<cluster> clsY;
 
-// // x,y map of the clusters in the detector by position
-// void posMap(TChain* chain, std::string detname, StripTable det);
-// void posMapLims(TChain* chain, std::string detname, StripTable det, std::vector<int> xlim, std::vector<int> ylim);
+  std::copy_if (cls.begin(), cls.end(), std::back_inserter(clsY),
+                [](const cluster& c){return c.axis=='y';} );
+  if(clsY.empty()) return NULL;
+
+  auto maxY = std::max_element(clsY.begin(), clsY.end(),
+                               [](const cluster& a,const cluster& b) { return a.size < b.size; });
+  return &(*maxY);
+}
+
+std::vector<hit> getHits(std::vector<hit> hits, int clId){
+  std::vector<hit> h;
+  std::copy_if (hits.begin(), hits.end(), std::back_inserter(h),
+                [clId](const hit& h){return h.clusterId==clId;} );
+  std::sort (h.begin(), h.end(),
+                [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
+  return h;
+}
+
+int totAmp (std::vector<hit> hits, int clId){
+  int tot = 0;
+  for(auto h : hits){
+    if(h.clusterId == clId){
+      tot += std::accumulate(h.samples.begin(), h.samples.end(), 0,
+                  [](int sum, const uint16_t& amp){return sum+amp;});
+    }
+  }
+  return tot;
+}
+
 
 void clusterSizeRegion(TChain* chain, std::string detname, StripTable det) {
 
