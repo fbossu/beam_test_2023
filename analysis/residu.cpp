@@ -183,9 +183,11 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
 
   c->cd(3);
   h2x->Draw("colz");
+  gPad->SetLogz();
 
   c->cd(4);
   h2y->Draw("colz");
+  gPad->SetLogz();
 
   c->Print(graphname.c_str(), "png");
 
