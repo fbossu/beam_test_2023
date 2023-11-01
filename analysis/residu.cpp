@@ -229,7 +229,7 @@ int main(int argc, char const *argv[])
   // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1.png";
   std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
 
-  double zpos = -785.6, Ty = -6.7189, Tx = 24.4; // POS05
+  double zpos = -785.6, Ty = -93.6933, Tx = 80.169; // POS16
   // double zpos = -305.2, Ty = -7.4934, Tx = 29.08; //POS05
   // double zpos = -785.6, Ty = -61.5856, Tx = 24.817; // POS13
   // double zpos = -305.6, Ty = -63.382, Tx = 28.377; //POS13
