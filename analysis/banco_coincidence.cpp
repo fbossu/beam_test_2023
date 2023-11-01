@@ -72,9 +72,9 @@ int main(int argc, char const *argv[])
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 
   // std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_X100.png";
-  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_X26.png";
+  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_X76.png";
 
-  int stNb = 26; char axis = 'x';
+  int stNb = 76; char axis = 'x';
 
   // double zpos = -305.6;
   double zpos = -785.6;
