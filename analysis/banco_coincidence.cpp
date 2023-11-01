@@ -71,13 +71,13 @@ int main(int argc, char const *argv[])
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 
-  // std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_X100.png";
-  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_Y80.png";
+  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_X100.png";
+  // std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_Y80.png";
 
-  int stNb = 80; char axis = 'y';
+  int stNb = 100; char axis = 'x';
 
-  // double zpos = -305.6;
-  double zpos = -785.6;
+  double zpos = -305.6;
+  // double zpos = -785.6;
   // double zpos = -205.377; //FEU1 POS16
 
   // z pos on murwell strip: -305.6
