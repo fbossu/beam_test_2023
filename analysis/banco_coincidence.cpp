@@ -71,10 +71,10 @@ int main(int argc, char const *argv[])
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 
-  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_X100.png";
+  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_Y55.png";
   // std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_Y80.png";
 
-  int stNb = 100; char axis = 'x';
+  int stNb = 55; char axis = 'y';
 
   double zpos = -305.6;
   // double zpos = -785.6;
@@ -111,7 +111,7 @@ int main(int argc, char const *argv[])
   // MM.Next();
   int ev = 0, n=0;
 
-  while( MM.Next() && ev<1000000){
+  while( MM.Next() && ev<10000000){
     bool isBanco = banco.Next();
     if(!isBanco){
       std::cout<<"WARNING: Missing banco event"<<std::endl; 
