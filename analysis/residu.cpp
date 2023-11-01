@@ -235,7 +235,7 @@ int main(int argc, char const *argv[])
   // double zpos = -785.6, Ty = -10.7614, Tx = 24.396110; // POS05
 
   // double zpos = -305.2, Ty = -94.365, Tx = 83.231; // POS16
-  double zpos = -305.2, Ty = -10.518, Tx = -10.51;   //POS05
+  double zpos = -305.2, Ty = -10.518, Tx = 29.079;   //POS05
   // double zpos = -785.6, Ty = -61.5856, Tx = 24.817; // POS13
   // double zpos = -305.6, Ty = -63.382, Tx = 28.377; //POS13
   
