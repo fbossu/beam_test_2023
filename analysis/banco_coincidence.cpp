@@ -86,7 +86,7 @@ int main(int argc, char const *argv[])
 
   // TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 1500, 4*1024*0.02688, 5*1024*0.02688, 1500, 0, 512*0.02924);
   // TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, 6, 16, 150, 2, 12);
-  TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, -5, 20, 150, -5, 20);
+  TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, 0, 15, 150, -3, 17);
   h2c->SetXTitle("x (mm)");
   h2c->SetYTitle("y (mm)");
 
