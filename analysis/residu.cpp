@@ -135,11 +135,11 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   TH1F* hbsy_tracks = new TH1F("hbsy_tracks", "Beam spot tracks", 300, -30, 30);
   hbsy_tracks->GetXaxis()->SetTitle("cluter position on y axis (mm)");
 
-  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,avgydet-10,avgydet+10, 200, avgyresidue-8, avgyresidue+8);
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 100,avgydet-8,avgydet+8, 200, avgyresidue-3, avgyresidue+3);
   h2x->GetXaxis()->SetTitle("position y axis (mm)");
   h2x->GetYaxis()->SetTitle("residue (mm)");
 
-  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,avgxdet-10,avgxdet+10, 200, avgxresidue-8, avgxresidue+8);
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 100,avgxdet-8,avgxdet+8, 200, avgxresidue-3, avgxresidue+3);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
 
