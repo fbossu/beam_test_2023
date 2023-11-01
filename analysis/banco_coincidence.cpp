@@ -60,8 +60,8 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
-  // StripTable det(basedir+"../map/strip_map.txt");
-  StripTable det(basedir+"../map/asa_map.txt");
+  StripTable det(basedir+"../map/strip_map.txt");
+  // StripTable det(basedir+"../map/asa_map.txt");
 
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
