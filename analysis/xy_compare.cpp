@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
             auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
             if(it != zoneRuns.end()){
                 TCanvas* c = xy_compare(fname, det, it->first);
-                c->SaveAs(Form("%s_POS%d_z%d.png", detName.c_str(), pos, it->first));
+                c->SaveAs(Form("%s_POS%d_z%d_xy.png", detName.c_str(), pos, it->first));
                 delete c;
             }
         }
