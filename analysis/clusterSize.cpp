@@ -35,7 +35,7 @@ std::vector<hit> getHits(std::vector<hit> hits, int clId){
 }
 
 int totAmp (std::vector<hit> hits, int clId){
-  int tot = 0:
+  int tot = 0;
   for(auto h : hits){
     if(h.clusterId == clId){
       for(auto s : h.samples) tot += s;
