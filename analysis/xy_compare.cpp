@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     }
     else if (detName.find("asa") != std::string::npos){
         zoneRuns = { {0,16}, {1,14}, {2,2}, {3,5}};
-        det = StripTable(basedir+"../map/strip_map.txt");
+        det = StripTable(basedir+"../map/asa_map.txt");
     } 
 
     for (int i = 2; i < argc; i++) {
