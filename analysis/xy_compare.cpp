@@ -49,7 +49,7 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <input_file.root>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << "<detname> <input_file.root>" << std::endl;
         return 1;
     }
 
@@ -57,14 +57,25 @@ int main(int argc, char* argv[]) {
     basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
     std::cout << basedir << std::endl;
 
-    std::map<int, int> zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
-    StripTable det(basedir+"../map/strip_map.txt");
-    std::string detName = "test";
+
+    std::map<int, int> zoneRuns;
+    StripTable det;
+    
+    std::string detName = argv[1];
+
+    if (detName.find("strip") != std::string::npos){
+        zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
+        det = StripTable(basedir+"../map/strip_map.txt");
+    }
+    else if (detName.find("asa") != std::string::npos){
+        zoneRuns = { {0,16}, {1,14}, {2,2}, {3,5}};
+        det = StripTable(basedir+"../map/strip_map.txt");
+    } 
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
         if (arg.substr(arg.size() - 5) != ".root") {
-            detName = arg;
+            std::cout<<arg<<" is invalid"<<std::endl;
         } else {
             std::string fname = arg;
             int pos = std::stoi( fname.substr(fname.find("POS")+3, fname.find("POS")+5) );
