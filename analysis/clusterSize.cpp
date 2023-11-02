@@ -1,28 +1,28 @@
 #include "clusterSize.h"
 
 
-cluster* maxSizeClX(std::vector<cluster> cls){
+std::shared_ptr<cluster> maxSizeClX(std::vector<cluster> cls){
   std::vector<cluster> clsX;
 
   std::copy_if (cls.begin(), cls.end(), std::back_inserter(clsX),
                 [](const cluster& c){return c.axis=='x';} );
-  if(clsX.empty()) return NULL;
+  if(clsX.empty()) {return nullptr;}
 
-  auto maxX = std::max_element(clsX.begin(), clsX.end(),
+  auto maxElement = std::max_element(clsX.begin(), clsX.end(),
                                [](const cluster& a,const cluster& b) { return a.size < b.size; });
-  return &(*maxX);
+  return std::make_shared<cluster>(*maxElement);
 }
 
-cluster* maxSizeClY(std::vector<cluster> cls){
+std::shared_ptr<cluster> maxSizeClY(std::vector<cluster> cls){
   std::vector<cluster> clsY;
 
   std::copy_if (cls.begin(), cls.end(), std::back_inserter(clsY),
                 [](const cluster& c){return c.axis=='y';} );
-  if(clsY.empty()) return NULL;
+  if(clsY.empty()) {return nullptr;}
 
-  auto maxY = std::max_element(clsY.begin(), clsY.end(),
+  auto maxElement = std::max_element(clsY.begin(), clsY.end(),
                                [](const cluster& a,const cluster& b) { return a.size < b.size; });
-  return &(*maxY);
+  return std::make_shared<cluster>(*maxElement);
 }
 
 std::vector<hit> getHits(std::vector<hit> hits, int clId){

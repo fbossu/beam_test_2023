@@ -32,5 +32,5 @@ residu: residu.cpp
 banco_coincidence: banco_coincidence.cpp
 	g++ banco_coincidence.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o banco_coincidence $(DT) $(ROOT)
 
-xy_compare: xy_compare.cpp
+xy_compare: xy_compare.cpp clusterSize.cpp
 	g++ xy_compare.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o xy_compare $(DT) $(ROOT)

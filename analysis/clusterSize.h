@@ -28,8 +28,8 @@
 // void posMapLims(TChain* chain, std::string detname, StripTable det, std::vector<int> xlim, std::vector<int> ylim);
 
 // Useful analysis functions
-cluster* maxSizeClX(std::vector<cluster> cls);
-cluster* maxSizeClY(std::vector<cluster> cls);
+std::shared_ptr<cluster> maxSizeClX(std::vector<cluster> cls);
+std::shared_ptr<cluster> maxSizeClY(std::vector<cluster> cls);
 std::vector<hit> getHits(std::vector<hit> hits, int clId);
 int totAmp (std::vector<hit> hits, int clId);
 
