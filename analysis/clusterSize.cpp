@@ -35,11 +35,10 @@ std::vector<hit> getHits(std::vector<hit> hits, int clId){
 }
 
 int totAmp (std::vector<hit> hits, int clId){
-  int tot = 0;
+  int tot = 0:
   for(auto h : hits){
     if(h.clusterId == clId){
-      tot += std::accumulate(h.samples.begin(), h.samples.end(), 0,
-                  [](int sum, const uint16_t& amp){return sum+amp;});
+      for(auto s : h.samples) tot += s;
     }
   }
   return tot;
