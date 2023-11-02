@@ -70,7 +70,11 @@ int main(int argc, char* argv[]) {
     else if (detName.find("asa") != std::string::npos){
         zoneRuns = { {0,16}, {1,14}, {2,2}, {3,5}};
         det = StripTable(basedir+"../map/asa_map.txt");
-    } 
+    }
+    else {
+        std::cerr << "Error: detector name not recognized" << std::endl;
+        return 1;
+    }
 
     for (int i = 2; i < argc; i++) {
         std::string arg = argv[i];

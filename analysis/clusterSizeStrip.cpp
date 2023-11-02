@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
     TString input = argv[i];
 
     if( input.Contains( "root" ) ){
-      // chain->Add( input );
+      chain->Add( input );
     }
     else{
       std::cout<<"Detector Name: "<<argv[i]<<std::endl;
@@ -39,22 +39,22 @@ int main(int argc, char const *argv[])
     }
   }
 
-    for( int i = 2; i < argc; i++) {
-    std::string fname = argv[i];
-    int pos = std::stoi( fname.substr(fname.find("POS")+3, fname.find("POS")+5) );
-    if(std::find(zoneRuns.begin(), zoneRuns.end(), pos) != zoneRuns.end()){
-      // clusterSizeLims(chain, detName, det, fname);
-      clSize_Amp(fname, detName, det); 
-    }
-  }
+  // for( int i = 2; i < argc; i++) {
+  //   std::string fname = argv[i];
+  //   int pos = std::stoi( fname.substr(fname.find("POS")+3, fname.find("POS")+5) );
+  //   if(std::find(zoneRuns.begin(), zoneRuns.end(), pos) != zoneRuns.end()){
+  //     // clusterSizeLims(chain, detName, det, fname);
+  //     clSize_Amp(fname, detName, det); 
+  //   }
+  // }
 
   // clusterSizeRegion(chain, detName, det);
-  // clusterSizeLims(chain, detName, det, {55, 62}, {30, 50}); //1, 1
-  // clusterSizeLims(chain, detName, det, {70, 85}, {30, 50}); //1, 1.5
-  // clusterSizeLims(chain, detName, det, {70, 85}, {75, 90}); //1.5, 1.5
-  // clusterSizeLims(chain, detName, det, {55, 62}, {75, 90}); //1.5, 1.
-  // clusterSizeLims(chain, detName, det, {95, 105}, {75, 90}); //1.5, 0.5
-  // clusterSizeLims(chain, detName, det, {95, 105}, {30, 50}); //1., 0.5
+  clusterSizeLims(chain, detName, det, {55, 62}, {30, 50}); //1, 1
+  clusterSizeLims(chain, detName, det, {70, 85}, {30, 50}); //1, 1.5
+  clusterSizeLims(chain, detName, det, {70, 85}, {75, 90}); //1.5, 1.5
+  clusterSizeLims(chain, detName, det, {55, 62}, {75, 90}); //1.5, 1.
+  clusterSizeLims(chain, detName, det, {95, 105}, {75, 90}); //1.5, 0.5
+  clusterSizeLims(chain, detName, det, {95, 105}, {30, 50}); //1., 0.5
 
 
   return 0;
