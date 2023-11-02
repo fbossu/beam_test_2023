@@ -191,9 +191,9 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
   hampCenterX->SetXTitle("amplitude (ADC counts)"); hampCenterY->SetXTitle("amplitude (ADC counts)");
 
-  TH1F *hampSampleX = new TH1F("hampSampleX", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-27,3);
-  TH1F *hampSampleY = new TH1F("hampSampleY", ("Tdiff "+det.zoneLabel(zone)).c_str(), 100,-27,3);
-  hampSampleX->SetXTitle("tdiff"); hampSampleY->SetXTitle("sample number");
+  TH1F *hampSampleX = new TH1F("hampSampleX", ("timeofmax "+det.zoneLabel(zone)).c_str(), 100,0,8);
+  TH1F *hampSampleY = new TH1F("hampSampleY", ("timeofmax "+det.zoneLabel(zone)).c_str(), 100,0,8);
+  hampSampleX->SetXTitle("timeofmax"); hampSampleY->SetXTitle("sample number");
 
   TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
   h2c->SetXTitle("centroid on y direction strips");
@@ -211,8 +211,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     h2ampX[i]->SetXTitle("strip number"); h2ampY[i]->SetXTitle("strip number");
     h2ampX[i]->SetYTitle("amplitude normalised"); h2ampY[i]->SetYTitle("amplitude normalised");
 
-    h2timeX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 13, -6.5, 6.5, 100, 0, 15);
-    h2timeY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 13, -6.5, 6.5, 100, 0, 15);
+    h2timeX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 13, -6.5, 6.5, 100, 0, 8);
+    h2timeY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 13, -6.5, 6.5, 100, 0, 8);
     h2timeX[i]->SetXTitle("strip number"); h2timeY[i]->SetXTitle("strip number");
     h2timeX[i]->SetYTitle("hit.timeofmax-maxHit.timeofmax"); h2timeY[i]->SetYTitle("hit.timeofmax-maxHit.timeofmax");
   }
