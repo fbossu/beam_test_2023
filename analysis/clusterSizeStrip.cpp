@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
   StripTable det(basedir+"../map/strip_map.txt");
   std::vector<int> zoneRuns = {16, 15, 14, 11, 13, 8, 6};
 
-  // TChain* chain = new TChain("events");
+  TChain* chain = new TChain("events");
   std::string detName = "test";
   for( int i = 1; i < argc; i++) {
 
