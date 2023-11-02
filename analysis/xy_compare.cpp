@@ -8,10 +8,15 @@
 #include "../map/StripTable.h"
 #include "clusterSize.h"
 
+
 TCanvas* xy_compare(std::string fname, StripTable det, int zone){
 
-    TH1F* h1 = new TH1F("h1", "Ratio xAmp/yAmp ", 200, 0., 3);
-    h1->GetXaxis()->SetTitle("xAmp/yAmp");
+    TH1F* h1[5];
+    std::vector<std::string> labels = {"1/1", "1/2", "2/1", "2/2", "other"};
+    for(int i=0; i<5; i++){
+        h1[i] = new TH1F("h1", Form("Ratio xAmp/yAmp cluster size %s Y/X",labels[i].c_str()), 200, 0., 3);
+        h1[i]->GetXaxis()->SetTitle("xAmp/yAmp");
+    }
 
     TFile* file = TFile::Open(fname.c_str(), "read");
     if (!file) {
@@ -30,18 +35,29 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
         int ampX=0, ampY=0;
         if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
         if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
-        if(maxX && maxY) h1->Fill((float) ampX/ampY);
+        if(maxX && maxY){
+            if (maxY->size == 1 && maxX->size == 1) h1[0]->Fill((float) ampX/ampY);
+            else if (maxY->size == 1 && maxX->size == 2) h1[1]->Fill((float) ampX/ampY);
+            else if (maxY->size == 2 && maxX->size == 1) h1[2]->Fill((float) ampX/ampY);
+            else if (maxY->size == 2 && maxX->size == 2) h1[3]->Fill((float) ampX/ampY);
+            else h1[4]->Fill((float) ampX/ampY);
+        }
     }
     file->Close();
 
     double eff = (double) nX/nY;
 
     TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
-    h1->Draw();
-    TLegend* leg = new TLegend(0.1, 0.7, 0.25, 0.8);
-    leg->AddEntry(h1, Form("x pitch: %.2f mm", det.pitchXzone(zone)), "");
-    leg->AddEntry(h1, Form("y pitch: %.2f mm", det.pitchYzone(zone)), "");
-    leg->AddEntry(h1, Form("efficiency nX/nY: %.2f", eff), "");
+    c1->Divide(3,3);
+    for(int i=0; i<5; i++){
+        c1->cd(i+1);
+        h1[i]->Draw();
+    }
+    c1->cd(0);
+    TLegend* leg = new TLegend(0.8, 0.2, 0.95, 0.3);
+    leg->AddEntry("", Form("x pitch: %.2f mm", det.pitchXzone(zone)), "");
+    leg->AddEntry("", Form("y pitch: %.2f mm", det.pitchYzone(zone)), "");
+    leg->AddEntry("", Form("efficiency nX/nY: %.2f", eff), "");
     leg->Draw();
 
     return c1;
