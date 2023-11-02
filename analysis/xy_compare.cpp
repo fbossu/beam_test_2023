@@ -25,12 +25,14 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
 
     int nX=0, nY=0;
     while (reader.Next()) {
+        // std::cout<<"c\n";   
         cluster* maxX = maxSizeClX(*cls);
         cluster* maxY = maxSizeClY(*cls);
+        //  std::cout<<"cc\n";
         int ampX=0, ampY=0;
         if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
         if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
-        if(maxX && maxY) h1->Fill(ampX/ampY);
+        if(maxX && maxY) h1->Fill((float) ampX/ampY);
     }
     file->Close();
 
@@ -59,7 +61,7 @@ int main(int argc, char* argv[]) {
 
     std::map<int, int> zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
     StripTable det(basedir+"../map/strip_map.txt");
-    std::string detName = "";
+    std::string detName = "test";
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
