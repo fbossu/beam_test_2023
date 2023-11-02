@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         det = StripTable(basedir+"../map/strip_map.txt");
     } 
 
-    for (int i = 1; i < argc; i++) {
+    for (int i = 2; i < argc; i++) {
         std::string arg = argv[i];
         if (arg.substr(arg.size() - 5) != ".root") {
             std::cout<<arg<<" is invalid"<<std::endl;
