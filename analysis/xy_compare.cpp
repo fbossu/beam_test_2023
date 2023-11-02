@@ -48,7 +48,7 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
     double eff = (double) nX/nY;
 
     TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
-    c1->Divide(3,3);
+    c1->Divide(3,2);
     for(int i=0; i<5; i++){
         c1->cd(i+1);
         h1[i]->Draw();
