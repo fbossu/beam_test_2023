@@ -246,11 +246,9 @@ int main(int argc, char const *argv[])
 	std::string basedir = argv[0];
 	basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
 
-	StripTable det(basedir+"../map/strip_map.txt");
-	// StripTable det(basedir+"../map/asa_map.txt");
-	double zpos = -785.6, Tx = -10, Ty = 24, rot = 0.;
-
-  	double pStart[4] = {zpos, Tx, Ty, rot};
+	// StripTable det(basedir+"../map/strip_map.txt");
+	StripTable det(basedir+"../map/asa_map.txt");
+	double zpos = -785.6, rot = 0.;
 
 	std::string fnameBanco =  argv[1];
 	std::string fnameMM =  argv[2];
@@ -269,6 +267,9 @@ int main(int argc, char const *argv[])
 
 	std::vector<banco::track> tracksFit;
 	std::vector<cluster> XclsFit, YclsFit;
+	double initTx = 0., initTy = 0.;
+	int nev = 0;
+
   	while( MM.Next() ){
     	bool isBanco = banco.Next();
     	if(!isBanco){
@@ -278,8 +279,6 @@ int main(int argc, char const *argv[])
 		for(auto tr : *tracks){
 			if(tr.chi2x>1. or tr.chi2y>1.) continue;
 
-			double xdetTrack = tr.x0 + zpos*tr.mx;
-			double ydetTrack = tr.y0 + zpos*tr.my;
 			std::vector<cluster> clsX, clsY;
 
 			std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsX),
@@ -296,10 +295,16 @@ int main(int argc, char const *argv[])
 			tracksFit.push_back(tr);
 			XclsFit.push_back(maxX);
 			YclsFit.push_back(maxY);
+
+			nev++;
+			initTx = tr.x0 + zpos*tr.mx - det.posY(maxY.stripCentroid)[0];
+			initTy = tr.y0 + zpos*tr.my - det.posX(maxX.stripCentroid)[1];
 		}
 	}
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
+	std::cout<<"Initial parameters: "<<zpos<<" "<<initTx/nev<<" "<<initTy/nev<<" "<<rot<<std::endl;
+	double pStart[4] = {zpos, initTx/nev, initTy/nev, rot};
 	std::string out = align(pos, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	std::cout<<out<<std::endl;
 
