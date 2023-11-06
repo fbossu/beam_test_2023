@@ -232,10 +232,10 @@ int main(int argc, char const *argv[])
   // std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
 
   // double zpos = -785.6, Ty = -93.6933, Tx = 80.169; // POS16
-  // double zpos = -785.6, Ty = -10.7614, Tx = 24.396110; // POS05
+  double zpos = -785.6, Tx = 23.8601, Ty = -10.7433, rot = -0.00634606; // POS05
 
   // double zpos = -305.2, Ty = -94.365, Tx = 83.231; // POS16
-  double zpos = -305.2, Ty = -10.518, Tx = 29.079;   //POS05
+  // double zpos = -305.2, Ty = -10.518, Tx = 29.079;   //POS05
   // double zpos = -785.6, Ty = -61.5856, Tx = 24.817; // POS13
   // double zpos = -305.6, Ty = -63.382, Tx = 28.377; //POS13
   
@@ -279,11 +279,17 @@ int main(int argc, char const *argv[])
                          [](const cluster& a,const cluster& b) { return a.size < b.size; });
       auto maxY = *std::max_element(clsY.begin(), clsY.end(),
                          [](const cluster& a,const cluster& b) { return a.size < b.size; });
+      
+      double clxpos = det.posY(clY.stripCentroid)[0];
+		  double clypos = det.posX(clX.stripCentroid)[1];
 
-      ydet.push_back(det.posX(maxX.stripCentroid)[1] + Ty);
+		  double xpos = (clxpos + Tx) * cos(rot) - (clypos + Ty)* sin(rot);
+		  double ypos = (clxpos + Tx) * sin(rot) + (clypos + Ty)* cos(rot);
+
+      ydet.push_back(ypos);
       ytrack.push_back(ydetTrack);
       
-      xdet.push_back(det.posY(maxY.stripCentroid)[0] + Tx);
+      xdet.push_back(xpos);
       xtrack.push_back(xdetTrack);
     }
   }
