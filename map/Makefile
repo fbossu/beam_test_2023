@@ -21,5 +21,5 @@ DreamTable.o: DreamTable.cpp DreamTable.h DetectorTable.cpp DetectorTable.h
 StripTable.o: StripTable.cpp StripTable.h DetectorTable.cpp DetectorTable.h
 	g++ -c StripTable.cpp $(ROOT)
 
-alignment: alignment.cpp
-	g++ alignment.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o alignment $(DT) $(ROOT)
+alignment: alignment.cpp ../analysis/clusterSize.o
+	g++ alignment.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o alignment ../analysis/clusterSize.o $(DT) $(ROOT)
