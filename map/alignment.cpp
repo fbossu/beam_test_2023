@@ -186,7 +186,7 @@ struct funcChi2 {
 		double erry2 = pow(tr.ey0,2) + pow(tr.my*tr.emy,2) + pow(det.pitchX(int(clX.stripCentroid))/sqrt(12),2);
 
 		double err2 = pow(xtr - xpos,2)/(res*res) * errx2 + pow(ytr - ypos,2)/(res*res) * erry2;
-   		std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
+   		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
    		return (res*res)/err2;
    	}
  
@@ -246,7 +246,7 @@ int main(int argc, char const *argv[])
 
 	StripTable det(basedir+"../map/strip_map.txt");
 	// StripTable det(basedir+"../map/asa_map.txt");
-	double zpos = -305.6, Tx = -7, Ty = -4, rot = 0.;
+	double zpos = -785.6, Tx = -7, Ty = -4, rot = 0.;
 
   	double pStart[4] = {zpos, Tx, Ty, rot};
 
