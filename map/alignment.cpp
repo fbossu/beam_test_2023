@@ -295,8 +295,8 @@ int main(int argc, char const *argv[])
 			XclsFit.push_back(maxX);
 			YclsFit.push_back(maxY);
 		}
-		if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 	}
+	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
 	std::string out = align(pos, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	std::cout<<out<<std::endl;
