@@ -246,7 +246,7 @@ int main(int argc, char const *argv[])
 
 	StripTable det(basedir+"../map/strip_map.txt");
 	// StripTable det(basedir+"../map/asa_map.txt");
-	double zpos = -785.6, Tx = -7, Ty = -4, rot = 0.;
+	double zpos = -785.6, Tx = -10, Ty = 24, rot = 0.;
 
   	double pStart[4] = {zpos, Tx, Ty, rot};
 
