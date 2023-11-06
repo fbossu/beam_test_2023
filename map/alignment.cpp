@@ -217,7 +217,8 @@ std::string align(int pos, StripTable det, std::vector<banco::track> tracks, std
 	// set the function and the initial parameter values
 	fitter.SetFCN(fcn, pStart);
 	// set step sizes different than default ones (0.3 times parameter values)
-	fitter.Config().ParSettings(0).SetStepSize(1.);
+	fitter.Config().ParSettings(0).SetStepSize(0.1);
+	fitter.Config().ParSettings(3).SetLimits(pStart[0]-10., pStart[0]+10.);
 	fitter.Config().ParSettings(1).SetStepSize(0.01);
 	fitter.Config().ParSettings(2).SetStepSize(0.01);
 	fitter.Config().ParSettings(3).SetStepSize(M_PI/360.);
@@ -305,7 +306,7 @@ int main(int argc, char const *argv[])
 
 	std::cout<<"Initial parameters: "<<zpos<<" "<<initTx/nev<<" "<<initTy/nev<<" "<<rot<<std::endl;
 	double pStart[4] = {zpos, initTx/nev, initTy/nev, rot};
-	std::string out = align(pos, det, tracksFit, XclsFit, YclsFit, pStart, true);
+	std::string out = align(pos, det, tracksFit, XclsFit, YclsFit, pStart, false);
 	std::cout<<out<<std::endl;
 
 	return 0;
