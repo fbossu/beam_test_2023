@@ -280,8 +280,8 @@ int main(int argc, char const *argv[])
       auto maxY = *std::max_element(clsY.begin(), clsY.end(),
                          [](const cluster& a,const cluster& b) { return a.size < b.size; });
       
-      double clxpos = det.posY(clY.stripCentroid)[0];
-		  double clypos = det.posX(clX.stripCentroid)[1];
+      double clxpos = det.posY(maxY.stripCentroid)[0];
+		  double clypos = det.posX(maxX.stripCentroid)[1];
 
 		  double xpos = (clxpos + Tx) * cos(rot) - (clypos + Ty)* sin(rot);
 		  double ypos = (clxpos + Tx) * sin(rot) + (clypos + Ty)* cos(rot);
@@ -289,7 +289,7 @@ int main(int argc, char const *argv[])
       ydet.push_back(ypos);
       ytrack.push_back(ydetTrack);
       
-      xdet.push_back(xpos);
+      xdet.push_back(xpos );
       xtrack.push_back(xdetTrack);
     }
   }
