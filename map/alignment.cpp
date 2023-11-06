@@ -297,8 +297,8 @@ int main(int argc, char const *argv[])
 			YclsFit.push_back(maxY);
 
 			nev++;
-			initTx = tr.x0 + zpos*tr.mx - det.posY(maxY.stripCentroid)[0];
-			initTy = tr.y0 + zpos*tr.my - det.posX(maxX.stripCentroid)[1];
+			initTx += tr.x0 + zpos*tr.mx - det.posY(maxY.stripCentroid)[0];
+			initTy += tr.y0 + zpos*tr.my - det.posX(maxX.stripCentroid)[1];
 		}
 	}
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
