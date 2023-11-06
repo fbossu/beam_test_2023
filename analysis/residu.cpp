@@ -120,9 +120,9 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   float avgxdet = std::accumulate(xdet.begin(), xdet.end(), decltype(xdet)::value_type(0)) / xdet.size();
   float avgydet = std::accumulate(ydet.begin(), ydet.end(), decltype(ydet)::value_type(0)) / ydet.size();
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, avgyresidue-1.5, avgyresidue+1.5);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 200, avgyresidue-6, avgyresidue+6);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, avgxresidue-1.5, avgxresidue+1.5);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 200, avgxresidue-6, avgxresidue+6);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
 
   TH1F* hbsx = new TH1F("hbsx", "Beam spot X strips", 300, -29, 129);
