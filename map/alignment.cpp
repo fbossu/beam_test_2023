@@ -236,7 +236,7 @@ std::string align(int pos, StripTable det, std::vector<banco::track> tracks, std
 
 	std::cout << "Total final chi2 " << result.MinFcnValue() << std::endl;
 	result.Print(std::cout);
-	std::string out = "# POS zpos Tx Ty rot\nPOS ezpos eTx eTy erot\n";
+	std::string out = "# POS zpos Tx Ty rot\n# POS ezpos eTx eTy erot\n";
 	out += Form("%d %f %f %f %f \n", pos, result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
 	out += Form("%d %f %f %f %f \n", pos, result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3));
 	return out;
