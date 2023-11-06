@@ -236,23 +236,31 @@ std::string align(int pos, StripTable det, std::vector<banco::track> tracks, std
 
 	std::cout << "Total final chi2 " << result.MinFcnValue() << std::endl;
 	result.Print(std::cout);
-	return "X,"+std::to_string(pos)+","+std::to_string(result.Parameter(0))+","+std::to_string(result.ParError(0))+","
-	       +std::to_string(result.Parameter(1))+","+std::to_string(result.ParError(1));
+	std::string out = "# POS zpos Tx Ty rot\nPOS ezpos eTx eTy erot\n";
+	out += Form("%d %f %f %f %f \n", pos, result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
+	out += Form("%d %f %f %f %f \n", pos, result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3));
+	return out;
 }
 
 
 
 int main(int argc, char const *argv[])
 {
+	if (argc < 4) {
+		std::cerr << "Usage: " << argv[0] << "<detname> <bancoFile.root> <MMFile.root>" << std::endl;
+		return 1;
+	}
+
 	std::string basedir = argv[0];
 	basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
+	std::string detName = argv[1];
+	std::string fnameBanco =  argv[2];
+	std::string fnameMM =  argv[3];
+
 
 	// StripTable det(basedir+"../map/strip_map.txt");
 	StripTable det(basedir+"../map/asa_map.txt");
 	double zpos = -785.6, rot = 0.;
-
-	std::string fnameBanco =  argv[1];
-	std::string fnameMM =  argv[2];
 
 	int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 	std::cout << "Position: " << pos << std::endl;
@@ -306,8 +314,15 @@ int main(int argc, char const *argv[])
 
 	std::cout<<"Initial parameters: "<<zpos<<" "<<initTx/nev<<" "<<initTy/nev<<" "<<rot<<std::endl;
 	double pStart[4] = {zpos, initTx/nev, initTy/nev, rot};
-	std::string out = align(pos, det, tracksFit, XclsFit, YclsFit, pStart, false);
+	
+	std::string out = align(pos, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	std::cout<<out<<std::endl;
+
+	// Write output to file
+	std::ofstream outfile("alignFiles/"+ detName + "_" + std::to_string(pos) + ".txt");
+	outfile << out;
+	outfile.close();
+	
 
 	return 0;
 }
