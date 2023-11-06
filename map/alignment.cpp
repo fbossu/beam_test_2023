@@ -258,10 +258,11 @@ int main(int argc, char const *argv[])
 	std::string fnameMM =  argv[3];
 
 
-	// StripTable det(basedir+"../map/strip_map.txt");
-	StripTable det(basedir+"../map/asa_map.txt");
-	double zpos = -785.6, rot = 0.;
-
+	StripTable det(basedir+"../map/strip_map.txt");
+	// StripTable det(basedir+"../map/asa_map.txt");
+	// double zpos = -785.6, rot = 0.;
+	double zpos = -305.6, rot = 0.;
+	
 	int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 	std::cout << "Position: " << pos << std::endl;
 
