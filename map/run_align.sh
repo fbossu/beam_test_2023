@@ -7,5 +7,7 @@ FEUname=FEU4
 for bancoPath in ../../banco/rec_POS??.root; do
     bancoFile=$(basename "$bancoPath" .root)
     MMFile="${bancoFile}_${FEUname}.root"
-    ./alignment $detName $bancoPath ../../position/${MMFile}
+    MMPath="../../position/${MMFile}"
+    echo "Aligning $MMPath with respect to $bancoPath"
+    ./alignment $detName $bancoPath $MMPath
 done
