@@ -18,6 +18,7 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 
 StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable(idetFile) {
 	
+	std::cout<<"Reading alignment file "<<alignFile<<std::endl;
 	std::ifstream file(alignFile);
 	std::string line;
 
