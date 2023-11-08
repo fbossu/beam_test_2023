@@ -313,6 +313,11 @@ int main(int argc, char const *argv[])
 	}
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
+	if(nev < 10000) {
+		std::cerr << "Error: Not enough events" << std::endl;
+		return 1;
+	}
+
 	std::cout<<"Initial parameters: "<<zpos<<" "<<initTx/nev<<" "<<initTy/nev<<" "<<rot<<std::endl;
 	double pStart[4] = {zpos, initTx/nev, initTy/nev, rot};
 	
