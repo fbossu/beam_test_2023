@@ -1,5 +1,7 @@
-ROOT = ../reco/Dict.cxx ../banco/DictBanco.cxx $(shell root-config --cflags) $(shell root-config --libs )
+ROOT = $(shell root-config --cflags) $(shell root-config --libs )
 DT = ../map/DetectorTable.o ../map/StripTable.o
+
+export ROOT_INCLUDE_PATH := $(ROOT_INCLUDE_PATH):$(PWD)/../reco/Dict_rdict.pcm
 
 all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment
 

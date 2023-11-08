@@ -42,7 +42,7 @@ public:
 	double getRotErr(){return erot;};
 	double getZpos(){return zpos;};
 	double getZposErr(){return ezpos;};
-	int getRunNb(){return runNb;};
+	std::string getRun(){return run;};
 
 
 private:
