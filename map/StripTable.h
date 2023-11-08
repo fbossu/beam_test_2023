@@ -13,6 +13,7 @@ public:
 	StripTable() = default;
 	~StripTable() = default;
 	StripTable(std::string idetFile);
+	StripTable(std::string idetFile, std::string alignFile);
 
 	int toGB(int sn, char axis);  		// convert strip to gerber channnel
 
@@ -33,8 +34,21 @@ public:
 	float pitchXzone(int z);
 	float pitchYzone(int z);
 
+	double getTx(){return Tx;};
+	double getTy(){return Ty;};
+	double getRot(){return rot;};
+	double getTxErr(){return eTx;};
+	double getTyErr(){return eTy;};
+	double getRotErr(){return erot;};
+	double getZpos(){return zpos;};
+	double getZposErr(){return ezpos;};
+	int getRunNb(){return runNb;};
+
+
 private:
 	std::vector<std::vector<float>> zonePitch;
 	std::vector<std::vector<float>> zoneInter;
+	double zpos = 0., Tx = 0., Ty = 0., rot = 0., ezpos = 0., eTx = 0., eTy = 0., erot = 0.;
+	int runNb;
 };
 #endif

@@ -219,20 +219,37 @@ int main(int argc, char const *argv[])
 
   std::string basedir = argv[0];
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
-  std::cout << basedir << std::endl;
+  
+  if(argc != 4){
+    std::cerr << "Usage: " << argv[0] << " <detName> <banco.root> <mm.root>" << std::endl;
+    return 1;
+  }
 
-  // StripTable det(basedir+"../map/strip_map.txt");
-  StripTable det(basedir+"../map/asa_map.txt");
+  std::string detName = argv[1];
+  std::string fnameBanco = argv[2];
+  std::string fnameMM = argv[3];
+  
+  std::string mapName;
+  if (detName.find("asa") != std::string::npos) {
+    mapName = "asa_map.txt";
+  } else if (detName.find("strip") != std::string::npos) {
+    mapName = "strip_map.txt";
+  } else if (detName.find("inter") != std::string::npos) {
+    mapName = "inter_map.txt";
+  } else {
+    std::cerr << "Invalid detector name" << std::endl;
+    return 1;
+  }
 
-  std::string fnameBanco =  argv[1];
-  std::string fnameMM =  argv[2];
+  std::string run = fnameMM.substr(fnameMM.find("POS"), fnameMM.find("POS")+5);
 
-  int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
-  // std::string graphname = "residue_POS"+std::to_string(pos)+"_stripFEU1.png";
-  std::string graphname = "residue_POS"+std::to_string(pos)+"_asaFEU4.png";
+  StripTable det(basedir + "../map/" + mapName, basedir + "../map/alignFiles/" + detName + "_" + run + ".txt");
+  std::string graphname = "residue_POS_"+run+"_asaFEU4.png";
+
+  double zpos = det.getZpos();
 
   // double zpos = -785.6, Ty = -93.6933, Tx = 80.169; // POS16
-  double zpos = -785.6, Tx = 23.8601, Ty = -10.7433, rot = -0.00634606; // POS05
+  // double zpos = -785.6, Tx = 23.8601, Ty = -10.7433, rot = -0.00634606; // POS05
 
   // double zpos = -305.2, Ty = -94.365, Tx = 83.231; // POS16
   // double zpos = -305.2, Ty = -10.518, Tx = 29.079;   //POS05
@@ -280,11 +297,11 @@ int main(int argc, char const *argv[])
       auto maxY = *std::max_element(clsY.begin(), clsY.end(),
                          [](const cluster& a,const cluster& b) { return a.size < b.size; });
       
-      double clxpos = det.posY(maxY.stripCentroid)[0];
-		  double clypos = det.posX(maxX.stripCentroid)[1];
+      // double clxpos = det.posY(maxY.stripCentroid)[0];
+		  // double clypos = det.posX(maxX.stripCentroid)[1];
 
-		  double xpos = (clxpos + Tx) * cos(rot) - (clypos + Ty)* sin(rot);
-		  double ypos = (clxpos + Tx) * sin(rot) + (clypos + Ty)* cos(rot);
+		  double xpos = det.posY(maxY.stripCentroid)[0];
+		  double ypos = det.posX(maxX.stripCentroid)[1];
 
       ydet.push_back(ypos);
       ytrack.push_back(ydetTrack);

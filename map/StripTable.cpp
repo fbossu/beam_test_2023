@@ -16,6 +16,30 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 	}
 }
 
+StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable(idetFile) {
+	
+	std::ifstream file(alignFile);
+	std::string line;
+
+	while (std::getline(file, line)) {
+		if (line[0] == '#') {
+			continue;
+		}
+		std::istringstream iss(line);
+		if (!(iss >> runNb >> zpos >> Tx >> Ty >> rot)) {
+			break;
+		}
+		std::getline(file, line);
+		if (line[0] == '#') {
+			std::getline(file, line);
+		}
+		std::istringstream iss2(line);
+		if (!(iss2 >> runNb >> ezpos >> eTx >> eTy >> erot)) {
+			break;
+		}
+	}
+}
+	
 
 int StripTable::toGB(int sn, char axis){
 	for (auto it = mapStripNb.begin(); it != mapStripNb.end(); ++it){
@@ -47,7 +71,9 @@ std::vector<double> StripTable::pos(double sn, char axis){
 	std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
 							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
 
-	// std::vector<double> v = { this->getPosx(GBchmin), this->getPosy(GBchmin)};
+	v[0] = (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot);
+	v[1] = (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot);
+
 	return v;
 }
 
