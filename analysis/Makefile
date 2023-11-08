@@ -25,7 +25,7 @@ correlation: correlation.cpp
 # 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
 	g++ correlation.cpp ../reco/Dict.cxx -o correlation $(DT) $(ROOT)
 
-residu: residu.cpp
+residu: residu.cpp ../map/DetectorTable.o ../map/StripTable.o
 # 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
 	g++ residu.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o residu $(DT) $(ROOT)
 
