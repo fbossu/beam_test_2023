@@ -231,19 +231,20 @@ int main(int argc, char const *argv[])
   
   std::string mapName;
   if (detName.find("asa") != std::string::npos) {
-    mapName = "asa_map.txt";
+    mapName = basedir + "../map/" + "asa_map.txt";
   } else if (detName.find("strip") != std::string::npos) {
-    mapName = "strip_map.txt";
+    mapName = basedir + "../map/" + "strip_map.txt";
   } else if (detName.find("inter") != std::string::npos) {
-    mapName = "inter_map.txt";
+    mapName = basedir + "../map/" + "inter_map.txt";
   } else {
     std::cerr << "Invalid detector name" << std::endl;
     return 1;
   }
 
   std::string run = fnameMM.substr(fnameMM.find("POS"), 5);
+  std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt"
 
-  StripTable det(basedir + "../map/" + mapName, basedir + "../map/alignFiles/" + detName + "_" + run + ".txt");
+  StripTable det(mapName, alignName);
   std::string graphname = "residue_"+run+"_"+detName+".png";
 
   double zpos = det.getZpos();

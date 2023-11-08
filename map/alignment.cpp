@@ -206,7 +206,7 @@ struct funcChi2 {
 };
 
 
-std::string align(int pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double *pStart, bool fixZ=false){
+std::string align(std::string pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double *pStart, bool fixZ=false){
 	ROOT::Fit::Fitter fitter;
 	first = true;
 
@@ -237,8 +237,8 @@ std::string align(int pos, StripTable det, std::vector<banco::track> tracks, std
 	std::cout << "Total final chi2 " << result.MinFcnValue() << std::endl;
 	result.Print(std::cout);
 	std::string out = "# POS zpos Tx Ty rot\n# POS ezpos eTx eTy erot\n";
-	out += Form("%d %f %f %f %f \n", pos, result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
-	out += Form("%d %f %f %f %f \n", pos, result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3));
+	out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
+	out += Form("%s %f %f %f %f \n", pos.c_str(), result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3));
 	return out;
 }
 
@@ -278,6 +278,7 @@ int main(int argc, char const *argv[])
 	}
 	StripTable det(basedir+"../map/"+mapName);
 	
+	std::string run = fnameMM.substr(fnameMM.find("POS"), 5);
 	int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, 2) );
 	std::cout << "Position: " << pos << std::endl;
 
@@ -336,11 +337,13 @@ int main(int argc, char const *argv[])
 	std::cout<<"Initial parameters: "<<zpos<<" "<<initTx/nev<<" "<<initTy/nev<<" "<<rot<<std::endl;
 	double pStart[4] = {zpos, initTx/nev, initTy/nev, rot};
 	
-	std::string out = align(pos, det, tracksFit, XclsFit, YclsFit, pStart, true);
+	std::string out = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	std::cout<<out<<std::endl;
 
 	// Write output to file
-	std::ofstream outfile("alignFiles/"+ detName + "_" + std::to_string(pos) + ".txt");
+	if(out == "") return 1;
+
+	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
 	outfile << out;
 	outfile.close();
 	

@@ -49,6 +49,6 @@ private:
 	std::vector<std::vector<float>> zonePitch;
 	std::vector<std::vector<float>> zoneInter;
 	double zpos = 0., Tx = 0., Ty = 0., rot = 0., ezpos = 0., eTx = 0., eTy = 0., erot = 0.;
-	int runNb;
+	std::string run;
 };
 #endif

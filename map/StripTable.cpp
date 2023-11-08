@@ -16,10 +16,17 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 	}
 }
 
+#include <stdexcept>
+
 StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable(idetFile) {
 	
 	std::cout<<"Reading alignment file "<<alignFile<<std::endl;
 	std::ifstream file(alignFile);
+	
+	if (!file.is_open()) {
+		throw std::runtime_error("Error: alignment file " + alignFile + " does not exist or cannot be opened.");
+	}
+
 	std::string line;
 
 	while (std::getline(file, line)) {
@@ -27,7 +34,7 @@ StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable
 			continue;
 		}
 		std::istringstream iss(line);
-		if (!(iss >> runNb >> zpos >> Tx >> Ty >> rot)) {
+		if (!(iss >> run >> zpos >> Tx >> Ty >> rot)) {
 			break;
 		}
 		std::getline(file, line);
@@ -35,7 +42,7 @@ StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable
 			std::getline(file, line);
 		}
 		std::istringstream iss2(line);
-		if (!(iss2 >> runNb >> ezpos >> eTx >> eTy >> erot)) {
+		if (!(iss2 >> run >> ezpos >> eTx >> eTy >> erot)) {
 			break;
 		}
 	}
