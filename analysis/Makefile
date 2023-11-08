@@ -3,7 +3,7 @@ all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs )
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
 
-export ROOT_INCLUDE_PATH := $(ROOT_INCLUDE_PATH):$(PWD)/../reco/Dict_rdict.pcm
+export ROOT_INCLUDE_PATH := $(ROOT_INCLUDE_PATH):$(PWD)/../reco/
 
 clusterSize.o: clusterSize.cpp clusterSize.h
 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
