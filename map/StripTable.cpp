@@ -84,7 +84,7 @@ std::vector<double> StripTable::pos(double sn, char axis){
 	// std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
 	// 							   (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };
 
-	return vAlign;
+	return v;
 }
 
 float StripTable::interY(int sn, int snPerp){
