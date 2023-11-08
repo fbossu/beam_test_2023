@@ -39,6 +39,7 @@ StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable
 			break;
 		}
 	}
+	std::cout<<zpos<<" "<<Tx<<" "<<Ty<<" "<<rot<<std::endl;
 }
 	
 
