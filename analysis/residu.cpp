@@ -242,7 +242,7 @@ int main(int argc, char const *argv[])
   }
 
   std::string run = fnameMM.substr(fnameMM.find("POS"), 5);
-  std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt"
+  std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
 
   StripTable det(mapName, alignName);
   std::string graphname = "residue_"+run+"_"+detName+".png";
