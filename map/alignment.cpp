@@ -334,8 +334,8 @@ int main(int argc, char const *argv[])
 		return 1;
 	}
 
-	std::cout<<"Initial parameters: "<<zpos<<" "<<-1.*initTx/nev<<" "<<-1.*initTy/nev<<" "<<rot<<std::endl;
-	double pStart[4] = {zpos, -1.*initTx/nev, -1.*initTy/nev, rot};
+	std::cout<<"Initial parameters: "<<zpos<<" "<<initTx/nev<<" "<<initTy/nev<<" "<<rot<<std::endl;
+	double pStart[4] = {zpos, initTx/nev, initTy/nev, rot};
 	
 	std::string out = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	std::cout<<out<<std::endl;
