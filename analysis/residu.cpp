@@ -241,7 +241,7 @@ int main(int argc, char const *argv[])
     return 1;
   }
 
-  std::string run = fnameMM.substr(fnameMM.find("POS"), fnameMM.find("POS")+5);
+  std::string run = fnameMM.substr(fnameMM.find("POS"), 5);
 
   StripTable det(basedir + "../map/" + mapName, basedir + "../map/alignFiles/" + detName + "_" + run + ".txt");
   std::string graphname = "residue_"+run+"_"+detName+".png";
