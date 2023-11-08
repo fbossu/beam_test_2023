@@ -244,7 +244,7 @@ int main(int argc, char const *argv[])
   std::string run = fnameMM.substr(fnameMM.find("POS"), fnameMM.find("POS")+5);
 
   StripTable det(basedir + "../map/" + mapName, basedir + "../map/alignFiles/" + detName + "_" + run + ".txt");
-  std::string graphname = "residue_POS_"+run+"_asaFEU4.png";
+  std::string graphname = "residue_"+run+"_"+detName+".png";
 
   double zpos = det.getZpos();
 
