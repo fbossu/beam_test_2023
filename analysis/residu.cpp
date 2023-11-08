@@ -310,6 +310,10 @@ int main(int argc, char const *argv[])
       xtrack.push_back(xdetTrack);
     }
   }
+  if(xtrack.size() < 10000) {
+		std::cerr << "Error: Not enough events" << std::endl;
+		return 1;
+	}
 
   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
