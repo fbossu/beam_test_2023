@@ -1,7 +1,7 @@
 #!/bin/bash
 
-detName=stripFEU1
-FEUname=FEU1_strip
+detName=asaFEU4
+FEUname=FEU4
 
 # Loop through all the input files in the input directory
 for bancoPath in ../../banco/rec_POS??.root; do
