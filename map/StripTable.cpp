@@ -80,10 +80,11 @@ std::vector<double> StripTable::pos(double sn, char axis){
 	std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
 							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
 
-	v[0] = (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot);
-	v[1] = (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot);
 
-	return v;
+	std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
+								   (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };
+
+	return vAlign;
 }
 
 float StripTable::interY(int sn, int snPerp){

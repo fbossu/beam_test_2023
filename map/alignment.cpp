@@ -190,7 +190,7 @@ struct funcChi2 {
    		return (res*res)/err2;
    	}
  
-   // implementation of the function to be minimized
+    // implementation of the function to be minimized
    	double operator() (const double *par) {
     	double sum = 0;
       	for (int i = 0; i < tracks.size(); ++i) {
