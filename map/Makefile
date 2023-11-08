@@ -1,4 +1,4 @@
-ROOT = $(shell root-config --cflags) $(shell root-config --libs )
+ROOT = ../reco/Dict.cxx ../banco/DictBanco.cxx $(shell root-config --cflags) $(shell root-config --libs )
 DT = ../map/DetectorTable.o ../map/StripTable.o
 
 all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment
