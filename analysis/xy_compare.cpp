@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
             std::cout<<arg<<" is invalid"<<std::endl;
         } else {
             std::string fname = arg;
-            int pos = std::stoi( fname.substr(fname.find("POS")+3, fname.find("POS")+5) );
+            int pos = std::stoi( fname.substr(fname.find("POS")+3, 2) );
             auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
             if(it != zoneRuns.end()){
                 TCanvas* c = xy_compare(fname, det, it->first);

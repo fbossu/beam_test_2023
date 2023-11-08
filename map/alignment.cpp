@@ -257,13 +257,28 @@ int main(int argc, char const *argv[])
 	std::string fnameBanco =  argv[2];
 	std::string fnameMM =  argv[3];
 
+	std::string mapName;
+	double zpos = 0., rot = 0.;
 
-	StripTable det(basedir+"../map/strip_map.txt");
-	// StripTable det(basedir+"../map/asa_map.txt");
-	// double zpos = -785.6, rot = 0.;
-	double zpos = -305.6, rot = 0.;
+	if (detName == "asaFEU4") {
+		mapName = "asa_map.txt";
+		zpos = -785.6;
+	} else if (detName == "asaFEU2") {
+		mapName = "asa_map.txt";
+		zpos = -545.6;
+	} else if (detName == "stripFEU1") {
+		mapName = "strip_map.txt";
+		zpos = -305.6;
+	} else if (detName == "interFEU1") {
+		mapName = "inter_map.txt";
+		zpos = -425.6;
+	} else {
+		std::cerr << "Invalid detector name" << std::endl;
+		return 1;
+	}
+	StripTable det(basedir+"../map/"+mapName);
 	
-	int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
+	int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, 2) );
 	std::cout << "Position: " << pos << std::endl;
 
 	TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
