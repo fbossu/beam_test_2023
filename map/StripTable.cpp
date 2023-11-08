@@ -81,8 +81,8 @@ std::vector<double> StripTable::pos(double sn, char axis){
 							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
 
 
-	std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
-								   (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };
+	// std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
+	// 							   (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };
 
 	return vAlign;
 }
