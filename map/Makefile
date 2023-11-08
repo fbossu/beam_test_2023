@@ -1,7 +1,7 @@
 ROOT = $(shell root-config --cflags) $(shell root-config --libs )
 DT = ../map/DetectorTable.o ../map/StripTable.o
 
-export ROOT_INCLUDE_PATH := $(ROOT_INCLUDE_PATH):$(PWD)/../reco/Dict_rdict.pcm
+export ROOT_INCLUDE_PATH := $(ROOT_INCLUDE_PATH):$(PWD)/../reco/
 
 all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment
 
