@@ -224,7 +224,10 @@ std::string align(std::string pos, StripTable det, std::vector<banco::track> tra
 	fitter.Config().ParSettings(3).SetStepSize(2*M_PI/180.);
 	fitter.Config().ParSettings(3).SetLimits(-90.*M_PI/180., 90.*M_PI/180.);
 
-	if(fixZ) fitter.Config().ParSettings(0).Fix();
+	if(fixZ){
+		fitter.Config().ParSettings(0).Fix();
+		fitter.Config().ParSettings(3).Fix();
+	}
 
 	bool ok = fitter.FitFCN();
 	if (!ok) {
