@@ -39,7 +39,6 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
         int ampX=0, ampY=0;
         // if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
         // if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
-        if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
         if(maxX) {
             nX++;
             std::vector<hit> clHits = getHits(*hits, maxX->id);
@@ -54,6 +53,7 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
         }
 
         if(maxX && maxY){
+            if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
             h2clsize->Fill(maxY->size, maxX->size);
             if (maxY->size == 1 && maxX->size == 1) h1[0]->Fill((float) ampX/ampY);
             else if (maxY->size == 1 && maxX->size == 2) h1[1]->Fill((float) ampX/ampY);
