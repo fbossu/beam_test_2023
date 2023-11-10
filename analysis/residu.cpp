@@ -246,7 +246,7 @@ int main(int argc, char const *argv[])
 
   StripTable det(mapName, alignName);
   // StripTable det(mapName);
-  std::string graphname = "residue_"+run+"_"+detName+".png";
+  std::string graphname = "residue_"+run+"_"+detName+"_clgt1"+".png";
 
   double zpos = det.getZpos();
 
@@ -301,8 +301,10 @@ int main(int argc, char const *argv[])
       
       // double clxpos = det.posY(maxY.stripCentroid)[0];
 		  // double clypos = det.posX(maxX.stripCentroid)[1];
-
-		  double xpos = det.posY(maxY.stripCentroid)[0];
+      
+      if(maxX.size < 2 or maxY.size < 2) continue;
+		  
+      double xpos = det.posY(maxY.stripCentroid)[0];
 		  double ypos = det.posX(maxX.stripCentroid)[1];
 
       ydet.push_back(ypos);
