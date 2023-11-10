@@ -115,6 +115,7 @@ int main(int argc, char* argv[]) {
 
     for (int i = 2; i < argc; i++) {
         std::string arg = argv[i];
+        std::cout<<arg<<std::endl;
         if (arg.substr(arg.size() - 5) != ".root") {
             std::cout<<arg<<" is invalid"<<std::endl;
         } else {
