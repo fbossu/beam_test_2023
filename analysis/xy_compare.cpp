@@ -18,6 +18,10 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
         h1[i]->GetXaxis()->SetTitle("xAmp/yAmp");
     }
 
+    TH2F *h2clsize = new TH2F("h2clsize", "cluster size X vs Y", 8,-0.5,7.5, 8,-0.5,7.5);
+    h2clsize->SetXTitle("cluster size y direction strips");
+    h2clsize->SetYTitle("cluster size x direction strips");
+
     TFile* file = TFile::Open(fname.c_str(), "read");
     if (!file) {
         std::cerr << "Error: could not open input file " << fname << std::endl;
@@ -33,9 +37,23 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
         std::shared_ptr<cluster> maxX = maxSizeClX(*cls);
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
         int ampX=0, ampY=0;
-        if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
-        if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
+        // if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
+        // if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
+        if(maxX) {
+            nX++;
+            std::vector<hit> clHits = getHits(*hits, maxX->id);
+            ampX = std::accumulate(clHits.begin(), clHits.end(), 0,
+                [](int sum, const hit& h){return sum+h.maxamp;});
+        }
+        if(maxY) {
+            nY++;
+            std::vector<hit> clHits = getHits(*hits, maxY->id);
+            ampY = std::accumulate(clHits.begin(), clHits.end(), 0,
+                [](int sum, const hit& h){return sum+h.maxamp;});
+        }
+
         if(maxX && maxY){
+            h2clsize->Fill(maxY->size, maxX->size);
             if (maxY->size == 1 && maxX->size == 1) h1[0]->Fill((float) ampX/ampY);
             else if (maxY->size == 1 && maxX->size == 2) h1[1]->Fill((float) ampX/ampY);
             else if (maxY->size == 2 && maxX->size == 1) h1[2]->Fill((float) ampX/ampY);
@@ -49,8 +67,11 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
 
     TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
     c1->Divide(3,2);
+    c1->cd(1);
+    h2clsize->Draw("colz");
+    gPad->SetLogz();
     for(int i=0; i<5; i++){
-        c1->cd(i+1);
+        c1->cd(i+2);
         h1[i]->Draw();
     }
     c1->cd(0);
@@ -98,11 +119,11 @@ int main(int argc, char* argv[]) {
             std::cout<<arg<<" is invalid"<<std::endl;
         } else {
             std::string fname = arg;
-            int pos = std::stoi( fname.substr(fname.find("POS")+3, 2) );
+            int pos = std::stoi( fname.substr(fname.find("POS"), 2) );
             auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
             if(it != zoneRuns.end()){
                 TCanvas* c = xy_compare(fname, det, it->first);
-                c->SaveAs(Form("%s_POS%d_z%d_xy.png", detName.c_str(), pos, it->first));
+                c->SaveAs(Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
                 delete c;
             }
         }
