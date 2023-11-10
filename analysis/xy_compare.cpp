@@ -7,6 +7,7 @@
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
 #include "clusterSize.h"
+#include "TLatex.h"
 
 
 TCanvas* xy_compare(std::string fname, StripTable det, int zone){
@@ -69,8 +70,12 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
     TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
     c1->Divide(3,2);
     c1->cd(1);
+    h2clsize->SetStats(0);
     h2clsize->Draw("colz");
     gPad->SetLogz();
+    TLatex* tex = new TLatex();
+    tex->SetTextSize(0.03);
+    tex->DrawLatexNDC(0., 0., Form("corr factor: %.2f", h2clsize->GetCorrelationFactor()));
     for(int i=0; i<5; i++){
         c1->cd(i+2);
         h1[i]->Draw();
