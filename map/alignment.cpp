@@ -320,7 +320,7 @@ int main(int argc, char const *argv[])
 								[](const cluster& a,const cluster& b) { return a.size < b.size; });
 			auto maxY = *std::max_element(clsY.begin(), clsY.end(),
 								[](const cluster& a,const cluster& b) { return a.size < b.size; });
-			
+			if(maxX.size < 1 or maxY.size < 1) continue;
 			tracksFit.push_back(tr);
 			XclsFit.push_back(maxX);
 			YclsFit.push_back(maxY);
