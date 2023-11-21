@@ -306,8 +306,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   stack->GetYaxis()->SetTitle("Counts");
 
   TLegend *leg = new TLegend(0.89, 0.69, 0.99, 0.75);
-  leg->AddEntry(hclSizeX, Form("X, pitch %.2f mm", ), "l");
-  leg->AddEntry(hclSizeY, "Y", "l");
+  leg->AddEntry(hclSizeX, Form("X, pitch %.2f mm", pitchX), "l");
+  leg->AddEntry(hclSizeY, Form("Y, pitch %.2f mm", pitchY), "l");
   leg->Draw();
 
   cclSize->Print(graphClSize.c_str(), "png");

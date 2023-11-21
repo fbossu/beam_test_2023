@@ -15,6 +15,7 @@
 #include <functional>
 #include <iostream>
 #include <numeric>
+#include "THStack.h"
 
 #include "../reco/definitions.h"
 #include "../map/StripTable.h"
