@@ -292,7 +292,7 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   // gStyle->SetOptStat(1111);
 
   TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1000,700);
-  gPad->SetLogy();
+  // gPad->SetLogy();
   hclSizeX->Draw();
 
   hclSizeY->SetLineColor(kRed);

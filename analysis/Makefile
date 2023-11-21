@@ -1,4 +1,4 @@
-all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence xy_compare
+all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence xy_compare deltaT_samplemax
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs )
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -34,3 +34,6 @@ banco_coincidence: banco_coincidence.cpp
 
 xy_compare: xy_compare.cpp clusterSize.cpp
 	g++ xy_compare.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o xy_compare $(DT) $(ROOT)
+
+deltaT_samplemax: deltaT_samplemax.cpp clusterSize.cpp
+	g++ deltaT_samplemax.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o deltaT_samplemax $(DT) $(ROOT)
