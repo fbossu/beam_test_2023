@@ -161,9 +161,11 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
 
   int zone = det.zone((xlim[0]+xlim[1])/2, (ylim[0]+ylim[1])/2);
 
-  float pitch = det.pitchX(xlim[0]);
-  std::string strpitchX = std::to_string(pitch).substr(0,3);
-  std::string strpitchY = std::to_string( det.pitchX(ylim[0])).substr(0,3);
+  float pitchX = det.pitchX(xlim[0]);
+  float pitchY = det.pitchY(ylim[0]);
+
+  std::string strpitchX = std::to_string(pitchX).substr(0,3);
+  std::string strpitchY = std::to_string( det.pitchY(ylim[0])).substr(0,3);
 
   std::string graphMap = detname+"_ref"+std::to_string(zone)+"_Map.png";
   std::string graphStrip = detname+"_ref"+std::to_string(zone)+"_strips.png";
@@ -182,8 +184,8 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
 
   TH1F *hcentroidX = new TH1F("hcentroidX", ("X "+det.zoneLabel(zone)).c_str(), 128,0,128);
   TH1F *hcentroidY = new TH1F("hcentroidY", ("Y "+det.zoneLabel(zone)).c_str(), 128,0,128);
-  TH1F *hclSizeX = new TH1F("hclSizeX", ("X "+det.zoneLabel(zone)).c_str(), 10,-0.5,10.5);
-  TH1F *hclSizeY = new TH1F("hclSizeY", ("Y "+det.zoneLabel(zone)).c_str(), 10,-0.5,10.5);
+  TH1F *hclSizeX = new TH1F("hclSizeX", (det.zoneLabel(zone)).c_str(), 10,-0.5,10.5);
+  TH1F *hclSizeY = new TH1F("hclSizeY", (det.zoneLabel(zone)).c_str(), 10,-0.5,10.5);
   hcentroidX->SetXTitle("strip centroid"); hcentroidY->SetXTitle("strip centroid");
   hclSizeX->SetXTitle("cluster size"); hclSizeY->SetXTitle("cluster size");
 
@@ -292,32 +294,38 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
   // gStyle->SetOptStat(1111);
 
   TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1000,700);
-  // gPad->SetLogy();
-  hclSizeX->Draw();
 
+  THStack *stack = new THStack("stack", "Cluster Size");
+  hclSizeX->SetLineColor(kBlue);
+  stack->Add(hclSizeX);
   hclSizeY->SetLineColor(kRed);
-  hclSizeY->Draw("same");
-  
-  TLegend *leg = new TLegend(0.89,0.69,0.99,0.75);
-  leg->AddEntry(hclSizeX,"X","l");
-  leg->AddEntry(hclSizeY,"Y","l");
+  stack->Add(hclSizeY);
+
+  stack->Draw("nostack");
+  stack->GetXaxis()->SetTitle("Cluster Size");
+  stack->GetYaxis()->SetTitle("Counts");
+
+  TLegend *leg = new TLegend(0.89, 0.69, 0.99, 0.75);
+  leg->AddEntry(hclSizeX, Form("X, pitch %.2f mm", ), "l");
+  leg->AddEntry(hclSizeY, "Y", "l");
   leg->Draw();
+
   cclSize->Print(graphClSize.c_str(), "png");
 
-
-  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1000,700);
+  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1000, 700);
   hcentroidX->Draw();
   hcentroidY->SetLineColor(kRed);
   hcentroidY->Draw("same");
-  TLegend *legS = new TLegend(0.89,0.69,0.99,0.75);
-  legS->AddEntry(hcentroidX,"X","l");
-  legS->AddEntry(hcentroidY,"Y","l");
+
+  TLegend *legS = new TLegend(0.89, 0.69, 0.99, 0.75);
+  legS->AddEntry(hcentroidX, "X", "l");
+  legS->AddEntry(hcentroidY, "Y", "l");
   legS->Draw();
+
   cstrips->Print(graphStrip.c_str(), "png");
 
-
-  TCanvas *campCenter = new TCanvas("camp", "camp", 1600,1000);
-  campCenter->Divide(2,1);
+  TCanvas *campCenter = new TCanvas("camp", "camp", 1600, 1000);
+  campCenter->Divide(2, 1);
   campCenter->cd(1);
   hampCenterY->SetLineColor(kRed);
   hampCenterY->Draw();
