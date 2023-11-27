@@ -459,31 +459,31 @@ void plotResidueClsize(TFile* res, std::string graphname){
     hy[i]->Fit(fitFuncY[i], "R");
     hsy->Add(hy[i]);
 
-    // h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
-    // h2x[i]->GetXaxis()->SetTitle("position y axis (mm)");
-    // h2x[i]->GetYaxis()->SetTitle("residue (mm)");
-    // h2x[i]->SetMarkerColor(color[i]);
-
-    // h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
-    // h2y[i]->GetXaxis()->SetTitle("position x axis (mm)");
-    // h2y[i]->GetYaxis()->SetTitle("residue (mm)");
-    // h2y[i]->SetMarkerColor(color[i]);
-
-    // nt->Draw(Form("yres:ydet>>h2x_%d",i), Form("Xclsize==%d",i+1));
-    // nt->Draw(Form("xres:xdet>>h2y_%d", i),Form("Yclsize==%d",i+1));
-
-    h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanchX-6, meanchX+6, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
-    h2x[i]->GetXaxis()->SetTitle("channel centroid y axis (mm)");
+    h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    h2x[i]->GetXaxis()->SetTitle("position y axis (mm)");
     h2x[i]->GetYaxis()->SetTitle("residue (mm)");
     h2x[i]->SetMarkerColor(color[i]);
 
-    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanchY-6, meanchY+6, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
-    h2y[i]->GetXaxis()->SetTitle("channel centroid x axis (mm)");
+    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    h2y[i]->GetXaxis()->SetTitle("position x axis (mm)");
     h2y[i]->GetYaxis()->SetTitle("residue (mm)");
     h2y[i]->SetMarkerColor(color[i]);
 
-    nt->Draw(Form("yres:chX>>h2x_%d",i), Form("Xclsize==%d",i+1));
-    nt->Draw(Form("xres:chY>>h2y_%d", i),Form("Yclsize==%d",i+1));
+    nt->Draw(Form("yres:ydet>>h2x_%d",i), Form("Xclsize==%d",i+1));
+    nt->Draw(Form("xres:xdet>>h2y_%d", i),Form("Yclsize==%d",i+1));
+
+    // h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanchX-6, meanchX+6, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    // h2x[i]->GetXaxis()->SetTitle("channel centroid y axis (mm)");
+    // h2x[i]->GetYaxis()->SetTitle("residue (mm)");
+    // h2x[i]->SetMarkerColor(color[i]);
+
+    // h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanchY-6, meanchY+6, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    // h2y[i]->GetXaxis()->SetTitle("channel centroid x axis (mm)");
+    // h2y[i]->GetYaxis()->SetTitle("residue (mm)");
+    // h2y[i]->SetMarkerColor(color[i]);
+
+    // nt->Draw(Form("yres:chX>>h2x_%d",i), Form("Xclsize==%d",i+1));
+    // nt->Draw(Form("xres:chY>>h2y_%d", i),Form("Yclsize==%d",i+1));
   }
 
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
@@ -574,8 +574,8 @@ int main(int argc, char const *argv[])
 
   StripTable det(mapName, alignName);
   // StripTable det(mapName);
-  std::string graphname = "residue_"+run+"_"+detName+"_test"+".png";
-  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_ch"+".png";
+  std::string graphname = "residue_"+run+"_"+detName+"_cuts"+".png";
+  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cuts"+".png";
   
   std::string resfname = "residue_"+run+"_"+detName+"_residue"+".root";
   TFile* res = new TFile((resfname).c_str(), "recreate");

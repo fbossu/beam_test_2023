@@ -209,7 +209,7 @@ void reco( string name, DreamTable det) {
     cls->clear();
     int oldch = -1;
     uint16_t clId = 1;
-    for( auto it = hits->begin(); !JustHits && it < hits->end(); ){ // skip this portion if JustHits is true
+    for( auto it = goodHits->begin(); !JustHits && it < goodHits->end(); ){ // skip this portion if JustHits is true
       // std::cout<<"channel: "<<it->channel<<std::endl;
       // start a new cluster
       if( oldch < 0 ){
@@ -242,7 +242,7 @@ void reco( string name, DreamTable det) {
 
           // look for the next hit, check that the next hit is a neighbourg
           it++;
-          if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
+          if( it == goodHits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
             // TODO add here some conditions to skip missing strips and so on
             break;
           }
