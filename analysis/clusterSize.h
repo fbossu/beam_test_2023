@@ -42,4 +42,6 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
 
 void clSize_Amp(std::string fname, std::string detname, StripTable det);
 
+void clusterSizeFile(std::string fname, std::string detname, StripTable det, int zone);
+
 #endif

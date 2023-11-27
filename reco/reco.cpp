@@ -17,6 +17,8 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
+bool checkHit( hit &a ) { return a.samplemax > 0 and a.samplemax < 13 and a.maxamp>300; }
+
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
   for( int j=0; j < (float)i/tot*N; j++)
@@ -198,7 +200,10 @@ void reco( string name, DreamTable det) {
     //   1.  check for hits begin in the same part of the detector
     //   2.  check for missing/dead strip
 
-    // sort hits, probably not needed, but just in case
+    // select and sort hits, sorting probably not needed, but just in case
+    
+    vector<hit> *goodHits = new vector<hit>();
+    copy_if(hits->begin(), hits->end(), back_inserter(*goodHits), checkHit);
     sort( hits->begin(), hits->end(), compareHits );
 
     cls->clear();
@@ -241,9 +246,8 @@ void reco( string name, DreamTable det) {
             // TODO add here some conditions to skip missing strips and so on
             break;
           }
-          else {
-            oldch = it->channel;
-          }
+          
+          oldch = it->channel;
 
         } // here the cluster is found
 

@@ -371,10 +371,7 @@ void clusterSizeLims(TChain* chain, std::string detname, StripTable det, std::ve
     campY->cd(i+1);
     if(i==0){
       hampCenterY->Draw();
-    }else{  TTreeReader reader(chain);
-
-  TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
-  TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
+    }else{
      h2ampY[i]->SetStats(0);
      h2ampY[i]->Draw("colz");
      gPad->SetLogz();
@@ -495,4 +492,248 @@ void clSize_Amp(std::string fname, std::string detname, StripTable det){
   std::string graph = detname+"_ref"+std::to_string(zone)+"_clAmpFrColz.png";
   c1->SaveAs(graph.c_str());
 
+}
+
+
+
+
+void clusterSizeFile(std::string fname, std::string detname, StripTable det, int zone) {
+
+  float pitchX = det.pitchXzone(zone);
+  float pitchY = det.pitchYzone(zone);
+
+  std::string strpitchX = std::to_string(pitchX).substr(0,3);
+  std::string strpitchY = std::to_string(pitchY).substr(0,3);
+
+  std::string graphMap = detname+"_ref"+std::to_string(zone)+"_Map.png";
+  std::string graphStrip = detname+"_ref"+std::to_string(zone)+"_strips.png";
+  std::string graphClSize = detname+"_ref"+std::to_string(zone)+"_ClSize.png";
+  std::string graphAmpX = detname+"_ref"+std::to_string(zone)+"_AmpX.png";
+  std::string graphAmpY = detname+"_ref"+std::to_string(zone)+"_AmpY.png";
+  std::string graphTimeX = detname+"_ref"+std::to_string(zone)+"_TmaxX.png";
+  std::string graphTimeY = detname+"_ref"+std::to_string(zone)+"_TmaxY.png";
+  std::string graphampCenter = detname+"_ref"+std::to_string(zone)+"_CenterAmp.png";
+  std::string graphMax = detname+"_ref"+std::to_string(zone)+"_Max.png";
+
+  TFile* file = TFile::Open(fname.c_str(), "read");
+  if (!file) {
+      std::cerr << "Error: could not open input file " << fname << std::endl;
+      return;
+  }
+
+  TTreeReader reader("events", file);
+
+  TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
+  TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
+
+  TH1F *hcentroidX = new TH1F("hcentroidX", ("X "+det.zoneLabel(zone)).c_str(), 128,0,128);
+  TH1F *hcentroidY = new TH1F("hcentroidY", ("Y "+det.zoneLabel(zone)).c_str(), 128,0,128);
+  TH1F *hclSizeX = new TH1F("hclSizeX", (det.zoneLabel(zone)).c_str(), 10,-0.5,10.5);
+  TH1F *hclSizeY = new TH1F("hclSizeY", (det.zoneLabel(zone)).c_str(), 10,-0.5,10.5);
+  hcentroidX->SetXTitle("strip centroid"); hcentroidY->SetXTitle("strip centroid");
+  hclSizeX->SetXTitle("cluster size"); hclSizeY->SetXTitle("cluster size");
+
+  TH1F *hampCenterX = new TH1F("hampCenterX", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
+  TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
+  hampCenterX->SetXTitle("amplitude (ADC counts)"); hampCenterY->SetXTitle("amplitude (ADC counts)");
+
+  TH1F *hampSampleX = new TH1F("hampSampleX", ("timeofmax "+det.zoneLabel(zone)).c_str(), 100,0,8);
+  TH1F *hampSampleY = new TH1F("hampSampleY", ("timeofmax "+det.zoneLabel(zone)).c_str(), 100,0,8);
+  hampSampleX->SetXTitle("timeofmax"); hampSampleY->SetXTitle("sample number");
+
+  TH2F *h2c = new TH2F("h2c", "cluster map", 128,0,128,128,0,128);
+  h2c->SetXTitle("centroid on y direction strips");
+  h2c->SetYTitle("centroid on x direction strips");
+
+  TH2F *h2ampX[6];
+  TH2F *h2ampY[6];
+  TH2F *h2timeX[6];
+  TH2F *h2timeY[6];
+  for(int i=0; i<6; i++){
+    std::string label = "h2amp"+std::to_string(i);
+    std::string title = "clusters size"+std::to_string(i+1);
+    h2ampX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 13, -6.5, 6.5, 50, 0., 1.1);
+    h2ampY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 13, -6.5, 6.5, 50, 0., 1.1);
+    h2ampX[i]->SetXTitle("strip number"); h2ampY[i]->SetXTitle("strip number");
+    h2ampX[i]->SetYTitle("amplitude normalised"); h2ampY[i]->SetYTitle("amplitude normalised");
+
+    h2timeX[i] = new TH2F((label+"X").c_str(), ("X"+title).c_str(), 13, -6.5, 6.5, 100, 0, 8);
+    h2timeY[i] = new TH2F((label+"Y").c_str(), ("Y"+title).c_str(), 13, -6.5, 6.5, 100, 0, 8);
+    h2timeX[i]->SetXTitle("strip number"); h2timeY[i]->SetXTitle("strip number");
+    h2timeX[i]->SetYTitle("hit.timeofmax-maxHit.timeofmax"); h2timeY[i]->SetYTitle("hit.timeofmax-maxHit.timeofmax");
+  }
+
+  std::vector<hit> hX, hY;
+
+  while( reader.Next() ){
+
+    if( hits->size() == 0 ) continue;
+    hX.clear(); hY.clear();
+
+    std::shared_ptr<cluster> clX = maxSizeClX(*cls);
+    std::shared_ptr<cluster> clY = maxSizeClY(*cls);
+
+    if(clX) {
+      hX = getHits(*hits, clX->id);
+      // for(auto h : hX) std::cout<<h.maxamp<<" ";
+      // std::cout<<std::endl;
+    }
+    if(clY) {
+      hY = getHits(*hits, clY->id);
+    }
+
+    if( hX.size() > 0 ){
+      hcentroidX->Fill(clX->stripCentroid);
+      hclSizeX->Fill(clX->size);
+      auto maxHit = hX[0];
+      if(clX->size == 1){
+        hampCenterX->Fill(maxHit.maxamp);
+        hampSampleX->Fill(maxHit.timeofmax);
+      }
+      else if(clX->size<7){
+        for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
+          h2ampX[clX->size-1]->Fill(hitx->strip-maxHit.strip, (float)hitx->maxamp/(float)maxHit.maxamp);
+          h2timeX[clX->size-1]->Fill(hitx->strip-maxHit.strip, hitx->timeofmax - maxHit.timeofmax);
+          // std::cout<<hitx->maxamp<<" "<<maxHit.maxamp<<std::endl;
+        }
+      }
+    }
+
+
+    if( hY.size() > 0 ){
+      hcentroidY->Fill(clY->stripCentroid);
+      hclSizeY->Fill(clY->size);
+      auto maxHit = hY[0];
+      if(clY->size == 1){
+        hampCenterY->Fill(maxHit.maxamp);
+        hampSampleY->Fill(maxHit.timeofmax);
+      }
+      else if(clY->size<7){
+        for( auto hity = hY.begin(); hity < hY.end(); hity++){
+          h2ampY[clY->size-1]->Fill(hity->strip-maxHit.strip, (float)hity->maxamp/(float)maxHit.maxamp);
+          h2timeY[clY->size-1]->Fill(hity->strip-maxHit.strip, hity->timeofmax - maxHit.timeofmax);
+        }
+      }
+    }
+
+    if(hY.size() > 0 and hX.size()>0) h2c->Fill(clY->stripCentroid, clX->stripCentroid);
+  }
+
+  // gStyle->SetOptStat(1111);
+
+  TCanvas *cclSize = new TCanvas("cclSize", "cclSize", 1000,700);
+
+  THStack *stack = new THStack("stack", "Cluster Size");
+  hclSizeX->SetLineColor(kBlue);
+  stack->Add(hclSizeX);
+  hclSizeY->SetLineColor(kRed);
+  stack->Add(hclSizeY);
+
+  stack->Draw("nostack");
+  stack->GetXaxis()->SetTitle("Cluster Size");
+  stack->GetYaxis()->SetTitle("Counts");
+
+  TLegend *leg = new TLegend(0.68, 0.7, 0.99, 0.82);
+  leg->AddEntry(hclSizeX, Form("X, pitch %.2f mm, Xentries=%d", pitchX, (int)hclSizeX->GetEntries()), "l");
+  leg->AddEntry(hclSizeY, Form("Y, pitch %.2f mm, Yentries=%d", pitchY, (int)hclSizeY->GetEntries()), "l");
+  leg->SetTextFont(43);
+  leg->SetTextSize(15);
+  leg->Draw();
+
+  cclSize->Print(graphClSize.c_str(), "png");
+
+  TCanvas *cstrips = new TCanvas("cstrips", "cstrips", 1000, 700);
+  hcentroidX->Draw();
+  hcentroidY->SetLineColor(kRed);
+  hcentroidY->Draw("same");
+
+  TLegend *legS = new TLegend(0.89, 0.69, 0.99, 0.75);
+  legS->AddEntry(hcentroidX, "X", "l");
+  legS->AddEntry(hcentroidY, "Y", "l");
+  legS->Draw();
+
+  cstrips->Print(graphStrip.c_str(), "png");
+
+  TCanvas *campCenter = new TCanvas("camp", "camp", 1600, 1000);
+  campCenter->Divide(2, 1);
+  campCenter->cd(1);
+  hampCenterY->SetLineColor(kRed);
+  hampCenterY->Draw();
+  hampCenterX->Draw("same");
+
+  campCenter->cd(2);
+  hampSampleY->SetLineColor(kRed);
+  hampSampleY->Draw();
+  hampSampleX->Draw("same");
+
+  campCenter->cd(0);
+  TLegend *legA = new TLegend(0.89,0.69,0.99,0.75);
+  legA->AddEntry(hampCenterX,"X","l");
+  legA->AddEntry(hampCenterY,"Y","l");
+  // legA->SetTextSize(0.02);
+  legA->Draw();
+  campCenter->Print(graphampCenter.c_str(), "png");
+
+  // gStyle->SetOptStat(0);
+  TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
+  h2c->SetStats(0);
+  h2c->Draw("colz");
+  gPad->SetLogz();
+  c3->Print(graphMap.c_str(), "png");
+
+  TCanvas *campX = new TCanvas("campX", "campX", 1600,1000);
+  campX->Divide(3, 2);
+  for(int i=0; i<6; i++){
+    campX->cd(i+1);
+    if(i==0){
+      hampCenterX->Draw();
+    }else{
+     h2ampX[i]->SetStats(0);
+     h2ampX[i]->Draw("colz");
+     gPad->SetLogz();
+    }
+  }
+  campX->Print(graphAmpX.c_str(), "png");
+
+  TCanvas *campY = new TCanvas("campY", "campY", 1600,1000);
+  campY->Divide(3, 2);
+  for(int i=0; i<6; i++){
+    campY->cd(i+1);
+    if(i==0){
+      hampCenterY->Draw();
+    }else{
+     h2ampY[i]->SetStats(0);
+     h2ampY[i]->Draw("colz");
+     gPad->SetLogz();
+    }
+  }
+  campY->Print(graphAmpY.c_str(), "png");
+
+  TCanvas *ctimeX = new TCanvas("ctimeX", "ctimeX", 1600,1000);
+  ctimeX->Divide(3, 2);
+  for(int i=0; i<6; i++){
+    ctimeX->cd(i+1);
+    if(i==0){
+      hampSampleX->Draw();
+    }else{
+     h2timeX[i]->SetStats(0);
+     h2timeX[i]->Draw("colz");
+     gPad->SetLogz();
+    }
+  }
+  ctimeX->Print(graphTimeX.c_str(), "png");
+
+  TCanvas *ctimeY = new TCanvas("ctimeY", "ctimeY", 1600,1000);
+  ctimeY->Divide(3, 2);
+  for(int i=0; i<6; i++){
+    ctimeY->cd(i+1);
+    if(i==0){
+      hampSampleY->Draw();
+    }else{
+     h2timeY[i]->SetStats(0);
+     h2timeY[i]->Draw("colz");
+     gPad->SetLogz();
+    }
+  }
+  ctimeY->Print(graphTimeY.c_str(), "png");
 }

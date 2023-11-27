@@ -1,4 +1,4 @@
-ROOT = $(shell root-config --cflags) $(shell root-config --libs )
+ROOT = $(shell root-config --cflags) $(shell root-config --libs) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o
 
 export ROOTSYS := $(ROOTSYS):$(PWD)/../reco

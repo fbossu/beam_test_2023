@@ -1,11 +1,13 @@
 #include <string>
 #include <numeric>
+#include <cmath>
 
 #include "TFile.h"
 #include "TChain.h"
 #include "TH1.h"
 #include "TF1.h"
 #include "TH2.h"
+#include "TNtupleD.h"
 #include "TCanvas.h"
 #include "TTreeReader.h"
 #include "TStyle.h"
@@ -213,6 +215,332 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   c1->Print(("BS"+graphname).c_str(), "png");
 }
 
+double getMean(TNtupleD* nt, const char* columnName) {
+  double sum = 0.;
+  int count = 0;
+  double col = 0.;
+
+  nt->ResetBranchAddresses();
+  nt->SetBranchAddress(columnName, &col);
+
+  for (int i = 0; i < nt->GetEntries(); i++) {
+    nt->GetEntry(i);
+    sum += col;
+    count++;
+  }
+  return sum / count;
+}
+
+double getStdDev(TNtupleD* nt, const char* columnName) {
+  double mean = getMean(nt, columnName);
+  std::cout<<"mean: "<<mean<<std::endl;
+  double sumDiff = 0.;
+  double col = 0.;
+  int count = 0;
+
+  nt->ResetBranchAddresses();
+  nt->SetBranchAddress(columnName, &col);
+
+  for(int i = 0; i < nt->GetEntries(); i++) {
+    nt->GetEntry(i);
+    sumDiff += pow(col - mean, 2);
+    // std::cout<<pow(col - mean, 2)<<" "<<sumDiff2<<std::endl;
+    count++;
+  }
+
+  return sqrt(sumDiff / count);
+}
+
+
+
+
+double Xpitch, Xinter, Ypitch, Yinter;
+
+void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable det){
+
+  TNtupleD *nt = new TNtupleD("nt", "nt", "xtrack:ytrack:xdet:ydet:xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:stX:stY:chX:chY");
+  nt->SetDirectory(res);
+
+  TFile* fMM = TFile::Open(fnameMM.c_str(), "read");
+  TFile* fbanco = TFile::Open(fnameBanco.c_str(), "read");
+
+  TTreeReader MM("events", fMM);
+  TTreeReader banco("events", fbanco);
+
+  TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
+  TTreeReaderValue< std::vector<hit> > hits( MM, "hits");
+  TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
+
+  double stX = 0;
+  double stY = 0;
+  int n = 0;
+
+  double zpos = det.getZpos();
+
+  while( MM.Next() ){
+    bool isBanco = banco.Next();
+    if(!isBanco){
+      std::cout<<"WARNING: Missing banco event"<<std::endl;
+      continue;
+    }
+    if(tracks->size() == 0 or cls->size() == 0) continue;
+
+    auto tr = *std::min_element(tracks->begin(), tracks->end(),
+                       [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
+    if(tr.chi2x>1. or tr.chi2y>1.) continue;
+    auto maxX = maxSizeClX(*cls);
+    auto maxY = maxSizeClY(*cls);
+    
+    if(maxX && maxY){
+      // if(maxY->size != 3) continue;
+      n++; stX += maxX->stripCentroid; stY += maxY->stripCentroid;
+      auto hitsX = getHits(*hits, maxX->id);
+      auto hitsY = getHits(*hits, maxY->id);
+      
+      std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+      double xdet = detPos[0];
+      double ydet = detPos[1];
+      
+      double xtrack = tr.x0 + detPos[2]*tr.mx;
+      double ytrack = tr.y0 + detPos[2]*tr.my;
+      nt->Fill(xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, maxX->stripCentroid, maxY->stripCentroid, maxX->centroid, maxY->centroid);
+    }
+  }
+  if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
+  Xpitch = det.pitchX(stX/n);
+  Xinter = det.interX(stX/n);
+  Ypitch = det.pitchY(stY/n);
+  Yinter = det.interY(stY/n, stX/n);
+
+  res->Write();
+  delete nt;
+}
+
+
+void plotResidue(TFile* res, std::string graphname){
+
+  TNtupleD* nt = (TNtupleD*) res->Get("nt");
+
+  double meanxdet = getMean(nt, "xdet");
+  double meanydet = getMean(nt, "ydet");
+  double stdx = getStdDev(nt, "xres");
+  double stdy = getStdDev(nt, "yres");
+  double meanresx = getMean(nt, "xres");
+  double meanresy = getMean(nt, "yres");
+
+  std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
+
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
+  hx->GetXaxis()->SetTitle("residue on y axis (mm)");
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
+  hy->GetXaxis()->SetTitle("residue on x axis (mm)");
+  nt->Draw("yres>>hx");
+  nt->Draw("xres>>hy");
+
+  // Fit hx with a Gaussian function
+  TF1* fitFuncX = new TF1("fitFuncX", "gaus", meanresy-1.5*stdy, meanresy+1.5*stdy);
+  fitFuncX->SetParameters(0, stdy);
+  hx->Fit(fitFuncX, "R");
+
+  // Fit hy with a Gaussian function
+  TF1* fitFuncY = new TF1("fitFuncY", "gaus", meanresx-1.5*stdx, meanresx+1.5*stdx);
+  fitFuncY->SetParameters(0, stdx);
+  hy->Fit(fitFuncY, "R");
+
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
+  h2x->GetXaxis()->SetTitle("position y axis (mm)");
+  h2x->GetYaxis()->SetTitle("residue (mm)");
+
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+  h2y->GetXaxis()->SetTitle("position x axis (mm)");
+  h2y->GetYaxis()->SetTitle("residue (mm)");
+
+  nt->Draw("yres:ydet>>h2x");
+  nt->Draw("xres:xdet>>h2y");
+
+  TCanvas *c = new TCanvas("c", "c", 1600,1000);
+  gStyle->SetOptStat(0);
+  TLatex latex;
+  latex.SetTextFont(43);
+  latex.SetTextSize(18);
+  std::string label;
+
+  c->Divide(2,2);
+  c->cd(1);
+  hx->Draw();
+  label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
+
+  label = "inter: " + std::to_string(Xinter).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.76, (label).c_str());
+
+  label = "#mu_{X}: " + std::to_string(fitFuncX->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.72, (label).c_str());
+
+  label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.68, (label).c_str());
+
+  c->cd(2);
+  hy->Draw();
+  label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
+
+  label = "inter: " + std::to_string(Yinter).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.76, (label).c_str());
+
+  label = "#mu_{Y}: " + std::to_string(fitFuncY->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.72, (label).c_str());
+
+  label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5);
+  latex.DrawLatexNDC(0.75, 0.68, (label).c_str());
+  
+  c->cd(3);
+  h2x->Draw("colz");
+  gPad->SetLogz();
+
+  c->cd(4);
+  h2y->Draw("colz");
+  gPad->SetLogz();
+
+  c->Print(graphname.c_str(), "png");
+}
+
+void plotResidueClsize(TFile* res, std::string graphname){
+  
+  TNtupleD* nt = (TNtupleD*) res->Get("nt");
+
+  double meanxdet = getMean(nt, "xdet");
+  double meanydet = getMean(nt, "ydet");
+  double stdx = getStdDev(nt, "xres");
+  double stdy = getStdDev(nt, "yres");
+  double meanresx = getMean(nt, "xres");
+  double meanresy = getMean(nt, "yres");
+  // double meanstX = getMean(nt, "stX");
+  // double meanstY = getMean(nt, "stY");
+  
+  double meanchX = getMean(nt, "chX");
+  double meanchY = getMean(nt, "chY");
+
+  std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
+  TH1F* hx[3];
+  TH1F* hy[3];
+  TH2F* h2x[3];
+  TH2F* h2y[3];
+
+  TF1* fitFuncX[3];
+  TF1* fitFuncY[3];
+
+  THStack* hsx = new THStack("hsx", "residu X strips (track - centroid)");
+  THStack* hsy = new THStack("hsy", "residu Y strips (track - centroid)");
+
+  std::vector<int> color = {kBlue, kRed, kViolet};
+
+  for(int i=0; i<3; i++){
+    hx[i] = new TH1F(Form("hx_%d",i), "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    hx[i]->GetXaxis()->SetTitle("residue on y axis (mm)");
+    hx[i]->SetLineColor(color[i]);
+    hy[i] = new TH1F(Form("hy_%d",i), "residu Y strips (track - centroid)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    hy[i]->GetXaxis()->SetTitle("residue on x axis (mm)");
+    hy[i]->SetLineColor(color[i]);
+    nt->Draw(Form("yres>>hx_%d",i), Form("Xclsize==%d",i+1));
+    nt->Draw(Form("xres>>hy_%d",i), Form("Yclsize==%d",i+1));
+
+    // Fit hx with a Gaussian function
+    fitFuncX[i] = new TF1(Form("fitfuncX_%d",i), "gaus", meanresy-1.5*stdy, meanresy+1.5*stdy);
+    fitFuncX[i]->SetParameters(0, stdy);
+    fitFuncX[i]->SetLineColor(color[i]);
+    hx[i]->Fit(fitFuncX[i], "R");
+    hsx->Add(hx[i]);
+
+    // Fit hy with a Gaussian function
+    fitFuncY[i] = new TF1(Form("fitfuncY_%d",i), "gaus", meanresx-1.5*stdx, meanresx+1.5*stdx);
+    fitFuncY[i]->SetParameters(0, stdx);
+    fitFuncY[i]->SetLineColor(color[i]);
+    hy[i]->Fit(fitFuncY[i], "R");
+    hsy->Add(hy[i]);
+
+    // h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    // h2x[i]->GetXaxis()->SetTitle("position y axis (mm)");
+    // h2x[i]->GetYaxis()->SetTitle("residue (mm)");
+    // h2x[i]->SetMarkerColor(color[i]);
+
+    // h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    // h2y[i]->GetXaxis()->SetTitle("position x axis (mm)");
+    // h2y[i]->GetYaxis()->SetTitle("residue (mm)");
+    // h2y[i]->SetMarkerColor(color[i]);
+
+    // nt->Draw(Form("yres:ydet>>h2x_%d",i), Form("Xclsize==%d",i+1));
+    // nt->Draw(Form("xres:xdet>>h2y_%d", i),Form("Yclsize==%d",i+1));
+
+    h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanchX-6, meanchX+6, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    h2x[i]->GetXaxis()->SetTitle("channel centroid y axis (mm)");
+    h2x[i]->GetYaxis()->SetTitle("residue (mm)");
+    h2x[i]->SetMarkerColor(color[i]);
+
+    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanchY-6, meanchY+6, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    h2y[i]->GetXaxis()->SetTitle("channel centroid x axis (mm)");
+    h2y[i]->GetYaxis()->SetTitle("residue (mm)");
+    h2y[i]->SetMarkerColor(color[i]);
+
+    nt->Draw(Form("yres:chX>>h2x_%d",i), Form("Xclsize==%d",i+1));
+    nt->Draw(Form("xres:chY>>h2y_%d", i),Form("Yclsize==%d",i+1));
+  }
+
+  TCanvas *c = new TCanvas("c", "c", 1600,1000);
+  gStyle->SetOptStat(0);
+  TLatex latex;
+  latex.SetTextFont(43);
+  latex.SetTextSize(18);
+  std::string label;
+
+  c->Divide(2,2);
+  c->cd(1);
+  hsx->Draw("nostack");
+  label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.8, (label).c_str());
+
+  label = "inter: " + std::to_string(Xinter).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.76, (label).c_str());
+
+  for(int i=0; i<3; i++){
+    latex.SetTextColor(color[i]);
+    label = Form("size%d: #mu_{X}=%.3f; #sigma_{X}=%.3f", i+1, fitFuncX[i]->GetParameter(1), fitFuncX[i]->GetParameter(2));
+    latex.DrawLatexNDC(0.7, 0.72-i*0.04, (label).c_str());
+    latex.SetTextColor(kBlack);
+  }
+
+  c->cd(2);
+  hsy->Draw("nostack");
+
+  label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.8, (label).c_str());
+
+  label = "inter: " + std::to_string(Yinter).substr(0, 5);
+  latex.DrawLatexNDC(0.7, 0.76, (label).c_str());
+
+  for(int i=0; i<3; i++){
+    latex.SetTextColor(color[i]);
+    label = Form("size%d: #mu_{Y}=%.3f; #sigma_{Y}=%.3f", i+1, fitFuncY[i]->GetParameter(1), fitFuncY[i]->GetParameter(2));
+    latex.DrawLatexNDC(0.7, 0.72-i*0.04, (label).c_str());
+    latex.SetTextColor(kBlack);
+  }
+
+  c->cd(3);
+  h2x[1]->Draw("");
+  h2x[2]->Draw("same");
+  h2x[0]->Draw("same");
+  gPad->SetLogz();
+
+  c->cd(4);
+  h2y[1]->Draw("");
+  h2y[2]->Draw("same");
+  h2y[0]->Draw("same");
+  gPad->SetLogz();
+
+  c->Print(graphname.c_str(), "png");
+}
+
+
 
 int main(int argc, char const *argv[])
 {
@@ -246,82 +574,91 @@ int main(int argc, char const *argv[])
 
   StripTable det(mapName, alignName);
   // StripTable det(mapName);
-  std::string graphname = "residue_"+run+"_"+detName+"_clgt1"+".png";
-
-  double zpos = det.getZpos();
-
-  // double zpos = -785.6, Ty = -93.6933, Tx = 80.169; // POS16
-  // double zpos = -785.6, Tx = 23.8601, Ty = -10.7433, rot = -0.00634606; // POS05
-
-  // double zpos = -305.2, Ty = -94.365, Tx = 83.231; // POS16
-  // double zpos = -305.2, Ty = -10.518, Tx = 29.079;   //POS05
-  // double zpos = -785.6, Ty = -61.5856, Tx = 24.817; // POS13
-  // double zpos = -305.6, Ty = -63.382, Tx = 28.377; //POS13
+  std::string graphname = "residue_"+run+"_"+detName+"_test"+".png";
+  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_ch"+".png";
   
-  // z pos on murwell strip: -305.2
-  // z pos of asa strip: -785.6
-  // residu(fnameBanco, fnameMM, det, -305.2, graphname);
-  
-  TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
-  TFile *fMM = TFile::Open(fnameMM.c_str(), "read");
-
-  TTreeReader MM("events", fMM);
-  TTreeReader banco("events", fbanco);
-
-  TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
-  TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
-
-  std::vector<float> xdet, ydet;
-  std::vector<float> xtrack, ytrack;
-
-  while( MM.Next() ){
-    bool isBanco = banco.Next();
-    if(!isBanco){
-      std::cout<<"WARNING: Missing banco event"<<std::endl; 
-      continue;
-    }
-
-    for(auto tr : *tracks){
-      if(tr.chi2x>1. or tr.chi2y>1.) continue;
-
-      double xdetTrack = tr.x0 + zpos*tr.mx;
-      double ydetTrack = tr.y0 + zpos*tr.my;
-      std::vector<cluster> clsX, clsY;
-
-      std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsX),
-                  [](const cluster& c){return c.axis=='x';} );
-      std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsY),
-                  [](const cluster& c){return c.axis=='y';} );
-      if(clsX.size() == 0 || clsY.size() == 0) continue;
-
-      auto maxX = *std::max_element(clsX.begin(), clsX.end(),
-                         [](const cluster& a,const cluster& b) { return a.size < b.size; });
-      auto maxY = *std::max_element(clsY.begin(), clsY.end(),
-                         [](const cluster& a,const cluster& b) { return a.size < b.size; });
-      
-      // double clxpos = det.posY(maxY.stripCentroid)[0];
-		  // double clypos = det.posX(maxX.stripCentroid)[1];
-      
-      if(maxX.size < 2 or maxY.size < 2) continue;
-		  
-      double xpos = det.posY(maxY.stripCentroid)[0];
-		  double ypos = det.posX(maxX.stripCentroid)[1];
-
-      ydet.push_back(ypos);
-      ytrack.push_back(ydetTrack);
-      
-      xdet.push_back(xpos );
-      xtrack.push_back(xdetTrack);
-    }
-  }
-  if(xtrack.size() < 10000) {
-		std::cerr << "Error: Not enough events" << std::endl;
-		return 1;
-	}
-
-  if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
-
-  // residueRel(det, xdet, ydet, xtrack, ytrack, "rel_"+graphname);
-  residueAbs(det, xdet, ydet, xtrack, ytrack, "abs_"+graphname);
+  std::string resfname = "residue_"+run+"_"+detName+"_residue"+".root";
+  TFile* res = new TFile((resfname).c_str(), "recreate");
+  residue(res, fnameBanco, fnameMM, det);
+  plotResidue(res, graphname);
+  plotResidueClsize(res, graphnameCl);
+  return 0;
 }
+
+//   double zpos = det.getZpos();
+
+//   // double zpos = -785.6, Ty = -93.6933, Tx = 80.169; // POS16
+//   // double zpos = -785.6, Tx = 23.8601, Ty = -10.7433, rot = -0.00634606; // POS05
+
+//   // double zpos = -305.2, Ty = -94.365, Tx = 83.231; // POS16
+//   // double zpos = -305.2, Ty = -10.518, Tx = 29.079;   //POS05
+//   // double zpos = -785.6, Ty = -61.5856, Tx = 24.817; // POS13
+//   // double zpos = -305.6, Ty = -63.382, Tx = 28.377; //POS13
+  
+//   // z pos on murwell strip: -305.2
+//   // z pos of asa strip: -785.6
+//   // residu(fnameBanco, fnameMM, det, -305.2, graphname);
+  
+//   TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
+//   TFile *fMM = TFile::Open(fnameMM.c_str(), "read");
+
+//   TTreeReader MM("events", fMM);
+//   TTreeReader banco("events", fbanco);
+
+//   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
+//   TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
+
+//   std::vector<float> xdet, ydet;
+//   std::vector<float> xtrack, ytrack;
+
+//   while( MM.Next() ){
+//     bool isBanco = banco.Next();
+//     if(!isBanco){
+//       std::cout<<"WARNING: Missing banco event"<<std::endl; 
+//       continue;
+//     }
+
+//     for(auto tr : *tracks){
+//       if(tr.chi2x>1. or tr.chi2y>1.) continue;
+
+//       double xdetTrack = tr.x0 + zpos*tr.mx;
+//       double ydetTrack = tr.y0 + zpos*tr.my;
+//       std::vector<cluster> clsX, clsY;
+
+//       std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsX),
+//                   [](const cluster& c){return c.axis=='x';} );
+//       std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsY),
+//                   [](const cluster& c){return c.axis=='y';} );
+//       if(clsX.size() == 0 || clsY.size() == 0) continue;
+
+//       auto maxX = *std::max_element(clsX.begin(), clsX.end(),
+//                          [](const cluster& a,const cluster& b) { return a.size < b.size; });
+//       auto maxY = *std::max_element(clsY.begin(), clsY.end(),
+//                          [](const cluster& a,const cluster& b) { return a.size < b.size; });
+      
+//       // double clxpos = det.posY(maxY.stripCentroid)[0];
+// 		  // double clypos = det.posX(maxX.stripCentroid)[1];
+      
+//       if(maxX.size < 2 or maxY.size < 2) continue;
+		  
+//       double xpos = det.posY(maxY.stripCentroid)[0];
+// 		  double ypos = det.posX(maxX.stripCentroid)[1];
+
+//       ydet.push_back(ypos);
+//       ytrack.push_back(ydetTrack);
+      
+//       xdet.push_back(xpos );
+//       xtrack.push_back(xdetTrack);
+//     }
+//   }
+//   if(xtrack.size() < 10000) {
+// 		std::cerr << "Error: Not enough events" << std::endl;
+// 		return 1;
+// 	}
+
+//   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
+
+//   // residueRel(det, xdet, ydet, xtrack, ytrack, "rel_"+graphname);
+//   residueAbs(det, xdet, ydet, xtrack, ytrack, "abs_"+graphname);
+// }
 

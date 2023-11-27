@@ -38,20 +38,20 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
         std::shared_ptr<cluster> maxX = maxSizeClX(*cls);
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
         int ampX=0, ampY=0;
-        // if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
-        // if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
-        if(maxX) {
-            nX++;
-            std::vector<hit> clHits = getHits(*hits, maxX->id);
-            ampX = std::accumulate(clHits.begin(), clHits.end(), 0,
-                [](int sum, const hit& h){return sum+h.maxamp;});
-        }
-        if(maxY) {
-            nY++;
-            std::vector<hit> clHits = getHits(*hits, maxY->id);
-            ampY = std::accumulate(clHits.begin(), clHits.end(), 0,
-                [](int sum, const hit& h){return sum+h.maxamp;});
-        }
+        if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
+        if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
+        // if(maxX) {
+        //     nX++;
+        //     std::vector<hit> clHits = getHits(*hits, maxX->id);
+        //     ampX = std::accumulate(clHits.begin(), clHits.end(), 0,
+        //         [](int sum, const hit& h){return sum+h.maxamp;});
+        // }
+        // if(maxY) {
+        //     nY++;
+        //     std::vector<hit> clHits = getHits(*hits, maxY->id);
+        //     ampY = std::accumulate(clHits.begin(), clHits.end(), 0,
+        //         [](int sum, const hit& h){return sum+h.maxamp;});
+        // }
 
         if(maxX && maxY){
             if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
@@ -132,6 +132,7 @@ int main(int argc, char* argv[]) {
                 TCanvas* c = xy_compare(fname, det, it->first);
                 c->SaveAs(Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
                 delete c;
+                clusterSizeFile(fname, detName, det, it->first);
             }
         }
     }

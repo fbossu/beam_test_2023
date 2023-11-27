@@ -28,13 +28,14 @@ StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable
 	}
 
 	std::string line;
+	double rotX, rotY, rotZ;
 
 	while (std::getline(file, line)) {
 		if (line[0] == '#') {
 			continue;
 		}
 		std::istringstream iss(line);
-		if (!(iss >> run >> zpos >> Tx >> Ty >> rot)) {
+		if (!(iss >> run >> zpos >> Tx >> Ty >> rotZ >> rotY >> rotX)) {
 			break;
 		}
 		std::getline(file, line);
@@ -47,6 +48,10 @@ StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable
 		}
 	}
 	std::cout<<zpos<<" "<<Tx<<" "<<Ty<<" "<<rot<<std::endl;
+	
+	ROOT::Math::Rotation3D rot(ROOT::Math::RotationZYX(rotZ, rotY, rotX)); // rotation around z, y, x
+	ROOT::Math::Translation3D trl(Tx, Ty, zpos);
+	trans = ROOT::Math::Transform3D(rot, trl);
 }
 	
 
@@ -81,10 +86,22 @@ std::vector<double> StripTable::pos(double sn, char axis){
 							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
 
 
-	std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
-								   (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };
+	// std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
+								//    (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };
+	
+	// ROOT::Math::XYZPoint pdet(v[0], v[1], 0.);
+		// std::cout<<"det "<<pdet<<std::endl;
+	// ROOT::Math::XYZPoint pr = trans(pdet);
+	// std::cout<<"r "<<pr<<std::endl;
 
-	return vAlign;
+	return v;
+	// return {pr.x(), pr.y()};
+}
+
+std::vector<double> StripTable::pos3D(double snx, double sny){
+	ROOT::Math::XYZPoint pdet(this->pos(sny, 'y')[0], this->pos(snx, 'x')[1], 0.);
+	ROOT::Math::XYZPoint pr = trans(pdet);
+	return {pr.x(), pr.y(), pr.z()};
 }
 
 float StripTable::interY(int sn, int snPerp){

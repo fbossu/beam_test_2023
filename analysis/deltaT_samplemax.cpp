@@ -23,7 +23,7 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
     TTreeReaderValue<uint64_t> delta_timestamp(reader, "delta_timestamp");
 
-    TH2F* h2 = new TH2F("h2", "sampleMax vs deltatimestamp", 2000, 0, 50000, 17, -0.5, 16.5);
+    TH2F* h2 = new TH2F("h2", "sampleMax vs deltatimestamp", 200, 0, 50000, 50, -0.5, 16.5);
     h2->GetXaxis()->SetTitle("delta timestamp");
     h2->GetYaxis()->SetTitle("sampleMax");
 
@@ -34,16 +34,16 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     for(int i=0; i<6; i++){
         std::string label = "hcl"+std::to_string(i);
         std::string title = "clusters size "+std::to_string(i+1);
-        hclX[i] = new TH1F(("X "+label).c_str(), ("X "+title).c_str(), 17, -0.5, 16.5);
+        hclX[i] = new TH1F(("X "+label).c_str(), ("X "+title).c_str(), 100, -0.5, 16.5);
         hclX[i]->SetXTitle("sample max");
 
-        hclcenterX[i] = new TH1F(("X "+label+"center").c_str(), ("X "+title).c_str(), 17, -0.5, 16.5);
+        hclcenterX[i] = new TH1F(("X "+label+"center").c_str(), ("X "+title).c_str(), 100, -0.5, 16.5);
         hclcenterX[i]->SetXTitle("sample max");
 
-        hclY[i] = new TH1F(("Y "+label).c_str(), ("Y "+title).c_str(), 17, -0.5, 16.5);
+        hclY[i] = new TH1F(("Y "+label).c_str(), ("Y "+title).c_str(), 100, -0.5, 16.5);
         hclY[i]->SetXTitle("sample max");
 
-        hclcenterY[i] = new TH1F(("Y "+label+"center").c_str(), ("Y "+title).c_str(), 17, -0.5, 16.5);
+        hclcenterY[i] = new TH1F(("Y "+label+"center").c_str(), ("Y "+title).c_str(), 100, -0.5, 16.5);
         hclcenterY[i]->SetXTitle("sample max");
     }
 
@@ -54,26 +54,36 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     double avgY = 0; int nY = 0;
 
     while (reader.Next()) {
+        
+        std::shared_ptr<cluster> clX = maxSizeClX(*cls);
+        std::shared_ptr<cluster> clY = maxSizeClY(*cls);
+        if(clX){
+            if(clX->size!=1) clsizeX->Fill(clX->size);
+        }
+        if(clY){
+            if(clY->size!=1) clsizeY->Fill(clY->size);
+        }
+        
         for(auto cl : *cls){
             std::vector<hit> hitsInCluster = getHits(*hits, cl.id);
             if(cl.size == 1){
-                h2->Fill(*delta_timestamp, hitsInCluster[0].samplemax);
+                h2->Fill(*delta_timestamp, hitsInCluster[0].timeofmax);
             }
-            if(cl.size != 0){
-                if(cl.axis == 'x') clsizeX->Fill(cl.size);
-                else clsizeY->Fill(cl.size);
-            }
+            // if(cl.size != 1){
+            //     if(cl.axis == 'x') clsizeX->Fill(cl.size);
+            //     else clsizeY->Fill(cl.size);
+            // }
                 
             if(cl.size<7){
                 if(cl.axis=='x'){
                     avgX += cl.stripCentroid; nX++;
-                    hclcenterX[cl.size-1]->Fill(hitsInCluster[0].samplemax);
-                    for(auto h : hitsInCluster) hclX[cl.size-1]->Fill(h.samplemax);                    
+                    hclcenterX[cl.size-1]->Fill(hitsInCluster[0].timeofmax);
+                    for(auto h : hitsInCluster) hclX[cl.size-1]->Fill(h.timeofmax);                    
                 }
                 else if (cl.axis =='y'){
                     avgY += cl.stripCentroid; nY++;
-                    hclcenterY[cl.size-1]->Fill(hitsInCluster[0].samplemax);
-                    for(auto h : hitsInCluster) hclY[cl.size-1]->Fill(h.samplemax);
+                    hclcenterY[cl.size-1]->Fill(hitsInCluster[0].timeofmax);
+                    for(auto h : hitsInCluster) hclY[cl.size-1]->Fill(h.timeofmax);
                 }
             }
         }
@@ -106,7 +116,7 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     legX->SetTextFont(43);
     legX->SetTextSize(15);
     legX->Draw();
-    c2->SaveAs(Form("%s_sampleMax_clusterSizeX_ref%d.png", detName.c_str(), zone));
+    c2->SaveAs(Form("%s_timeofmax_clusterSizeX_ref%d.png", detName.c_str(), zone));
 
     TCanvas* c2y = new TCanvas("c2y", "c2y", 1600, 1000);
     c2y->Divide(3,2);
@@ -127,7 +137,7 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     legY->SetTextFont(43);
     legY->SetTextSize(15);
     legY->Draw();
-    c2y->SaveAs(Form("%s_sampleMax_clusterSizeY_ref%d.png", detName.c_str(), zone));
+    c2y->SaveAs(Form("%s_timeofmax_clusterSizeY_ref%d.png", detName.c_str(), zone));
 
 
     TCanvas* c3 = new TCanvas("c3", "c3", 1600, 1000);
