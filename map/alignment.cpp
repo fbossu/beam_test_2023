@@ -274,8 +274,9 @@ const double* align(std::string pos, StripTable det, std::vector<banco::track> t
 	minimum->SetVariable(3,"rotZ", pStart[3], step[3]);
 	minimum->SetVariable(4,"rotY", pStart[4], step[4]);
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
+	minimum->FixVariable(0);
+
 	if(fixTrl){
-		minimum->FixVariable(0);
 		minimum->FixVariable(1);
 		minimum->FixVariable(2);
 	}
@@ -450,7 +451,7 @@ int main(int argc, char const *argv[])
 	
 	// std::string out = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	// std::cout<<out<<std::endl;
-	const double* ptrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, false);
+	const double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, true);
 	// for(int i=0; i<2; i++){
 	// 	const double* ptrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, true);
 	// 	for(int j=0; j<6; j++) pStart[j] = ptrl[j];
@@ -461,11 +462,18 @@ int main(int argc, char const *argv[])
 	// Write output to file
 	// if(out == "") return 1;
 
-	// std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
+	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
 	// std::ofstream outfile("test.txt");
-	// outfile << out;
-	// outfile.close();
-	
+	outfile << "# POS zpos Tx Ty rot(z y x)\n";
+	outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd[0], pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]) << std::endl;
+	outfile.close();
+
+	// std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
+	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
+	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3));
+	// out += Form("%s %f %f %f %f %f %f\n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3), result.Parameter(4), result.Parameter(5));
+	// out += Form("%s %f %f %f %f %f %f\n", pos.c_str(), result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3), result.ParError(4), result.ParError(5));
+	// return out;
 
 	return 0;
 }
