@@ -296,13 +296,17 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
       n++; stX += maxX->stripCentroid; stY += maxY->stripCentroid;
       auto hitsX = getHits(*hits, maxX->id);
       auto hitsY = getHits(*hits, maxY->id);
-      
+      if(hitsX.size() == 0 or hitsY.size() == 0){
+              std::cout<<"aaaaaaaahhhhhhhhhhhhhhhhhhhh"<<std::endl;
+        continue;
+      }
       std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
       double xdet = detPos[0];
       double ydet = detPos[1];
-      
+
       double xtrack = tr.x0 + detPos[2]*tr.mx;
       double ytrack = tr.y0 + detPos[2]*tr.my;
+
       nt->Fill(xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, maxX->stripCentroid, maxY->stripCentroid, maxX->centroid, maxY->centroid);
     }
   }
@@ -579,7 +583,10 @@ int main(int argc, char const *argv[])
   
   std::string resfname = "residue_"+run+"_"+detName+"_residue"+".root";
   TFile* res = new TFile((resfname).c_str(), "recreate");
+  std::cout<<"residue file: "<<resfname<<std::endl;
   residue(res, fnameBanco, fnameMM, det);
+  std::cout<<"residue file: "<<resfname<<std::endl;
+
   plotResidue(res, graphname);
   plotResidueClsize(res, graphnameCl);
   return 0;

@@ -204,7 +204,7 @@ void reco( string name, DreamTable det) {
     
     vector<hit> *goodHits = new vector<hit>();
     copy_if(hits->begin(), hits->end(), back_inserter(*goodHits), checkHit);
-    sort( hits->begin(), hits->end(), compareHits );
+    sort( goodHits->begin(), goodHits->end(), compareHits );
 
     cls->clear();
     int oldch = -1;
