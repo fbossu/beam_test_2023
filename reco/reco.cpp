@@ -238,13 +238,14 @@ void reco( string name, DreamTable det) {
           // increase the size of the cluster
           size++;
 
-          // look for the next hit, check that the next hit is a neighbourg
+          // look for the next hit
           it++;
           // if the hit is not valid, hit is skiped
-          if( checkHit(*it) == false ){
+          if( checkHit(*it) == false && it != hits->end() ){
             it->clusterId = 0;
             it++;
           }
+          // check that the hit belongs to the same cluster
           if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
             // TODO add here some conditions to skip missing strips and so on
             break;

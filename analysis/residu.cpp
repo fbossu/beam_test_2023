@@ -7,6 +7,7 @@
 #include "TH1.h"
 #include "TF1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TNtupleD.h"
 #include "TCanvas.h"
 #include "TTreeReader.h"
@@ -409,6 +410,55 @@ void plotResidue(TFile* res, std::string graphname){
   c->Print(graphname.c_str(), "png");
 }
 
+void res3Dplot(TFile* res, std::string graphname){
+  
+  TNtupleD* nt = (TNtupleD*) res->Get("nt");
+
+  double meanxdet = getMean(nt, "xdet");
+  double meanydet = getMean(nt, "ydet");
+  double stdx = getStdDev(nt, "xres");
+  double stdy = getStdDev(nt, "yres");
+  double meanresx = getMean(nt, "xres");
+  double meanresy = getMean(nt, "yres");
+
+  TH2F* h2xres = new TH2F("h2x", "2D Y strip residu distribution", 300, meanxdet-3, meanxdet+3, 300, meanydet-3, meanydet+3);
+  h2xres->GetXaxis()->SetTitle("position x axis (mm)");
+  h2xres->GetYaxis()->SetTitle("position y axis (mm)");
+  h2xres->GetZaxis()->SetTitle("residue (mm)");
+  h2xres->GetZaxis()->SetRangeUser(-1,1);
+
+  TH2F* h2yres = new TH2F("h2y", "2D X strip residu distribution", 300, meanxdet-3, meanxdet+3, 300, meanydet-3, meanydet+3);
+  h2yres->GetXaxis()->SetTitle("position x axis (mm)");
+  h2yres->GetYaxis()->SetTitle("position y axis (mm)");
+  h2yres->GetZaxis()->SetTitle("residue (mm)");
+  h2yres->GetZaxis()->SetRangeUser(-1,1);
+
+  double xdet, ydet, xres, yres;
+
+  nt->ResetBranchAddresses();
+  nt->SetBranchAddress("xdet", &xdet);
+  nt->SetBranchAddress("ydet", &ydet);
+  nt->SetBranchAddress("xres", &xres);
+  nt->SetBranchAddress("yres", &yres);
+
+  for(int i = 0; i < nt->GetEntries(); i++) {
+    nt->GetEntry(i);
+    h2xres->SetBinContent(h2xres->FindBin(xdet, ydet), xres);
+    h2yres->SetBinContent(h2yres->FindBin(xdet, ydet), yres);
+  }
+
+  TCanvas *c = new TCanvas("c", "c", 1600,1000);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(kTemperatureMap);
+  c->Divide(2,1);
+  c->cd(1);
+  h2yres->Draw("colz");
+  c->cd(2);
+  h2xres->Draw("colz");
+  c->Print(graphname.c_str(), "png");
+  delete c;
+}
+
 void plotResidueClsize(TFile* res, std::string graphname){
   
   TNtupleD* nt = (TNtupleD*) res->Get("nt");
@@ -578,8 +628,9 @@ int main(int argc, char const *argv[])
 
   StripTable det(mapName, alignName);
   // StripTable det(mapName);
-  std::string graphname = "residue_"+run+"_"+detName+"_cuts"+".png";
-  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cuts"+".png";
+  std::string graphname = "residue_"+run+"_"+detName+"_cuts03Y"+".png";
+  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cuts03Y"+".png";
+  std::string graphname3D = "residue_"+run+"_"+detName+"_3D_cuts03Y"+".png";
   
   std::string resfname = "residue_"+run+"_"+detName+"_residue"+".root";
   TFile* res = new TFile((resfname).c_str(), "recreate");
@@ -589,6 +640,7 @@ int main(int argc, char const *argv[])
 
   plotResidue(res, graphname);
   plotResidueClsize(res, graphnameCl);
+  res3Dplot(res, graphname3D);
   return 0;
 }
 
