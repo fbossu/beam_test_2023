@@ -301,12 +301,31 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
               std::cout<<"aaaaaaaahhhhhhhhhhhhhhhhhhhh"<<std::endl;
         continue;
       }
-      std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
-      double xdet = detPos[0];
-      double ydet = detPos[1];
+      // std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+      // double xdet = detPos[0];
+      // double ydet = detPos[1];
 
-      double xtrack = tr.x0 + detPos[2]*tr.mx;
-      double ytrack = tr.y0 + detPos[2]*tr.my;
+      // double xtrack = tr.x0 + detPos[2]*tr.mx;
+      // double ytrack = tr.y0 + detPos[2]*tr.my;
+
+      double Xth = 0, Yth = 0;
+      double Xamp = 0, Yamp = 0;
+      for(int i=0; i<hitsX.size(); i++){
+        Xth += (hitsX[i].maxamp-300)*hitsX[i].strip;
+        Xamp += hitsX[i].maxamp-300;
+      }
+
+      for(int i=0; i<hitsY.size(); i++){
+        Yth += (hitsY[i].maxamp-300)*hitsY[i].strip;
+        Yamp += hitsY[i].maxamp-300;
+      }
+
+      std::vector<double> detPosTh = det.pos3D(Xth/Xamp, Yth/Yamp);
+      double xdet = detPosTh[0];
+      double ydet = detPosTh[1];
+
+      double xtrack = tr.x0 + detPosTh[2]*tr.mx;
+      double ytrack = tr.y0 + detPosTh[2]*tr.my;
 
       nt->Fill(xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, maxX->stripCentroid, maxY->stripCentroid, maxX->centroid, maxY->centroid);
     }
@@ -465,10 +484,14 @@ void plotResidueClsize(TFile* res, std::string graphname){
 
   double meanxdet = getMean(nt, "xdet");
   double meanydet = getMean(nt, "ydet");
-  double stdx = getStdDev(nt, "xres");
-  double stdy = getStdDev(nt, "yres");
-  double meanresx = getMean(nt, "xres");
-  double meanresy = getMean(nt, "yres");
+  // double stdx = getStdDev(nt, "xres");
+  // double stdy = getStdDev(nt, "yres");
+  double stdx = 5;
+  double stdy = 5;
+  // double meanresx = getMean(nt, "xres");
+  // double meanresy = getMean(nt, "yres");
+  double meanresx = 0;
+  double meanresy = 0;
   // double meanstX = getMean(nt, "stX");
   // double meanstY = getMean(nt, "stY");
   
@@ -518,7 +541,7 @@ void plotResidueClsize(TFile* res, std::string graphname){
     h2x[i]->GetYaxis()->SetTitle("residue (mm)");
     h2x[i]->SetMarkerColor(color[i]);
 
-    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, -100, 100, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
     h2y[i]->GetXaxis()->SetTitle("position x axis (mm)");
     h2y[i]->GetYaxis()->SetTitle("residue (mm)");
     h2y[i]->SetMarkerColor(color[i]);
@@ -628,9 +651,9 @@ int main(int argc, char const *argv[])
 
   StripTable det(mapName, alignName);
   // StripTable det(mapName);
-  std::string graphname = "residue_"+run+"_"+detName+"_cuts03Y"+".png";
-  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cuts03Y"+".png";
-  std::string graphname3D = "residue_"+run+"_"+detName+"_3D_cuts03Y"+".png";
+  std::string graphname = "residue_"+run+"_"+detName+"_cutsTh"+".png";
+  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cutsTh"+".png";
+  std::string graphname3D = "residue_"+run+"_"+detName+"_3D_cutsTh"+".png";
   
   std::string resfname = "residue_"+run+"_"+detName+"_residue"+".root";
   TFile* res = new TFile((resfname).c_str(), "recreate");

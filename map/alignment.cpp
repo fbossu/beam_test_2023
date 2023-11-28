@@ -426,7 +426,7 @@ int main(int argc, char const *argv[])
 		auto maxX = maxSizeClX(*cls);
     	auto maxY = maxSizeClY(*cls);
 		if(!maxX or !maxY) continue;
-		// if(maxX->size < 2 or maxY->size < 2) continue;
+		if(maxX->size < 2 or maxY->size < 2) continue;
 		
 		tracksFit.push_back(tr);
 		XclsFit.push_back(*maxX);
