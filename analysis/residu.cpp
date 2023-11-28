@@ -277,6 +277,7 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
   int n = 0;
 
   double zpos = det.getZpos();
+  double avgxdet = 0;
 
   while( MM.Next() ){
     bool isBanco = banco.Next();
@@ -326,6 +327,7 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
 
       double xtrack = tr.x0 + detPosTh[2]*tr.mx;
       double ytrack = tr.y0 + detPosTh[2]*tr.my;
+      avgxdet += xdet;
 
       nt->Fill(xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, maxX->stripCentroid, maxY->stripCentroid, maxX->centroid, maxY->centroid);
     }
@@ -335,6 +337,7 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
   Xinter = det.interX(stX/n);
   Ypitch = det.pitchY(stY/n);
   Yinter = det.interY(stY/n, stX/n);
+  std::cout<<"avgxdet: "<<avgxdet/n<<std::endl;
 
   res->Write();
   delete nt;
@@ -541,7 +544,7 @@ void plotResidueClsize(TFile* res, std::string graphname){
     h2x[i]->GetYaxis()->SetTitle("residue (mm)");
     h2x[i]->SetMarkerColor(color[i]);
 
-    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, -100, 100, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, 0, 20, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
     h2y[i]->GetXaxis()->SetTitle("position x axis (mm)");
     h2y[i]->GetYaxis()->SetTitle("residue (mm)");
     h2y[i]->SetMarkerColor(color[i]);
