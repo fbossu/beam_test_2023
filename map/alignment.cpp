@@ -440,7 +440,7 @@ int main(int argc, char const *argv[])
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
 	if(nev < 10000) {
-		std::cerr << "Error: Not enough events" << std::endl;
+		std::cerr << "Error: Not enough events: " << nev << std::endl;
 		return 1;
 	}
 	std::cout<<"Number of events: "<<nev<<std::endl;
