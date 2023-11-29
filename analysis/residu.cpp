@@ -12,6 +12,7 @@
 #include "TCanvas.h"
 #include "TTreeReader.h"
 #include "TStyle.h"
+#include "TROOT.h"
 #include "TLegend.h"
 #include "TGraphErrors.h"
 #include "TLatex.h"
@@ -20,6 +21,31 @@
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
 #include "clusterSize.h"
+
+// TStyle* myStyle;
+void defStyle(){
+  // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
+  // myStyle = gROOT->GetStyle("Default");
+  // TStyle* myStyle = new TStyle("Plain","Default Style");
+  gStyle->SetName("myStyle");
+  gStyle->SetTextFont(43);
+  gStyle->SetTextSize(22);
+
+  // Set the font and size for all axis labels
+  gStyle->SetLabelFont(43, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
+  gStyle->SetLabelSize(22, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
+
+  // Set the font and size for all axis titles
+  gStyle->SetTitleFont(43, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+  gStyle->SetTitleSize(22, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+
+  gStyle->SetTitleFont(43,"T"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+  gStyle->SetTitleSize(22,"T"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+
+  // gROOT->SetStyle("myStyle");
+  // gROOT->ForceStyle();
+}
+
 
 // Residue relative to the beam position
 void residueRel(StripTable det, std::vector<float> Xstrip, std::vector<float> Ystrip, std::vector<float> xtrack, std::vector<float> ytrack, std::string graphname = "residue.png"){
@@ -216,7 +242,7 @@ void residueAbs(StripTable det, std::vector<float> xdet, std::vector<float> ydet
   c1->Print(("BS"+graphname).c_str(), "png");
 }
 
-double getMean(TNtupleD* nt, const char* columnName) {
+double getMean(TNtupleD* nt, const char* columnName, std::vector<double> lim = {}) {
   double sum = 0.;
   int count = 0;
   double col = 0.;
@@ -226,15 +252,16 @@ double getMean(TNtupleD* nt, const char* columnName) {
 
   for (int i = 0; i < nt->GetEntries(); i++) {
     nt->GetEntry(i);
+    if(lim.size() == 2 and (col < lim[0] or col > lim[1])) continue;
     sum += col;
     count++;
   }
   return sum / count;
 }
 
-double getStdDev(TNtupleD* nt, const char* columnName) {
-  double mean = getMean(nt, columnName);
-  std::cout<<"mean: "<<mean<<std::endl;
+double getStdDev(TNtupleD* nt, const char* columnName, std::vector<double> lim = {}) {
+  double mean = getMean(nt, columnName, lim);
+  // std::cout<<"mean: "<<mean<<std::endl;
   double sumDiff = 0.;
   double col = 0.;
   int count = 0;
@@ -244,6 +271,7 @@ double getStdDev(TNtupleD* nt, const char* columnName) {
 
   for(int i = 0; i < nt->GetEntries(); i++) {
     nt->GetEntry(i);
+    if(lim.size() == 2 and (col < lim[0] or col > lim[1])) continue;
     sumDiff += pow(col - mean, 2);
     // std::cout<<pow(col - mean, 2)<<" "<<sumDiff2<<std::endl;
     count++;
@@ -345,15 +373,20 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
 
 
 void plotResidue(TFile* res, std::string graphname){
+  
+  // defStyle();
 
   TNtupleD* nt = (TNtupleD*) res->Get("nt");
 
-  double meanxdet = getMean(nt, "xdet");
-  double meanydet = getMean(nt, "ydet");
-  double stdx = getStdDev(nt, "xres");
-  double stdy = getStdDev(nt, "yres");
-  double meanresx = getMean(nt, "xres");
-  double meanresy = getMean(nt, "yres");
+  double meanxdet = getMean(nt, "xdet",{-200, 200});
+  double meanydet = getMean(nt, "ydet",{-200, 200});
+  double stdx = getStdDev(nt, "xres",{-100, 100});
+  double stdy = getStdDev(nt, "yres",{-100, 100});
+
+  double meanresx = getMean(nt, "xres",{-200, 200});
+  double meanresy = getMean(nt, "yres",{-200, 200});
+  double meanstX = getMean(nt, "stX",{-200, 200});
+  double meanstY = getMean(nt, "stY",{-200, 200});
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
@@ -385,11 +418,14 @@ void plotResidue(TFile* res, std::string graphname){
   nt->Draw("yres:ydet>>h2x");
   nt->Draw("xres:xdet>>h2y");
 
+  // gStyle->SetTextFont(43); // Set the font to Helvetica
+  // gStyle->SetTextSize(20); // Set the font size to 0.05
+
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   gStyle->SetOptStat(0);
   TLatex latex;
-  latex.SetTextFont(43);
-  latex.SetTextSize(18);
+  // latex.SetTextFont(43);
+  // latex.SetTextSize(18);
   std::string label;
 
   c->Divide(2,2);
@@ -434,14 +470,20 @@ void plotResidue(TFile* res, std::string graphname){
 
 void res3Dplot(TFile* res, std::string graphname){
   
+  // gROOT->SetStyle("myStyle");
+  // gROOT->ForceStyle();
+
   TNtupleD* nt = (TNtupleD*) res->Get("nt");
 
-  double meanxdet = getMean(nt, "xdet");
-  double meanydet = getMean(nt, "ydet");
-  double stdx = getStdDev(nt, "xres");
-  double stdy = getStdDev(nt, "yres");
-  double meanresx = getMean(nt, "xres");
-  double meanresy = getMean(nt, "yres");
+  double meanxdet = getMean(nt, "xdet",{-200, 200});
+  double meanydet = getMean(nt, "ydet",{-200, 200});
+  double stdx = getStdDev(nt, "xres",{-100, 100});
+  double stdy = getStdDev(nt, "yres",{-100, 100});
+
+  double meanresx = getMean(nt, "xres",{-200, 200});
+  double meanresy = getMean(nt, "yres",{-200, 200});
+  double meanstX = getMean(nt, "stX",{-200, 200});
+  double meanstY = getMean(nt, "stY",{-200, 200});
 
   TH2F* h2xres = new TH2F("h2x", "2D Y strip residu distribution", 300, meanxdet-3, meanxdet+3, 300, meanydet-3, meanydet+3);
   h2xres->GetXaxis()->SetTitle("position x axis (mm)");
@@ -482,24 +524,25 @@ void res3Dplot(TFile* res, std::string graphname){
 }
 
 void plotResidueClsize(TFile* res, std::string graphname){
+
+  // gROOT->SetStyle("myStyle");
+  // gROOT->ForceStyle();
   
   TNtupleD* nt = (TNtupleD*) res->Get("nt");
+  int N = 3;
 
-  double meanxdet = getMean(nt, "xdet");
-  double meanydet = getMean(nt, "ydet");
-  // double stdx = getStdDev(nt, "xres");
-  // double stdy = getStdDev(nt, "yres");
-  double stdx = 5;
-  double stdy = 5;
-  // double meanresx = getMean(nt, "xres");
-  // double meanresy = getMean(nt, "yres");
-  double meanresx = 0;
-  double meanresy = 0;
-  // double meanstX = getMean(nt, "stX");
-  // double meanstY = getMean(nt, "stY");
+  double meanxdet = getMean(nt, "xdet",{-200, 200});
+  double meanydet = getMean(nt, "ydet",{-200, 200});
+  double stdx = getStdDev(nt, "xres",{-100, 100});
+  double stdy = getStdDev(nt, "yres",{-100, 100});
+
+  double meanresx = getMean(nt, "xres",{-200, 200});
+  double meanresy = getMean(nt, "yres",{-200, 200});
+  double meanstX = getMean(nt, "stX",{-200, 200});
+  double meanstY = getMean(nt, "stY",{-200, 200});
   
-  double meanchX = getMean(nt, "chX");
-  double meanchY = getMean(nt, "chY");
+  double meanchX = getMean(nt, "chX",{-200, 200});
+  double meanchY = getMean(nt, "chY",{-200, 200});
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
   TH1F* hx[3];
@@ -513,9 +556,12 @@ void plotResidueClsize(TFile* res, std::string graphname){
   THStack* hsx = new THStack("hsx", "residu X strips (track - centroid)");
   THStack* hsy = new THStack("hsy", "residu Y strips (track - centroid)");
 
-  std::vector<int> color = {kBlue, kRed, kViolet};
+  // gStyle->SetTextFont(43); // Set the font to Helvetica
+  // gStyle->SetTextSize(20); // Set the font size to 0.05
 
-  for(int i=0; i<3; i++){
+  std::vector<int> color = {kBlue, kRed, kViolet, kBlack};
+
+  for(int i=0; i<N; i++){
     hx[i] = new TH1F(Form("hx_%d",i), "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
     hx[i]->GetXaxis()->SetTitle("residue on y axis (mm)");
     hx[i]->SetLineColor(color[i]);
@@ -544,7 +590,7 @@ void plotResidueClsize(TFile* res, std::string graphname){
     h2x[i]->GetYaxis()->SetTitle("residue (mm)");
     h2x[i]->SetMarkerColor(color[i]);
 
-    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, 0, 20, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
     h2y[i]->GetXaxis()->SetTitle("position x axis (mm)");
     h2y[i]->GetYaxis()->SetTitle("residue (mm)");
     h2y[i]->SetMarkerColor(color[i]);
@@ -569,23 +615,23 @@ void plotResidueClsize(TFile* res, std::string graphname){
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
   gStyle->SetOptStat(0);
   TLatex latex;
-  latex.SetTextFont(43);
-  latex.SetTextSize(18);
+  // latex.SetTextFont(43);
+  // latex.SetTextSize(18);
   std::string label;
 
   c->Divide(2,2);
   c->cd(1);
   hsx->Draw("nostack");
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.8, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
 
   label = "inter: " + std::to_string(Xinter).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.76, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
 
-  for(int i=0; i<3; i++){
+  for(int i=0; i<N; i++){
     latex.SetTextColor(color[i]);
     label = Form("size%d: #mu_{X}=%.3f; #sigma_{X}=%.3f", i+1, fitFuncX[i]->GetParameter(1), fitFuncX[i]->GetParameter(2));
-    latex.DrawLatexNDC(0.7, 0.72-i*0.04, (label).c_str());
+    latex.DrawLatexNDC(0.65, 0.72-i*0.04, (label).c_str());
     latex.SetTextColor(kBlack);
   }
 
@@ -593,15 +639,15 @@ void plotResidueClsize(TFile* res, std::string graphname){
   hsy->Draw("nostack");
 
   label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.8, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
 
   label = "inter: " + std::to_string(Yinter).substr(0, 5);
-  latex.DrawLatexNDC(0.7, 0.76, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
 
-  for(int i=0; i<3; i++){
+  for(int i=0; i<N; i++){
     latex.SetTextColor(color[i]);
     label = Form("size%d: #mu_{Y}=%.3f; #sigma_{Y}=%.3f", i+1, fitFuncY[i]->GetParameter(1), fitFuncY[i]->GetParameter(2));
-    latex.DrawLatexNDC(0.7, 0.72-i*0.04, (label).c_str());
+    latex.DrawLatexNDC(0.65, 0.72-i*0.04, (label).c_str());
     latex.SetTextColor(kBlack);
   }
 
@@ -609,12 +655,14 @@ void plotResidueClsize(TFile* res, std::string graphname){
   h2x[1]->Draw("");
   h2x[2]->Draw("same");
   h2x[0]->Draw("same");
+  // h2x[3]->Draw("same");
   gPad->SetLogz();
 
   c->cd(4);
   h2y[1]->Draw("");
   h2y[2]->Draw("same");
   h2y[0]->Draw("same");
+  // h2y[3]->Draw("same");
   gPad->SetLogz();
 
   c->Print(graphname.c_str(), "png");
@@ -654,9 +702,9 @@ int main(int argc, char const *argv[])
 
   StripTable det(mapName, alignName);
   // StripTable det(mapName);
-  std::string graphname = "residue_"+run+"_"+detName+"_cutsTh"+".png";
-  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cutsTh"+".png";
-  std::string graphname3D = "residue_"+run+"_"+detName+"_3D_cutsTh"+".png";
+  std::string graphname = "residue_"+run+"_"+detName+""+"_cutsTh_Y08.png";
+  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cutsTh_Y08"+".png";
+  std::string graphname3D = "residue_"+run+"_"+detName+"_3D_cutsTh_Y08"+".png";
   
   std::string resfname = "residue_"+run+"_"+detName+"_residue"+".root";
   TFile* res = new TFile((resfname).c_str(), "recreate");
@@ -664,6 +712,7 @@ int main(int argc, char const *argv[])
   residue(res, fnameBanco, fnameMM, det);
   std::cout<<"residue file: "<<resfname<<std::endl;
 
+  defStyle();
   plotResidue(res, graphname);
   plotResidueClsize(res, graphnameCl);
   res3Dplot(res, graphname3D);

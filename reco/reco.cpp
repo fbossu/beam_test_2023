@@ -17,7 +17,7 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
-bool checkHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>300; }
+bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
@@ -27,6 +27,29 @@ void niceBar( int tot, int i, int N=50 ){
     cout << " ";
   cout << " ]\r";
   cout << flush;
+}
+
+cluster makeCluster( vector<hit*> hitcl, int clId, DreamTable det){
+
+  double centroidNum = 0.;
+  double centroidDen = 0.;
+  double stripCentroidNum = 0.;
+  char axis = hitcl.at(0)->axis;
+
+  for( auto h : hitcl ){
+    if( h->axis != axis ) cerr << "ERROR: hits in the same cluster have different axis" << endl;
+    h->clusterId = clId;
+    centroidNum += h->channel * (h->maxamp-256);
+    stripCentroidNum += h->strip * (h->maxamp-256);
+    centroidDen += h->maxamp-256;
+  }
+  cluster cl;
+  cl.id = clId;
+  cl.size = hitcl.size();
+  cl.centroid = centroidNum / centroidDen;
+  cl.stripCentroid = stripCentroidNum / centroidDen;
+  cl.axis = axis;
+  return cl;
 }
 
 // =====================================================================
@@ -203,74 +226,94 @@ void reco( string name, DreamTable det) {
     // select and sort hits, sorting probably not needed, but just in case
     
     sort( hits->begin(), hits->end(), compareHits );
-
+    
     cls->clear();
-    int oldch = -1;
-    uint16_t clId = 1;
-    for( auto it = hits->begin(); !JustHits && it < hits->end(); ){ // skip this portion if JustHits is true
-      // std::cout<<"channel: "<<it->channel<<std::endl;
-      // start a new cluster
-      if( oldch < 0 ){
-        oldch = it->channel;
-        int size = 0;
-        int numCh = 0;
-        int denCh = 0;
-        int numSt = 0;
-        int denSt = 0;
+    std::vector<hit*> hitCl;
+    int clId = 0;
 
-        char axis = det.axis(it->channel);
+    for( auto &it : *hits){
 
-        // loop over the hits
-        while( oldch >= 0 ){
-
-          // compute the numerator and the denumerator for the centroid  
-          numCh += it->channel * it->maxamp;
-          denCh += it->maxamp;
-
-          numSt += det.stripNb(it->channel) * it->maxamp;  
-          denSt += it->maxamp;
-
-          // std::cout<<det.getAll(it->channel)<<std::endl;
-
-          // assign the cluster Id to the hit. 
-          it->clusterId = clId; 
-
-          // increase the size of the cluster
-          size++;
-
-          // look for the next hit
-          it++;
-          // if the hit is not valid, hit is skiped
-          if( checkHit(*it) == false && it != hits->end() ){
-            it->clusterId = 0;
-            it++;
-          }
-          // check that the hit belongs to the same cluster
-          if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
-            // TODO add here some conditions to skip missing strips and so on
-            break;
-          }
-          
-          oldch = it->channel;
-
-        } // here the cluster is found
-
-        // make a cluster
-        cluster cl;
-        cl.size     = size;
-        cl.centroid = (float) numCh / denCh;
-        cl.id       = clId;
-        cl.stripCentroid = (float) numSt / denCh;
-        cl.axis = axis;
-        cls->push_back( cl );
-
-        // if here, the cluster is finished. reset oldch and increase the clId for the next one
-        oldch = -1;
+      if( !goodHit(it) ) continue;
+      if( hitCl.size() == 0 ){
+        hitCl.push_back(&it);
+      }
+      else if( det.isNeighbour(hitCl.back()->channel, it.channel) ){
+        hitCl.push_back(&it);
+      }
+      else{
         clId++;
+        cls->push_back( makeCluster(hitCl, clId, det) );
+        hitCl.clear();
+      }
+    }
 
-      }// this was a cluster
+    // int oldch = -1;
+    // uint16_t clId = 1;
+    // for( auto it = hits->begin(); !JustHits && it < hits->end(); ){ // skip this portion if JustHits is true
+    //   // std::cout<<"channel: "<<it->channel<<std::endl;
+    //   // start a new cluster
+    //   if( oldch < 0 ){
+    //     oldch = it->channel;
+    //     int size = 0;
+    //     int numCh = 0;
+    //     int denCh = 0;
+    //     int numSt = 0;
+    //     int denSt = 0;
 
-    } // end loop over hits
+    //     char axis = det.axis(it->channel);
+
+    //     // loop over the hits
+    //     while( oldch >= 0 ){
+
+    //       // compute the numerator and the denumerator for the centroid  
+    //       numCh += it->channel * it->maxamp;
+    //       denCh += it->maxamp;
+
+    //       numSt += det.stripNb(it->channel) * it->maxamp;  
+    //       denSt += it->maxamp;
+
+    //       // std::cout<<det.getAll(it->channel)<<std::endl;
+
+    //       // assign the cluster Id to the hit. 
+    //       it->clusterId = clId; 
+
+    //       // increase the size of the cluster
+    //       size++;
+
+    //       // look for the next hit
+    //       it++;
+    //       // if the hit is not valid, hit is skiped and cluster is closed
+    //       if( !goodHit(*it) && it != hits->end() ){
+    //         it->clusterId = 0;
+    //         it++;
+    //         break;
+    //       }
+    //       // check that the hit belongs to the same cluster
+    //       if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
+    //         // TODO add here some conditions to skip missing strips and so on
+    //         break;
+    //       }
+          
+    //       oldch = it->channel;
+
+    //     } // here the cluster is found
+
+    //     // make a cluster
+    //     cluster cl;
+    //     cl.size     = size;
+    //     cl.centroid = (float) numCh / denCh;
+    //     cl.id       = clId;
+    //     cl.stripCentroid = (float) numSt / denCh;
+    //     cl.axis = axis;
+    //     cls->push_back( cl );
+
+    //     // if here, the cluster is finished. reset oldch and increase the clId for the next one
+    //     oldch = -1;
+    //     clId++;
+
+    //   }// this was a cluster
+
+    // } // end loop over hits
 
 
     outnt.Fill();
