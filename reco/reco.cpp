@@ -239,7 +239,7 @@ void reco( string name, DreamTable det) {
           it.clusterId = 0;
           continue;
         }
-        it.clusterId = clId;
+
         if( hitCl.size() == 0 ){
           hitCl.push_back(&it);
         }
@@ -249,6 +249,7 @@ void reco( string name, DreamTable det) {
         else{
           cls->push_back( makeCluster(hitCl, clId) );
           hitCl.clear();
+          hitCl.push_back(&it);
           clId++;
         }
       }
