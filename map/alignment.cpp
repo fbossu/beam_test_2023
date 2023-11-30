@@ -5,6 +5,7 @@
 #include <TCanvas.h>
 #include <TF2.h>
 #include <TH1.h>
+#include <TLatex.h>
 #include <TGraph.h>
 #include <Math/Functor.h>
 #include <Math/Minimizer.h>
@@ -13,6 +14,7 @@
 #include <Fit/Fitter.h>
 #include "TTreeReader.h"
 #include "TFile.h"
+ 
 #include <Math/Transform3D.h>
 #include <Math/Translation3D.h>
 #include <Math/Rotation3D.h>
@@ -41,26 +43,50 @@ Parameters:
 	5 rotX, rotation of the detector around the x axis
 */
 
-void zAlign(std::string pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double* p){
+double zAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p){
 	TGraph* grSigma = new TGraph();
 	det.setTransform(p[0], p[1], p[2], p[3], p[4], p[5]);
 	
-	for(double i=p[0]-10; i<p[0]+10; i++){
+	for(double z=p[0]-100; z<p[0]+100; z++){
 		TH1F* hres = new TH1F("hres", "", 1000, -2, 2);
 		for(int j=0; j<tracks.size(); j++){
-			double xtr = tracks[j].x0 + i*tracks[j].mx;
-			double ytr = tracks[j].y0 + i*tracks[j].my;
-			hres->Fill(sqrt( pow(xtr - det.posY(Ycls[j].stripCentroid)[0],2) + pow(ytr - det.posX(Xcls[j].stripCentroid)[1],2) ));
+			double xtr = tracks[j].x0 + z*tracks[j].mx;
+			double ytr = tracks[j].y0 + z*tracks[j].my;
+			std::vector<double> posdet = det.pos3D(Xcls[j].stripCentroid, Ycls[j].stripCentroid);
+			hres->Fill(sqrt( pow(xtr - posdet[0],2) + pow(ytr - posdet[1],2) ));
 		}
 
 		TF1* fitFunc = new TF1("fitFunc", "gaus", -2, 2);
 		hres->Fit(fitFunc, "R");
-		grSigma->SetPoint(grSigma->GetN(), i, fitFunc->GetParameter(2));
+		grSigma->SetPoint(grSigma->GetN(), z, fitFunc->GetParameter(2));
 	}
-	TCanvas* c1 = new TCanvas();
+
+	TF1* fitFunc = new TF1("fitFunc", "pol2", p[0]-100, p[0]+100);
+	grSigma->Fit(fitFunc, "R");
+	double zout = -fitFunc->GetParameter(1)/(2*fitFunc->GetParameter(2));	
+	
+	TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
+	grSigma->SetMarkerStyle(20);
+	grSigma->SetMarkerSize(0.8);
+	grSigma->SetMarkerColor(kBlue);
+	grSigma->SetTitle("z alignment");
+	grSigma->GetXaxis()->SetTitle("z position [mm]");
+	grSigma->GetYaxis()->SetTitle("sigma [mm]");
 	grSigma->Draw("AP");
-	c1->SaveAs("zAlign.png");
+
+	TLatex* latex = new TLatex();
+	latex->SetTextSize(0.03);
+	latex->SetTextColor(kRed);
+	latex->DrawLatexNDC(0.2, 0.2, Form("zpos = %.2f", zout));
+	gStyle->SetOptFit(1111);
+	
+	c1->SaveAs(graphName.c_str());
+
+	std::cout<<"zpos "<<zout<<std::endl;
+	return zout;
 }
+	
+
 
 
 struct funcChi2 {
@@ -70,11 +96,11 @@ struct funcChi2 {
 	std::vector<cluster> Ycls;
 	StripTable det;
 
-   	funcChi2(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls) : 
-  	det(det), tracks(tracks), Xcls(Xcls) ,Ycls(Ycls) {}
- 
-   	// calculate distance line-point
-   	double chi2(banco::track tr, cluster clX, cluster clY, const double *p) {
+	funcChi2(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls) : 
+	det(det), tracks(tracks), Xcls(Xcls) ,Ycls(Ycls) {}
+	
+	// calculate distance line-point
+	double chi2(banco::track tr, cluster clX, cluster clY, const double *p) {
 
 		double clxpos = det.posY(clY.stripCentroid)[0];
 		double clypos = det.posX(clX.stripCentroid)[1];
@@ -97,13 +123,13 @@ struct funcChi2 {
 		double xtr = tr.x0 + pr.Z()*tr.mx;
 		double ytr = tr.y0 + pr.Z()*tr.my;
 
-   		double res = sqrt( pow(xtr - pr.X(),2) + pow(ytr - pr.Y(),2) );
-   		// double errx2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(clY.stripCentroid))/sqrt(12),2);
+		double res = sqrt( pow(xtr - pr.X(),2) + pow(ytr - pr.Y(),2) );
+		// double errx2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(clY.stripCentroid))/sqrt(12),2);
 		// double erry2 = pow(tr.ey0,2) + pow(tr.my*tr.emy,2) + pow(det.pitchX(int(clX.stripCentroid))/sqrt(12),2);
 
 		// double err2 = pow(xtr - pr.X(),2)/(res*res) * errx2 + pow(ytr - pr.Y(),2)/(res*res) * erry2;
-   		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
-   		// return (res*res)/err2;
+		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
+		// return (res*res)/err2;
 		return (res*res)/0.001;
    	}
  
@@ -151,8 +177,8 @@ const double* align(std::string pos, StripTable det, std::vector<banco::track> t
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
 	minimum->SetMaxIterations(10000);  // for GSL
-	// minimum->SetTolerance(0.001);
-	minimum->SetTolerance(100);
+	minimum->SetTolerance(0.001);
+	// minimum->SetTolerance(100);
 	minimum->SetPrintLevel(2);
  
 
@@ -169,20 +195,23 @@ const double* align(std::string pos, StripTable det, std::vector<banco::track> t
 	minimum->SetVariable(3,"rotZ", pStart[3], step[3]);
 	minimum->SetVariable(4,"rotY", pStart[4], step[4]);
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
-	minimum->FixVariable(0);
-
+	// minimum->FixVariable(0);
+	minimum->FixVariable(4);
+	minimum->FixVariable(5);
 	if(fixTrl){
+		// minimum->FixVariable(0);
 		minimum->FixVariable(1);
 		minimum->FixVariable(2);
 	}
 	if(fixRot){
+		minimum->FixVariable(0);
 		minimum->FixVariable(3);
-		minimum->FixVariable(4);
-		minimum->FixVariable(5);
+		// minimum->FixVariable(4);
+		// minimum->FixVariable(5);
 	}
 
-	double pLow[6] = {pStart[0]-5., pStart[1]-50., pStart[2]-50., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180.};
-	double pUp[6]  = {pStart[0]+5., pStart[1]+50., pStart[2]+50., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180.};
+	double pLow[6] = {pStart[0]-5., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180.};
+	double pUp[6]  = {pStart[0]+5., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180.};
 	for(int i=0; i<6; i++){
 		minimum->SetVariableLimits(i, pLow[i], pUp[i]);
 	}
@@ -293,12 +322,17 @@ int main(int argc, char const *argv[])
 
 	double pStart[6] = {zpos, initTx/nev, initTy/nev, rotZ, rotY, rotX};
 	const double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, true);
+	double zout = zAlign(Form("zAlign_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
 
-	// std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
-	// // std::ofstream outfile("test.txt");
-	// outfile << "# POS zpos Tx Ty rot(z y x)\n";
-	// outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd[0], pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]) << std::endl;
-	// outfile.close();
+	double pStart2[6] = {zout, pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]};
+	const double* pEnd2 = align(run, det, tracksFit, XclsFit, YclsFit, pStart2, false, true);
+
+
+	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
+	// std::ofstream outfile("test.txt");
+	outfile << "# POS zpos Tx Ty rot(z y x)\n";
+	outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd2[0], pEnd2[1], pEnd2[2], pEnd2[3], pEnd2[4], pEnd2[5]) << std::endl;
+	outfile.close();
 
 	// std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
 	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
