@@ -86,7 +86,55 @@ double zAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	return zout;
 }
 	
+double yAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p){
+	TGraph* grSigma = new TGraph();
 
+	
+	for(double yRot=-0.3; yRot<0.3; yRot+=0.005){
+		det.setTransform(p[0], p[1], p[2], p[3], yRot, p[5]);
+		std::vector<double> res;
+		double res_avg = 0.; int nres = 0;
+		for(int j=0; j<tracks.size(); j++){
+			std::vector<double> posdet = det.pos3D(Xcls[j].stripCentroid, Ycls[j].stripCentroid);
+			double xtr = tracks[j].x0 + posdet[2]*tracks[j].mx;
+			double ytr = tracks[j].y0 + posdet[2]*tracks[j].my;
+			res.push_back(sqrt( pow(xtr - posdet[0],2) + pow(ytr - posdet[1],2) ));
+			res_avg += sqrt( pow(xtr - posdet[0],2) + pow(ytr - posdet[1],2) );
+			nres++;
+			// hres->Fill(sqrt( pow(xtr - posdet[0],2) + pow(ytr - posdet[1],2) ));
+		}
+		TH1F* hres = new TH1F("hres", "", 1000, res_avg/nres-2., res_avg/nres+2);
+		for(int j=0; j<nres; j++){
+			hres->Fill(res[j]);
+		}
+		TF1* fitFunc = new TF1("fitFunc", "gaus", -2, 2);
+		hres->Fit(fitFunc, "R");
+		grSigma->SetPoint(grSigma->GetN(), yRot, fitFunc->GetParameter(2));
+	}
+
+	TF1* fitFunc = new TF1("fitFunc", "pol2", p[0]-100, p[0]+100);
+	grSigma->Fit(fitFunc, "R");
+	double yRotOut = -fitFunc->GetParameter(1)/(2*fitFunc->GetParameter(2));	
+	
+	TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
+	grSigma->SetMarkerStyle(20);
+	grSigma->SetMarkerSize(0.8);
+	grSigma->SetMarkerColor(kBlue);
+	grSigma->SetTitle("yRot alignment");
+	grSigma->GetXaxis()->SetTitle("yRot position [rad]");
+	grSigma->GetYaxis()->SetTitle("sigma [mm]");
+	grSigma->Draw("AP");
+
+	TLatex* latex = new TLatex();
+	latex->SetTextSize(0.03);
+	latex->SetTextColor(kRed);
+	latex->DrawLatexNDC(0.2, 0.2, Form("yRot = %.2f", yRotOut));
+	gStyle->SetOptFit(1111);
+	
+	c1->SaveAs(graphName.c_str());
+
+	return yRotOut;
+}
 
 
 struct funcChi2 {
@@ -325,6 +373,7 @@ int main(int argc, char const *argv[])
 	double zout = zAlign(Form("zAlign_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
 
 	double pStart2[6] = {zout, pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]};
+	double rotYout = yAlign(Form("yAlign_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart2);
 	const double* pEnd2 = align(run, det, tracksFit, XclsFit, YclsFit, pStart2, false, false);
 
 
