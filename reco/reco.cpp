@@ -250,6 +250,9 @@ void reco( string name, DreamTable det) {
         hitCl.clear();
       }
     }
+    clId++;
+    cls->push_back( makeCluster(hitCl, clId) );
+    hitCl.clear();
 
     outnt.Fill();
 
