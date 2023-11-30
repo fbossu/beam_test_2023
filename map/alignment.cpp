@@ -5,6 +5,7 @@
 #include <TCanvas.h>
 #include <TF2.h>
 #include <TH1.h>
+#include <TGraph.h>
 #include <Math/Functor.h>
 #include <Math/Minimizer.h>
 #include <Math/Factory.h>
@@ -40,133 +41,27 @@ Parameters:
 	5 rotX, rotation of the detector around the x axis
 */
 
-// function Object to be minimized
-// struct XstripChi2 {
+void zAlign(std::string pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double* p){
+	TGraph* grSigma = new TGraph();
+	det.setTransform(p[0], p[1], p[2], p[3], p[4], p[5]);
+	
+	for(double i=p[0]-10; i<p[0]+10; i++){
+		TH1F* hres = new TH1F("hres", "", 1000, -2, 2);
+		for(int j=0; j<tracks.size(); j++){
+			double xtr = tracks[j].x0 + i*tracks[j].mx;
+			double ytr = tracks[j].y0 + i*tracks[j].my;
+			hres->Fill(sqrt( pow(xtr - det.posY(Ycls[j].stripCentroid)[0],2) + pow(ytr - det.posX(Xcls[j].stripCentroid)[1],2) ));
+		}
 
-// 	std::vector<banco::track> tracks;
-// 	std::vector<cluster> Xcls;
-// 	StripTable det;
+		TF1* fitFunc = new TF1("fitFunc", "gaus", -2, 2);
+		hres->Fit(fitFunc, "R");
+		grSigma->SetPoint(grSigma->GetN(), i, fitFunc->GetParameter(2));
+	}
+	TCanvas* c1 = new TCanvas();
+	grSigma->Draw("AP");
+	c1->SaveAs("zAlign.png");
+}
 
-//    	XstripChi2(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls) : 
-//   	det(det), tracks(tracks), Xcls(Xcls) {}
- 
-//    	// calculate distance line-point
-//    	double chi2(banco::track tr, cluster cl, const double *p) {
-//    		double ytr = tr.y0 + p[0]*tr.my;
-//    		double res = ytr - (det.posX(cl.stripCentroid)[1] + p[1]);
-//    		double err2 = pow(tr.ey0,2) + pow(tr.my*tr.emy,2) + pow(det.pitchX(int(cl.stripCentroid))/sqrt(12),2);
-//    		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
-//    		return (res*res)/err2;
-//    	}
- 
-//    // implementation of the function to be minimized
-//    	double operator() (const double *par) {
-//     	double sum = 0;
-//       	for (int i  = 0; i < tracks.size(); ++i) {
-//         	 sum += chi2(tracks[i], Xcls[i], par);
-//       	}
-//       	if (first) {
-//         	 std::cout << "Total Initial chi2 = " << sum << std::endl;
-//       	}
-//       	first = false;
-//       	return sum;
-//    	}
-
-// };
-
-// struct YstripChi2 {
-
-// 	std::vector<banco::track> tracks;
-// 	std::vector<cluster> Ycls;
-// 	StripTable det;
-
-//    	YstripChi2(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Ycls) : 
-//   	det(det), tracks(tracks), Ycls(Ycls) {}
- 
-//    	// calculate distance line-point
-//    	double chi2(banco::track tr, cluster cl, const double *p) {
-//    		double xtr = tr.x0 + p[0]*tr.mx;
-//    		double res = xtr - (det.posY(cl.stripCentroid)[0] + p[1]);
-//    		double err2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(cl.stripCentroid))/sqrt(12),2);
-//    		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
-//    		return (res*res)/err2;
-//    	}
- 
-//    // implementation of the function to be minimized
-//    	double operator() (const double *par) {
-//     	double sum = 0;
-//       	for (int i = 0; i < tracks.size(); ++i) {
-//         	 sum += chi2(tracks[i], Ycls[i], par);
-//       	}
-//       	if (first) {
-//         	 std::cout << "Total Initial chi2 = " << sum << std::endl;
-//       	}
-//       	first = false;
-//       	return sum;
-//    	}
-
-// };
-
-
-// std::string alignX(int pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, double *pStart, bool fixZ=false){
-// 	ROOT::Fit::Fitter fitter;
-// 	first = true;
-
-// 	// make the functor objet
-// 	XstripChi2 schi2(det, tracks, Xcls);
-// 	ROOT::Math::Functor fcn(schi2,2);
-
-// 	// set the function and the initial parameter values
-// 	// double pStart[2] = *pStart;
-// 	fitter.SetFCN(fcn, pStart);
-// 	// set step sizes different than default ones (0.3 times parameter values)
-// 	fitter.Config().ParSettings(0).SetStepSize(1.);
-// 	fitter.Config().ParSettings(1).SetStepSize(0.05);
-// 	if(fixZ) fitter.Config().ParSettings(0).Fix();
-
-// 	bool ok = fitter.FitFCN();
-// 	if (!ok) {
-// 	std::cout<< "Fit Failed" <<std::endl;
-// 	return "";
-// 	}
-
-// 	const ROOT::Fit::FitResult & result = fitter.Result();
-
-// 	std::cout << "Total final chi2 " << result.MinFcnValue() << std::endl;
-// 	result.Print(std::cout);
-// 	return "X,"+std::to_string(pos)+","+std::to_string(result.Parameter(0))+","+std::to_string(result.ParError(0))+","
-// 	       +std::to_string(result.Parameter(1))+","+std::to_string(result.ParError(1));
-// }
-
-// std::string alignY(int pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Ycls, double *pStart, bool fixZ=false){
-// 	ROOT::Fit::Fitter fitter;
-// 	first = true;
-
-// 	// make the functor objet
-// 	YstripChi2 schi2(det, tracks, Ycls);
-// 	ROOT::Math::Functor fcn(schi2,2);
-
-// 	// set the function and the initial parameter values
-// 	// double pStart[2] = *pStart;
-// 	fitter.SetFCN(fcn, pStart);
-// 	// set step sizes different than default ones (0.3 times parameter values)
-// 	fitter.Config().ParSettings(0).SetStepSize(1.);
-// 	fitter.Config().ParSettings(1).SetStepSize(0.05);
-// 	if(fixZ) fitter.Config().ParSettings(0).Fix();
-
-// 	bool ok = fitter.FitFCN();
-// 	if (!ok) {
-// 	std::cout<< "Fit Failed" <<std::endl;
-// 	return "";
-// 	}
-
-// 	const ROOT::Fit::FitResult & result = fitter.Result();
-
-// 	std::cout << "Total final chi2 " << result.MinFcnValue() << std::endl;
-// 	result.Print(std::cout);
-// 	return "Y,"+std::to_string(pos)+","+std::to_string(result.Parameter(0))+","+std::to_string(result.ParError(0))+","
-// 	       +std::to_string(result.Parameter(1))+","+std::to_string(result.ParError(1));
-// }
 
 struct funcChi2 {
 
@@ -303,58 +198,7 @@ const double* align(std::string pos, StripTable det, std::vector<banco::track> t
    }
 
 	return minimum->X();
-	// std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
-	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
-	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3));
-	// out += Form("%s %f %f %f %f %f %f\n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3), result.Parameter(4), result.Parameter(5));
-	// out += Form("%s %f %f %f %f %f %f\n", pos.c_str(), result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3), result.ParError(4), result.ParError(5));
-	// return out;
 }
-
-
-// std::string align(std::string pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double *pStart, bool fixZ=false){
-// 	ROOT::Fit::Fitter fitter;
-// 	first = true;
-
-// 	// make the functor objet
-// 	funcChi2 schi2(det, tracks, Xcls, Ycls);
-// 	ROOT::Math::Functor fcn(schi2, 6);
-
-// 	// set the function and the initial parameter values
-// 	fitter.SetFCN(fcn, pStart);
-// 	// set step sizes different than default ones (0.3 times parameter values)
-// 	fitter.Config().ParSettings(0).SetStepSize(0.1);
-// 	// fitter.Config().ParSettings(0).SetLimits(pStart[0]-10., pStart[0]+10.);
-// 	fitter.Config().ParSettings(1).SetStepSize(0.01);
-// 	fitter.Config().ParSettings(2).SetStepSize(0.01);
-
-// 	for(int i=3; i<6; i++){
-// 		fitter.Config().ParSettings(i).SetStepSize(0.1*M_PI/180.);
-// 		// fitter.Config().ParSettings(i).SetLimits(-20.*M_PI/180., 20.*M_PI/180.);
-// 	}
-
-// 	if(fixZ){
-// 		fitter.Config().ParSettings(0).Fix();
-// 		fitter.Config().ParSettings(3).Fix();
-// 	}
-
-// 	bool ok = fitter.FitFCN();
-// 	if (!ok) {
-// 	std::cout<< "Fit Failed" <<std::endl;
-// 	return "";
-// 	}
-
-// 	const ROOT::Fit::FitResult & result = fitter.Result();
-
-// 	std::cout << "Total final chi2 " << result.MinFcnValue() << std::endl;
-// 	result.Print(std::cout);
-// 	std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
-// 	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
-// 	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3));
-// 	out += Form("%s %f %f %f %f %f %f\n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3), result.Parameter(4), result.Parameter(5));
-// 	out += Form("%s %f %f %f %f %f %f\n", pos.c_str(), result.ParError(0), result.ParError(1), result.ParError(2), result.ParError(3), result.ParError(4), result.ParError(5));
-// 	return out;
-// }
 
 
 
@@ -446,27 +290,15 @@ int main(int argc, char const *argv[])
 	std::cout<<"Number of events: "<<nev<<std::endl;
 
 	std::cout<<"Initial parameters: "<<zpos<<" "<<initTx/nev<<" "<<initTy/nev<<" "<<rotX<<std::endl;
+
 	double pStart[6] = {zpos, initTx/nev, initTy/nev, rotZ, rotY, rotX};
-	// double pStart[6] = {zpos, 83.017019, -94.432106, rotZ, rotY, rotX};
-	
-	// std::string out = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
-	// std::cout<<out<<std::endl;
 	const double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, true);
-	// for(int i=0; i<2; i++){
-	// 	const double* ptrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, true);
-	// 	for(int j=0; j<6; j++) pStart[j] = ptrl[j];
-	// 	const double* prot = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true, false);
-	// 	for(int j=0; j<6; j++) pStart[j] = prot[j];
-	// }
 
-	// Write output to file
-	// if(out == "") return 1;
-
-	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
-	// std::ofstream outfile("test.txt");
-	outfile << "# POS zpos Tx Ty rot(z y x)\n";
-	outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd[0], pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]) << std::endl;
-	outfile.close();
+	// std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
+	// // std::ofstream outfile("test.txt");
+	// outfile << "# POS zpos Tx Ty rot(z y x)\n";
+	// outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd[0], pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]) << std::endl;
+	// outfile.close();
 
 	// std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
 	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));

@@ -16,8 +16,6 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 	}
 }
 
-#include <stdexcept>
-
 StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable(idetFile) {
 	
 	std::cout<<"Reading alignment file "<<alignFile<<std::endl;
@@ -28,7 +26,7 @@ StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable
 	}
 
 	std::string line;
-	double rotX, rotY, rotZ;
+	double zpos,Tx, Ty, rotX, rotY, rotZ;
 
 	while (std::getline(file, line)) {
 		if (line[0] == '#') {
@@ -42,18 +40,20 @@ StripTable::StripTable(std::string idetFile, std::string alignFile) : StripTable
 		if (line[0] == '#') {
 			std::getline(file, line);
 		}
-		std::istringstream iss2(line);
-		if (!(iss2 >> run >> ezpos >> eTx >> eTy >> erot)) {
-			break;
-		}
+		// std::istringstream iss2(line);
+		// if (!(iss2 >> run >> ezpos >> eTx >> eTy >> erot)) {
+		// 	break;
+		// }
 	}
-	std::cout<<zpos<<" "<<Tx<<" "<<Ty<<" "<<rot<<std::endl;
-	
+	// std::cout<<zpos<<" "<<Tx<<" "<<Ty<<" "<<rot<<std::endl;
+	this->setTransform(zpos, Tx, Ty, rotZ, rotY, rotX);
+}
+
+void StripTable::setTransform(double zpos, double Tx, double Ty, double rotZ, double rotY, double rotX){
 	ROOT::Math::Rotation3D rot(ROOT::Math::RotationZYX(rotZ, rotY, rotX)); // rotation around z, y, x
 	ROOT::Math::Translation3D trl(Tx, Ty, zpos);
 	trans = ROOT::Math::Transform3D(rot, trl);
 }
-	
 
 int StripTable::toGB(int sn, char axis){
 	for (auto it = mapStripNb.begin(); it != mapStripNb.end(); ++it){
