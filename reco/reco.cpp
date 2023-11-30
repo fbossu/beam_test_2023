@@ -35,9 +35,10 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   double centroidDen = 0.;
   double stripCentroidNum = 0.;
   char axis = hitcl[0]->axis;
+  std::cout << "axis " << axis << std::endl;
 
   for( auto h : hitcl ){
-    if( h->axis != axis ) std::cout << "ERROR: hits in the same cluster have different axis" << endl;
+    // if( h->axis != axis ) std::cout << "ERROR: hits in the same cluster have different axis" << endl;
     h->clusterId = clId;
     centroidNum += h->channel * (h->maxamp-256);
     stripCentroidNum += h->strip * (h->maxamp-256);
