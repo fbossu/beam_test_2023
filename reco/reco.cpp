@@ -230,30 +230,32 @@ void reco( string name, DreamTable det) {
     
     cls->clear();
     std::vector<hit*> hitCl;
-    int clId = 0;
+    int clId = 1;
 
-    for( auto &it : *hits){
+    if( !JustHits ){
+      for( auto &it : *hits){
 
-      if( !goodHit(it) ){
-        it.clusterId = 0;
-        continue;
+        if( !goodHit(it) ){
+          it.clusterId = 0;
+          continue;
+        }
+        it.clusterId = clId;
+        if( hitCl.size() == 0 ){
+          hitCl.push_back(&it);
+        }
+        else if( det.isNeighbour(hitCl.back()->channel, it.channel) ){
+          hitCl.push_back(&it);
+        }
+        else{
+          cls->push_back( makeCluster(hitCl, clId) );
+          hitCl.clear();
+          clId++;
+        }
       }
-      if( hitCl.size() == 0 ){
-        hitCl.push_back(&it);
-      }
-      else if( det.isNeighbour(hitCl.back()->channel, it.channel) ){
-        hitCl.push_back(&it);
-      }
-      else{
-        clId++;
+      if( hitCl.size() > 0){
         cls->push_back( makeCluster(hitCl, clId) );
         hitCl.clear();
       }
-    }
-    if( hitCl.size() > 0){
-      clId++;
-      cls->push_back( makeCluster(hitCl, clId) );
-      hitCl.clear();
     }
 
     outnt.Fill();

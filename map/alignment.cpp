@@ -195,7 +195,7 @@ const double* align(std::string pos, StripTable det, std::vector<banco::track> t
 	minimum->SetVariable(3,"rotZ", pStart[3], step[3]);
 	minimum->SetVariable(4,"rotY", pStart[4], step[4]);
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
-	// minimum->FixVariable(0);
+	minimum->FixVariable(0);
 	minimum->FixVariable(4);
 	minimum->FixVariable(5);
 	if(fixTrl){
@@ -204,7 +204,7 @@ const double* align(std::string pos, StripTable det, std::vector<banco::track> t
 		minimum->FixVariable(2);
 	}
 	if(fixRot){
-		minimum->FixVariable(0);
+		// minimum->FixVariable(0);
 		minimum->FixVariable(3);
 		// minimum->FixVariable(4);
 		// minimum->FixVariable(5);
@@ -325,7 +325,7 @@ int main(int argc, char const *argv[])
 	double zout = zAlign(Form("zAlign_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
 
 	double pStart2[6] = {zout, pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]};
-	const double* pEnd2 = align(run, det, tracksFit, XclsFit, YclsFit, pStart2, false, true);
+	const double* pEnd2 = align(run, det, tracksFit, XclsFit, YclsFit, pStart2, false, false);
 
 
 	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
