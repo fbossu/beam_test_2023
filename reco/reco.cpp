@@ -34,7 +34,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   double centroidNum = 0.;
   double centroidDen = 0.;
   double stripCentroidNum = 0.;
-  char axis = hitcl[0]->axis;
+  char axis = hitcl.at(0)->axis;
   std::cout << "axis " << axis << std::endl;
 
   for( auto h : hitcl ){
