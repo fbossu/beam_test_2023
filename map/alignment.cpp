@@ -293,7 +293,7 @@ int main(int argc, char const *argv[])
 	std::string fnameMM =  argv[3];
 
 	std::string mapName;
-	double zpos = 0., rotZ = 0., rotY = 0., rotX = 0.;
+	double zpos = 0., rotZ = 0., rotY = 0.207, rotX = 0.088;
 
 	if (detName == "asaFEU4") {
 		mapName = "asa_map.txt";
