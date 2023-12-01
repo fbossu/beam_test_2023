@@ -90,7 +90,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	TGraph* grSigma = new TGraph();
 
 	
-	for(double yRot=-0.3; yRot<0.3; yRot+=0.005){
+	for(double yRot=-0.2; yRot<0.2; yRot+=0.005){
 		det.setTransform(p[0], p[1], p[2], p[3], yRot, p[5]);
 		std::vector<double> res;
 		double res_avg = 0.; int nres = 0;
