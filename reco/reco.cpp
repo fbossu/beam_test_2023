@@ -221,7 +221,6 @@ void reco( string name, DreamTable det) {
     // -------------
     // a cluster is a sequence of contiguous hits
     // TODO: 
-    //   1.  check for hits begin in the same part of the detector
     //   2.  check for missing/dead strip
 
     // select and sort hits, sorting probably not needed, but just in case
