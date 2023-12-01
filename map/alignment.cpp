@@ -72,7 +72,6 @@ double zAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	grSigma->SetTitle("z alignment");
 	grSigma->GetXaxis()->SetTitle("z position [mm]");
 	grSigma->GetYaxis()->SetTitle("sigma [mm]");
-	grSigma->GetYaxis()->SetRangeUser(0, 0.4);
 	grSigma->Draw("AP");
 
 	TLatex* latex = new TLatex();
@@ -125,7 +124,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	grSigma->SetTitle("yRot alignment");
 	grSigma->GetXaxis()->SetTitle("yRot position [rad]");
 	grSigma->GetYaxis()->SetTitle("sigma [mm]");
-	grSigma->GetYaxis()->SetRangeUser(0, 0.4);
+	grSigma->GetYaxis()->SetRangeUser(0.09, 0.25);
 	grSigma->Draw("AP");
 
 	TLatex* latex = new TLatex();
@@ -143,7 +142,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 double xAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p){
 	TGraph* grSigma = new TGraph();
 	
-	for(double xRot=p[4]-0.2; xRot<p[5]+0.2; xRot+=0.005){
+	for(double xRot=p[5]-0.2; xRot<p[5]+0.2; xRot+=0.005){
 		det.setTransform(p[0], p[1], p[2], p[3], p[4], xRot);
 		std::vector<double> res;
 		double res_avg = 0.; int nres = 0;
@@ -177,7 +176,7 @@ double xAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	grSigma->SetTitle("xRot alignment");
 	grSigma->GetXaxis()->SetTitle("xRot position [rad]");
 	grSigma->GetYaxis()->SetTitle("sigma [mm]");
-	grSigma->GetYaxis()->SetRangeUser(0, 0.4);
+	grSigma->GetYaxis()->SetRangeUser(0.09, 0.25);
 	grSigma->Draw("AP");
 
 	TLatex* latex = new TLatex();
