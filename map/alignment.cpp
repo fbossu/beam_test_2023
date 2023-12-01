@@ -79,7 +79,7 @@ double zAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	TGraph* grSigma = new TGraph();
 	for(double z=p[0]-100; z<p[0]+100; z+=2){
 		double pRes[6] = {z, p[1], p[2], p[2], p[4], p[5]};
-		double sigma = getRes(det, tracks, Xcls, Ycls, p);
+		double sigma = getRes(det, tracks, Xcls, Ycls, pRes);
 		grSigma->SetPoint(grSigma->GetN(), z, sigma);
 	}
 
@@ -115,7 +115,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	TGraph* grSigma = new TGraph();
 	for(double yRot=p[4]-0.15; yRot<p[4]+0.15; yRot+=0.005){
 		double pRes[6] = {p[0], p[1], p[2], p[2], yRot, p[5]};
-		double sigma = getRes(det, tracks, Xcls, Ycls, p);
+		double sigma = getRes(det, tracks, Xcls, Ycls, pRes);
 		grSigma->SetPoint(grSigma->GetN(), yRot, sigma);
 	}
 
@@ -131,7 +131,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	grSigma->SetTitle("yRot alignment");
 	grSigma->GetXaxis()->SetTitle("yRot position [rad]");
 	grSigma->GetYaxis()->SetTitle("sigma [mm]");
-	grSigma->GetYaxis()->SetRangeUser(0.09, 0.25);
+	grSigma->GetYaxis()->SetRangeUser(0.09, 0.3);
 	grSigma->Draw("AP");
 
 	TLatex* latex = new TLatex();
@@ -170,7 +170,7 @@ double xAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	grSigma->SetTitle("xRot alignment");
 	grSigma->GetXaxis()->SetTitle("xRot position [rad]");
 	grSigma->GetYaxis()->SetTitle("sigma [mm]");
-	grSigma->GetYaxis()->SetRangeUser(0.09, 0.25);
+	grSigma->GetYaxis()->SetRangeUser(0.09, 0.3);
 	grSigma->Draw("AP");
 
 	TLatex* latex = new TLatex();
