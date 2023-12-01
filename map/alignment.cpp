@@ -67,6 +67,7 @@ double getRes(StripTable &det, std::vector<banco::track> &tracks, std::vector<cl
 	if(plot!=""){
 		TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
 		hres->Draw();
+		fitFunc->Draw("same");
 		c1->Print(plot.c_str(), ".png");
 	}
 
