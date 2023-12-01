@@ -47,7 +47,7 @@ double zAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	TGraph* grSigma = new TGraph();
 	det.setTransform(p[0], p[1], p[2], p[3], p[4], p[5]);
 	
-	for(double z=p[0]-100; z<p[0]+100; z++){
+	for(double z=p[0]-100; z<p[0]+100; z+=2){
 		TH1F* hres = new TH1F("hres", "", 1000, -2, 2);
 		for(int j=0; j<tracks.size(); j++){
 			double xtr = tracks[j].x0 + z*tracks[j].mx;
@@ -72,6 +72,7 @@ double zAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	grSigma->SetTitle("z alignment");
 	grSigma->GetXaxis()->SetTitle("z position [mm]");
 	grSigma->GetYaxis()->SetTitle("sigma [mm]");
+	grSigma->GetYaxis()->SetRangeUser(0, 0.4);
 	grSigma->Draw("AP");
 
 	TLatex* latex = new TLatex();
@@ -113,6 +114,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	}
 
 	TF1* fitFunc = new TF1("fitFunc", "pol2", p[0]-100, p[0]+100);
+	fitFunc->SetParameters(0.1, 0.1, 0.1);
 	grSigma->Fit(fitFunc, "R");
 	double yRotOut = -fitFunc->GetParameter(1)/(2*fitFunc->GetParameter(2));	
 	
@@ -123,6 +125,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	grSigma->SetTitle("yRot alignment");
 	grSigma->GetXaxis()->SetTitle("yRot position [rad]");
 	grSigma->GetYaxis()->SetTitle("sigma [mm]");
+	grSigma->GetYaxis()->SetRangeUser(0, 0.4);
 	grSigma->Draw("AP");
 
 	TLatex* latex = new TLatex();
@@ -135,6 +138,59 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 
 	return yRotOut;
 }
+
+
+double xAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p){
+	TGraph* grSigma = new TGraph();
+	
+	for(double xRot=p[4]-0.2; xRot<p[5]+0.2; xRot+=0.005){
+		det.setTransform(p[0], p[1], p[2], p[3], p[4], xRot);
+		std::vector<double> res;
+		double res_avg = 0.; int nres = 0;
+		for(int j=0; j<tracks.size(); j++){
+			std::vector<double> posdet = det.pos3D(Xcls[j].stripCentroid, Ycls[j].stripCentroid);
+			double xtr = tracks[j].x0 + posdet[2]*tracks[j].mx;
+			double ytr = tracks[j].y0 + posdet[2]*tracks[j].my;
+			res.push_back(sqrt( pow(xtr - posdet[0],2) + pow(ytr - posdet[1],2) ));
+			res_avg += sqrt( pow(xtr - posdet[0],2) + pow(ytr - posdet[1],2) );
+			nres++;
+			// hres->Fill(sqrt( pow(xtr - posdet[0],2) + pow(ytr - posdet[1],2) ));
+		}
+		TH1F* hres = new TH1F("hres", "", 1000, res_avg/nres-2., res_avg/nres+2);
+		for(int j=0; j<nres; j++){
+			hres->Fill(res[j]);
+		}
+		TF1* fitFunc = new TF1("fitFunc", "gaus", -2, 2);
+		hres->Fit(fitFunc, "R");
+		grSigma->SetPoint(grSigma->GetN(), xRot, fitFunc->GetParameter(2));
+	}
+
+	TF1* fitFunc = new TF1("fitFunc", "pol2", p[0]-100, p[0]+100);
+	fitFunc->SetParameters(0.1, 0.1, 0.1);
+	grSigma->Fit(fitFunc, "R");
+	double xRotOut = -fitFunc->GetParameter(1)/(2*fitFunc->GetParameter(2));	
+	
+	TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
+	grSigma->SetMarkerStyle(20);
+	grSigma->SetMarkerSize(0.8);
+	grSigma->SetMarkerColor(kBlue);
+	grSigma->SetTitle("xRot alignment");
+	grSigma->GetXaxis()->SetTitle("xRot position [rad]");
+	grSigma->GetYaxis()->SetTitle("sigma [mm]");
+	grSigma->GetYaxis()->SetRangeUser(0, 0.4);
+	grSigma->Draw("AP");
+
+	TLatex* latex = new TLatex();
+	latex->SetTextSize(0.03);
+	latex->SetTextColor(kRed);
+	latex->DrawLatexNDC(0.2, 0.2, Form("xRot = %.2f", xRotOut));
+	gStyle->SetOptFit(1111);
+	
+	c1->SaveAs(graphName.c_str());
+
+	return xRotOut;
+}
+
 
 
 struct funcChi2 {
@@ -293,7 +349,7 @@ int main(int argc, char const *argv[])
 	std::string fnameMM =  argv[3];
 
 	std::string mapName;
-	double zpos = 0., rotZ = 0., rotY = -0.207, rotX = 0.088;
+	double zpos = 0., rotZ = 0., rotY = -0.15, rotX = 0.088;
 
 	if (detName == "asaFEU4") {
 		mapName = "asa_map.txt";
@@ -374,14 +430,15 @@ int main(int argc, char const *argv[])
 
 	double pStart2[6] = {zout, pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]};
 	double rotYout = yAlign(Form("yAlign_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart2);
-	const double* pEnd2 = align(run, det, tracksFit, XclsFit, YclsFit, pStart2, false, false);
+	double rotXout = xAlign(Form("xAlign_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart2);
+	// const double* pEnd2 = align(run, det, tracksFit, XclsFit, YclsFit, pStart2, false, false);
 
 
-	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
-	// std::ofstream outfile("test.txt");
-	outfile << "# POS zpos Tx Ty rot(z y x)\n";
-	outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd2[0], pEnd2[1], pEnd2[2], pEnd2[3], pEnd2[4], pEnd2[5]) << std::endl;
-	outfile.close();
+	// std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
+	// // std::ofstream outfile("test.txt");
+	// outfile << "# POS zpos Tx Ty rot(z y x)\n";
+	// outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd2[0], pEnd2[1], pEnd2[2], pEnd2[3], pEnd2[4], pEnd2[5]) << std::endl;
+	// outfile.close();
 
 	// std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
 	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));
