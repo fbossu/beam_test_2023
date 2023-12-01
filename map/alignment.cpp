@@ -90,7 +90,7 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	TGraph* grSigma = new TGraph();
 
 	
-	for(double yRot=-0.2; yRot<0.2; yRot+=0.005){
+	for(double yRot=p[4]-0.2; yRot<p[4]+0.2; yRot+=0.005){
 		det.setTransform(p[0], p[1], p[2], p[3], yRot, p[5]);
 		std::vector<double> res;
 		double res_avg = 0.; int nres = 0;
@@ -293,7 +293,7 @@ int main(int argc, char const *argv[])
 	std::string fnameMM =  argv[3];
 
 	std::string mapName;
-	double zpos = 0., rotZ = 0., rotY = 0.207, rotX = 0.088;
+	double zpos = 0., rotZ = 0., rotY = -0.207, rotX = 0.088;
 
 	if (detName == "asaFEU4") {
 		mapName = "asa_map.txt";
