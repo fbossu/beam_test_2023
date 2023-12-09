@@ -8,14 +8,15 @@
 #include "../map/StripTable.h"
 #include "clusterSize.h"
 #include "TLatex.h"
+#include "TLine.h"
 
 
-TCanvas* xy_compare(std::string fname, StripTable det, int zone){
+void xy_compare(std::string fname, StripTable det, int zone, std::string graphName){
 
     TH1F* h1[5];
     std::vector<std::string> labels = {"1/1", "1/2", "2/1", "2/2", "other"};
     for(int i=0; i<5; i++){
-        h1[i] = new TH1F("h1", Form("Ratio xAmp/yAmp cluster size %s Y/X",labels[i].c_str()), 200, 0., 3);
+        h1[i] = new TH1F("h1", Form("Ratio xAmp/yAmp cluster size %s X/Y",labels[i].c_str()), 200, 0., 3);
         h1[i]->GetXaxis()->SetTitle("xAmp/yAmp");
     }
 
@@ -23,10 +24,14 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
     h2clsize->SetXTitle("cluster size y direction strips");
     h2clsize->SetYTitle("cluster size x direction strips");
 
+    TH2F *ampXY = new TH2F("ampXY", "Amplitude X vs Y", 700, 0, 7500, 700, 0, 7500.);
+    ampXY->SetXTitle("amplitude Y direction strips [ADC]");
+    ampXY->SetYTitle("amplitude X direction strips [ADC]");
+
     TFile* file = TFile::Open(fname.c_str(), "read");
     if (!file) {
         std::cerr << "Error: could not open input file " << fname << std::endl;
-        return nullptr;
+        return;
     }
 
     TTreeReader reader("events", file);
@@ -56,10 +61,11 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
         if(maxX && maxY){
             if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
             h2clsize->Fill(maxY->size, maxX->size);
-            if (maxY->size == 1 && maxX->size == 1) h1[0]->Fill((float) ampX/ampY);
-            else if (maxY->size == 1 && maxX->size == 2) h1[1]->Fill((float) ampX/ampY);
-            else if (maxY->size == 2 && maxX->size == 1) h1[2]->Fill((float) ampX/ampY);
-            else if (maxY->size == 2 && maxX->size == 2) h1[3]->Fill((float) ampX/ampY);
+            ampXY->Fill(ampY, ampX);
+            if (maxX->size == 1 && maxY->size == 1) h1[0]->Fill((float) ampX/ampY);
+            else if (maxX->size == 1 && maxY->size == 2) h1[1]->Fill((float) ampX/ampY);
+            else if (maxX->size == 2 && maxY->size == 1) h1[2]->Fill((float) ampX/ampY);
+            else if (maxX->size == 2 && maxY->size == 2) h1[3]->Fill((float) ampX/ampY);
             else h1[4]->Fill((float) ampX/ampY);
         }
     }
@@ -86,12 +92,29 @@ TCanvas* xy_compare(std::string fname, StripTable det, int zone){
     leg->AddEntry("", Form("y pitch: %.2f mm", det.pitchYzone(zone)), "");
     leg->AddEntry("", Form("efficiency nX/nY: %.2f", eff), "");
     leg->Draw();
+    c1->SaveAs(graphName.c_str());
 
-    return c1;
+    TCanvas* c2 = new TCanvas("c2", "c2", 1600, 1200);
+    ampXY->SetStats(0);
+    ampXY->Draw("colz");
+    gPad->SetLogz();
+
+    TLine* line = new TLine(5, 5, 7000, 7000);
+    line->SetLineColor(kRed);
+    line->SetLineWidth(3);
+    ampXY->Draw("colz");
+    line->Draw("same");
+
+    TLatex* tex2 = new TLatex();
+    tex2->SetTextFont(43);
+    tex2->SetTextSize(22);
+    tex2->DrawLatexNDC(0.8, 0.25, Form("x pitch: %.2f mm", det.pitchXzone(zone)));
+    tex2->DrawLatexNDC(0.8, 0.2, Form("y pitch: %.2f mm", det.pitchYzone(zone)));
+    c2->SaveAs(Form("%s_ampXY.png", graphName.substr(0,graphName.size()-5).c_str()));
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
+    if (argc < 3) {
         std::cerr << "Usage: " << argv[0] << "<detname> <input_file.root>" << std::endl;
         return 1;
     }
@@ -109,6 +132,10 @@ int main(int argc, char* argv[]) {
     if (detName.find("strip") != std::string::npos){
         zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
         det = StripTable(basedir+"../map/strip_map.txt");
+    }
+    if (detName.find("inter") != std::string::npos){
+        zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
+        det = StripTable(basedir+"../map/inter_map.txt");
     }
     else if (detName.find("asa") != std::string::npos){
         zoneRuns = { {0,16}, {1,14}, {2,2}, {3,5}};
@@ -129,9 +156,7 @@ int main(int argc, char* argv[]) {
             int pos = std::stoi( fname.substr(fname.find("POS")+3, 2) );
             auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
             if(it != zoneRuns.end()){
-                TCanvas* c = xy_compare(fname, det, it->first);
-                c->SaveAs(Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
-                delete c;
+                xy_compare(fname, det, it->first, Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
                 clusterSizeFile(fname, detName, det, it->first);
             }
         }

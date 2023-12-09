@@ -33,21 +33,21 @@ maxsample = np.max(sample)
 
 
 
-#fig = plt.figure(figsize=(15,8))
+fig = plt.figure(figsize=(15,8))
 
-#for i in range(8):
-    #idream  = dream == i
-    #iampl   = awk.flatten(ampl[ idream ]).to_numpy()
-    #isample = awk.flatten(sample[ idream ]).to_numpy()
+for i in range(8):
+    idream  = dream == i
+    iampl   = awk.flatten(ampl[ idream ]).to_numpy()
+    isample = awk.flatten(sample[ idream ]).to_numpy()
     
-    #ax = fig.add_subplot(241+i)
-    #h = ax.hist2d( isample, iampl, bins=[maxsample+1,1000], range=[[0,maxsample+1],[0,4000]], cmin=1 )
-    #ax.set_ylabel("amplitude")
-    #ax.set_xlabel("sample")
-    #ax.set_title( "Dream {}".format(1+i), fontdict={ 'color' : '#f01010'} )
-#plt.tight_layout()
+    ax = fig.add_subplot(241+i)
+    h = ax.hist2d( isample, iampl, bins=[maxsample+1,1000], range=[[0,maxsample+1],[0,1000]], cmin=1 )
+    ax.set_ylabel("amplitude")
+    ax.set_xlabel("sample")
+    ax.set_title( "Dream {}".format(1+i), fontdict={ 'color' : '#f01010'} )
+plt.tight_layout()
 
-#plt.show()
+plt.show()
 
 
 

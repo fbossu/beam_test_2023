@@ -4,7 +4,7 @@ DT = ../map/DetectorTable.o ../map/StripTable.o
 export ROOTSYS := $(ROOTSYS):$(PWD)/../reco
 $(info ROOT_INCLUDE_PATH is $(ROOT_INCLUDE_PATH))
 
-all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment
+all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment checkTrlRot
 
 asa: factory_asa.cpp
 	g++ factory_asa.cpp -o factory_asa
@@ -26,3 +26,6 @@ StripTable.o: StripTable.cpp StripTable.h DetectorTable.cpp DetectorTable.h
 
 alignment: alignment.cpp ../analysis/clusterSize.o StripTable.o DreamTable.o DetectorTable.o
 	g++ alignment.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o alignment ../analysis/clusterSize.o $(DT) $(ROOT)
+
+checkTrlRot: checkTrlRot.cpp ../analysis/clusterSize.cpp
+	g++ checkTrlRot.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o checkTrlRot ../analysis/clusterSize.o $(DT) $(ROOT)

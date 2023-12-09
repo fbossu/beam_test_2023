@@ -38,7 +38,7 @@ int totAmp (std::vector<hit> hits, int clId){
   int tot = 0;
   for(auto h : hits){
     if(h.clusterId == clId){
-      for(auto s : h.samples) tot += s;
+      for(auto s : h.samples) tot += s-256;
     }
   }
   return tot;
@@ -587,12 +587,12 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
       hclSizeX->Fill(clX->size);
       auto maxHit = hX[0];
       if(clX->size == 1){
-        hampCenterX->Fill(maxHit.maxamp);
+        hampCenterX->Fill(maxHit.maxamp-256);
         hampSampleX->Fill(maxHit.timeofmax);
       }
       else if(clX->size<7){
         for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
-          h2ampX[clX->size-1]->Fill(hitx->strip-maxHit.strip, (float)hitx->maxamp/(float)maxHit.maxamp);
+          h2ampX[clX->size-1]->Fill(hitx->strip-maxHit.strip, ((float)hitx->maxamp-256)/((float)maxHit.maxamp-256));
           h2timeX[clX->size-1]->Fill(hitx->strip-maxHit.strip, hitx->timeofmax - maxHit.timeofmax);
           // std::cout<<hitx->maxamp<<" "<<maxHit.maxamp<<std::endl;
         }
@@ -605,12 +605,12 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
       hclSizeY->Fill(clY->size);
       auto maxHit = hY[0];
       if(clY->size == 1){
-        hampCenterY->Fill(maxHit.maxamp);
+        hampCenterY->Fill(maxHit.maxamp-256);
         hampSampleY->Fill(maxHit.timeofmax);
       }
       else if(clY->size<7){
         for( auto hity = hY.begin(); hity < hY.end(); hity++){
-          h2ampY[clY->size-1]->Fill(hity->strip-maxHit.strip, (float)hity->maxamp/(float)maxHit.maxamp);
+          h2ampY[clY->size-1]->Fill(hity->strip-maxHit.strip, ((float)hity->maxamp-256)/((float)maxHit.maxamp-256));
           h2timeY[clY->size-1]->Fill(hity->strip-maxHit.strip, hity->timeofmax - maxHit.timeofmax);
         }
       }

@@ -16,6 +16,7 @@
 #include "../reco/definitions.h"
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
+#include "../analysis/clusterSize.h"
 
 
 void plotStripMap(StripTable det, std::string fname){
@@ -71,12 +72,12 @@ int main(int argc, char const *argv[])
 
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 
-  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_X100.png";
+  std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_test_Y.png";
   // std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_Y80.png";
 
-  int stNb = 100; char axis = 'x';
+  int stNb = 100; char axis = 'y';
 
-  double zpos = -305.6;
+  double zpos = -425.6;
   // double zpos = -785.6;
   // double zpos = -205.377; //FEU1 POS16
 
@@ -128,27 +129,38 @@ int main(int argc, char const *argv[])
       std::vector<hit> hitsAxis;
       h2f->Fill(xdet, ydet);
 
-      std::copy_if (hits->begin(), hits->end(), std::back_inserter(hitsAxis),
-                    [axis](const hit& h){return h.axis==axis;} );
-      if(hitsAxis.size() == 0) continue;
+      // std::copy_if (hits->begin(), hits->end(), std::back_inserter(hitsAxis),
+      //               [axis](const hit& h){return h.axis==axis;} );
+      // if(hitsAxis.size() == 0) continue;
 
-      auto maxHit = *std::max_element(hitsAxis.begin(), hitsAxis.end(),
-                         [axis](const hit& a,const hit& b) { return a.maxamp < b.maxamp; });
+      // auto maxHit = *std::max_element(hitsAxis.begin(), hitsAxis.end(),
+      //                    [axis](const hit& a,const hit& b) { return a.maxamp < b.maxamp; });
 
-      int Nmax = std::count_if(hitsAxis.begin(), hitsAxis.end(),
-                                  [maxHit](const hit& h) { return h.maxamp > 0.90*maxHit.maxamp;});
-      // if(Nmax>1) std::cout<<Nmax<<std::endl;
-
-      // if(maxHit.clusterId != maxHit2.clusterId) std::cout<<"AHHHHHH"<<std::endl;
-      // if(maxHit.strip == 75 and maxHit.axis == 'y'){
+      // int Nmax = std::count_if(hitsAxis.begin(), hitsAxis.end(),
+      //                             [maxHit](const hit& h) { return h.maxamp > 0.90*maxHit.maxamp;});
       
-      if(maxHit.strip == stNb and Nmax==1){
-        keepTrack = true; 
-        // std::cout<<maxHit.maxamp<<std::endl;
+      // if(maxHit.strip == stNb and Nmax==1){
+      //   keepTrack = true; 
+      //   // std::cout<<maxHit.maxamp<<std::endl;
+      // }
+      auto maxX = maxSizeClX(*cls);
+      auto maxY = maxSizeClY(*cls);
+    
+      if( (maxX && axis=='x')){
+        auto hitsX = getHits(*hits, maxX->id);
+        if(maxX->size == 1 and hitsX.at(0).maxamp > 400){
+          keepTrack = true;
+        }
+      }
+      if( (maxY && axis=='y')){
+        auto hitsY = getHits(*hits, maxY->id);
+        if(maxY->size == 1 and hitsY.at(0).maxamp > 400){
+          keepTrack = true;
+        }
       }
       if(keepTrack){
         h2c->Fill(xdet, ydet);
-      } // else std::cout<<"cc"<<std::endl;
+      }
     }
   }
   std::cout<<n<<std::endl;

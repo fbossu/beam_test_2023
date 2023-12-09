@@ -37,8 +37,40 @@ int main(int argc, char const *argv[])
 
   StripTable det(basedir+"../map/inter_map.txt");
 
-  clusterSizeRegion(chain, detName, det);
-  clusterSizeLims(chain, detName, det, {80, 90}, {90, 100});
+  TTreeReader reader(chain);
+  TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
+
+  TH2F* h2test = new TH2F("h2test", "strip number test", 128, 256, 384, 128, 384, 512);
+
+  while( reader.Next()){
+    if(hits->size() == 0) continue;
+    hit maxX, maxY;
+    int maxAmpX = 0, maxAmpY = 0;
+    for(auto& h : *hits){
+      if(h.axis == 'x'){
+        if(h.maxamp > maxAmpX){
+          maxX = h;
+          maxAmpX = h.maxamp;
+        }
+      }
+      else if(h.axis == 'y'){
+        if(h.maxamp > maxAmpY){
+          maxY = h;
+          maxAmpY = h.maxamp;
+        }
+      }
+    }
+    if(maxAmpX == 0 or maxAmpY == 0) continue;
+    h2test->Fill(maxY.channel, maxX.channel);
+  }
+
+  TCanvas *c = new TCanvas("c", "c", 1000,1000);
+  h2test->Draw("colz");
+  gPad->SetLogz();
+  c->Print("test.png", "png");
+
+  // clusterSizeRegion(chain, detName, det);
+  //clusterSizeLims(chain, detName, det, {80, 90}, {90, 100});
 
   return 0;
 }

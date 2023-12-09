@@ -53,6 +53,7 @@ void StripTable::setTransform(double zpos, double Tx, double Ty, double rotZ, do
 	ROOT::Math::Rotation3D rot(ROOT::Math::RotationZYX(rotZ, rotY, rotX)); // rotation around z, y, x
 	ROOT::Math::Translation3D trl(Tx, Ty, zpos);
 	trans = ROOT::Math::Transform3D(rot, trl);
+	printf("Alignment transformation: zpos = %f, Tx = %f, Ty = %f, rotZ = %f, rotY = %f, rotX = %f\n", zpos, Tx, Ty, rotZ, rotY, rotX);
 }
 
 int StripTable::toGB(int sn, char axis){
@@ -85,6 +86,9 @@ std::vector<double> StripTable::pos(double sn, char axis){
 	std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
 							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
 
+	// a translation form the 0,0 origin of the gerber axis to the center of the active region of the detector
+	// v[0] = v[0] + 50.;
+	// v[1] = v[1] - 50.;
 
 	// std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
 								//    (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };

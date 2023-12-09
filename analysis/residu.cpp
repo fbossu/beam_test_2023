@@ -329,6 +329,7 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
               std::cout<<"aaaaaaaahhhhhhhhhhhhhhhhhhhh"<<std::endl;
         continue;
       }
+
       std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
       double xdet = detPos[0];
       double ydet = detPos[1];
@@ -339,13 +340,13 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
       // double Xth = 0, Yth = 0;
       // double Xamp = 0, Yamp = 0;
       // for(int i=0; i<hitsX.size(); i++){
-      //   Xth += (hitsX[i].maxamp-256)*hitsX[i].strip;
-      //   Xamp += hitsX[i].maxamp-256;
+      //   Xth += pow( (hitsX[i].maxamp-256) ,2)*hitsX[i].strip;
+      //   Xamp += pow( hitsX[i].maxamp-256 ,2);
       // }
 
       // for(int i=0; i<hitsY.size(); i++){
-      //   Yth += (hitsY[i].maxamp-256)*hitsY[i].strip;
-      //   Yamp += hitsY[i].maxamp-256;
+      //   Yth += pow( (hitsY[i].maxamp-256) ,2)*hitsY[i].strip;
+      //   Yamp += pow( hitsY[i].maxamp-256 ,2);
       // }
 
       // std::vector<double> detPosTh = det.pos3D(Xth/Xamp, Yth/Yamp);
