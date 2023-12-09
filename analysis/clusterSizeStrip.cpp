@@ -48,13 +48,13 @@ int main(int argc, char const *argv[])
   //   }
   // }
 
-  // clusterSizeRegion(chain, detName, det);
-  clusterSizeLims(chain, detName, det, {55, 62}, {30, 50}); //1, 1
-  clusterSizeLims(chain, detName, det, {70, 85}, {30, 50}); //1, 1.5
-  clusterSizeLims(chain, detName, det, {70, 85}, {75, 90}); //1.5, 1.5
-  clusterSizeLims(chain, detName, det, {55, 62}, {75, 90}); //1.5, 1.
-  clusterSizeLims(chain, detName, det, {95, 105}, {75, 90}); //1.5, 0.5
-  clusterSizeLims(chain, detName, det, {95, 105}, {30, 50}); //1., 0.5
+  clusterSizeRegion(chain, detName, det);
+  // clusterSizeLims(chain, detName, det, {55, 62}, {30, 50}); //1, 1
+  // clusterSizeLims(chain, detName, det, {70, 85}, {30, 50}); //1, 1.5
+  // clusterSizeLims(chain, detName, det, {70, 85}, {75, 90}); //1.5, 1.5
+  // clusterSizeLims(chain, detName, det, {55, 62}, {75, 90}); //1.5, 1.
+  // clusterSizeLims(chain, detName, det, {95, 105}, {75, 90}); //1.5, 0.5
+  // clusterSizeLims(chain, detName, det, {95, 105}, {30, 50}); //1., 0.5
 
 
   return 0;
