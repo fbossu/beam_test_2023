@@ -451,16 +451,16 @@ void zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> 
 	
 	TGraph2D* grSigma = new TGraph2D();
 	double rotStart;
-	if(axis == 'x') rotStart = p[4];
-	else rotStart = p[5];
+	if(axis == 'x') rotStart = p[5];
+	else rotStart = p[4];
 	funcChi2 schi2(det, tracks, Xcls, Ycls);
 
 	for(double z=p[0]-80; z<p[0]+120; z+=10){
 	// for(double rotX=rotStart-0.4; rotX<rotStart+0.4; rotX+=0.05){
 		for(double rot=rotStart-0.4; rot<rotStart+0.4; rot+=0.05){
-			double pRes[6] = {z, p[1], p[2], p[3], rot, p[5]};
-			if(axis == 'x') pRes[4] = rot;
-			else pRes[5] = rot;
+			double pRes[6] = {z, p[1], p[2], p[3], p[4], p[5]};
+			if(axis == 'x') pRes[5] = rot;
+			else pRes[4] = rot;
 			// double sigma = getRes(det, tracks, Xcls, Ycls, pRes);
 			// grSigma->SetPoint(grSigma->GetN(), z, rot, sigma);
 			grSigma->SetPoint(grSigma->GetN(), z, rot, schi2(pRes));
@@ -742,12 +742,12 @@ int main(int argc, char const *argv[])
 	double pStart[6] = {zpos, initTx/nev, initTy/nev, rotZ, rotY, rotX};
 	// double z0 = zAlign(Form("zAlign_z0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart);
 	pStart[0] = -305.6;
-	pStart[3] = -3.14159/2;
-	pStart[4] = 3.14159;
+	pStart[3] = M_PI/2.;
+	pStart[4] = M_PI;
 	pStart[5] = 0.;
 	std::cout<<"Initial parameters: "<<pStart[0]<<" "<<pStart[1]<<" "<<pStart[2]<<" "<<pStart[3]<<" "<<pStart[4]<<" "<<pStart[5]<<std::endl;
 
-	double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart);
+	double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	// globalMinima(det, tracksFit, XclsFit, YclsFit, pTrl);
 	// double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pTrl, false, true);
 
@@ -758,17 +758,17 @@ int main(int argc, char const *argv[])
 	std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[4]<<std::endl;
 	// std::cout<<getRes(det, tracksFit, XclsFit, YclsFit, pTrl, 'x', "test_"+detName+"_"+run+".png")<<std::endl;
 	
-	// zRotAlign(Form("zRotXAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
-	// zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
+	zRotAlign(Form("zRotXAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
+	zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
 
 
-	// double Xzout    = zAlign(Form("zAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
-	// double XrotYout = yAlign(Form("yAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
-	// double XrotXout = xAlign(Form("xAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
+	double Xzout    = zAlign(Form("zAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
+	double XrotYout = yAlign(Form("yAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
+	double XrotXout = xAlign(Form("xAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
 
-	// double Yzout    = zAlign(Form("zAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
-	// double YrotYout = yAlign(Form("yAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
-	// double YrotXout = xAlign(Form("xAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
+	double Yzout    = zAlign(Form("zAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
+	double YrotYout = yAlign(Form("yAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
+	double YrotXout = xAlign(Form("xAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
 
 
 	// double pStart2[6] = {zout, pTrl[1], pTrl[2], pTrl[3], rotYout, rotXout};
