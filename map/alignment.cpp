@@ -733,18 +733,30 @@ int main(int argc, char const *argv[])
 	}
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
-	if(nev < 10000) {
-		std::cerr << "Error: Not enough events: " << nev << std::endl;
+	// Removing noise, only keeping events whithin 1cm of the average beam position
+	for(int i=0; i<tracksFit.size(); i++){
+		std::vector<double> posdet = det.pos3D(XclsFit[i].stripCentroid, YclsFit[i].stripCentroid);
+		if( sqrt( pow(initTx/nev - det.posY(YclsFit[i].stripCentroid)[0], 2) + 
+				  pow(initTy/nev - det.posX(XclsFit[i].stripCentroid)[1], 2) > 10. )){
+			tracksFit.erase(tracksFit.begin()+i);
+			XclsFit.erase(XclsFit.begin()+i);
+			YclsFit.erase(YclsFit.begin()+i);
+			i--;
+		}
+	}
+
+	if(tracksFit.size() < 10000) {
+		std::cerr << "Error: Not enough events: " << tracksFit.size() << std::endl;
 		return 1;
 	}
-	std::cout<<"Number of events: "<<nev<<std::endl;
+	std::cout<<"Number of events: "<<tracksFit.size()<<std::endl;
 
 	double pStart[6] = {zpos, initTx/nev, initTy/nev, rotZ, rotY, rotX};
 	// double z0 = zAlign(Form("zAlign_z0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart);
-	pStart[0] = -305.6;
-	pStart[3] = -M_PI/2.;
-	pStart[4] = M_PI;
-	pStart[5] = 0.;
+	// pStart[0] = -305.6;
+	// pStart[3] = -M_PI/2.;
+	// pStart[4] = M_PI;
+	// pStart[5] = 0.;
 	std::cout<<"Initial parameters: "<<pStart[0]<<" "<<pStart[1]<<" "<<pStart[2]<<" "<<pStart[3]<<" "<<pStart[4]<<" "<<pStart[5]<<std::endl;
 
 	double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
