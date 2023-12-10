@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
     }
   }
 
-  // det.setTransform(0, 0, 0, -3.14159/2, 3.14159, 0.0);
+  det.setTransform(0, 0, 0, -3.14159/2, 3.14159, 0.0);
   // det.setTransform(0, 0, 0, 0., 3.14159, 3.14159);
 
   TTreeReader reader(chain);
