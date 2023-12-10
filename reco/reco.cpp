@@ -307,8 +307,9 @@ int main( int argc, char **argv ){
 
     if(nbDet == 1){
       // det = DreamTable(basedir + "../map/strip_map.txt", 1, 0, 2, 3);
-      det = DreamTable(basedir + "../map/strip_map.txt", 3, 2, 0, 1);
+      // det = DreamTable(basedir + "../map/strip_map.txt", 3, 2, 0, 1);
       // det.setInversion(true, true, false, true);
+      det = DreamTable(basedir + "../map/strip_map.txt", argv[4], argv[5], argv[6], argv[7]);
       det.setInversion(false, false, true, false);
     }
     else if(nbDet == 2){

@@ -734,10 +734,16 @@ int main(int argc, char const *argv[])
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
 	// Removing noise, only keeping events whithin 1cm of the average beam position
+	double Xavg = std::accumulate(XclsFit.begin(), XclsFit.end(), 0.0,
+		[&](double sum, const cluster& cls) { return sum + det.posX(cls.stripCentroid)[1]; })/nev;
+	double Yavg = std::accumulate(YclsFit.begin(), YclsFit.end(), 0.0,
+		[&](double sum, const cluster& cls) { return sum + det.posY(cls.stripCentroid)[0]; })/nev;
+	
 	for(int i=0; i<tracksFit.size(); i++){
-		std::vector<double> posdet = det.pos3D(XclsFit[i].stripCentroid, YclsFit[i].stripCentroid);
-		if( sqrt( pow(initTx/nev - det.posY(YclsFit[i].stripCentroid)[0], 2) + 
-				  pow(initTy/nev - det.posX(XclsFit[i].stripCentroid)[1], 2) > 10. )){
+		double dist = sqrt( pow(Yavg - det.posY(YclsFit[i].stripCentroid)[0], 2) + 
+				  pow(Xavg - det.posX(XclsFit[i].stripCentroid)[1], 2) );
+		std::cout<<"dist "<<dist<<std::endl;
+		if( dist> 10. ){
 			tracksFit.erase(tracksFit.begin()+i);
 			XclsFit.erase(XclsFit.begin()+i);
 			YclsFit.erase(YclsFit.begin()+i);
@@ -749,7 +755,8 @@ int main(int argc, char const *argv[])
 		std::cerr << "Error: Not enough events: " << tracksFit.size() << std::endl;
 		return 1;
 	}
-	std::cout<<"Number of events: "<<tracksFit.size()<<std::endl;
+	std::cout<<"Number of events: "<<nev<<std::endl;
+	std::cout<<"After noise is removed: "<<tracksFit.size()<<std::endl;
 
 	double pStart[6] = {zpos, initTx/nev, initTy/nev, rotZ, rotY, rotX};
 	// double z0 = zAlign(Form("zAlign_z0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart);
