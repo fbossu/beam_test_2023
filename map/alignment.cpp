@@ -154,6 +154,9 @@ struct funcChi2XY {
 		double clxpos = det.posY(clY.stripCentroid)[0];
 		double clypos = det.posX(clX.stripCentroid)[1];
 
+		// xy plane shearing
+		// clxpos = clxpos*cos(p[6]) - clypos*sin(p[6]);
+
 		Rotation3D rot(RotationZYX(p[3], p[4], p[5])); // rotation around z, y, x
 		Translation3D trl(p[1], p[2], p[0]);
 		Transform3D trans(rot, trl);
@@ -170,14 +173,18 @@ struct funcChi2XY {
 
 	double stdVect(std::vector<double> &vect){
 		double mean = std::accumulate(vect.begin(), vect.end(), 0.0) / vect.size();
-		std::vector<double> diff(vect.size());
-		std::transform(vect.begin(), vect.end(), diff.begin(), [mean](double x) { 
-			return (x - mean < 10.) ? x-mean : 0.; 
-			});
-		int count = std::count_if(diff.begin(), diff.end(), [](int num) {return num > 0.0;});
+		std::vector<double> stdRes(vect.size());
+		int N = 0;
+		std::transform(vect.begin(), vect.end(), stdRes.begin(), [mean, &N](double x) { 
+			if(abs(x - mean) < 2.){
+				N++;
+				return pow(x - mean, 2);
+			}
+			return 0.; 
+		});
 
-		double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
-		return std::sqrt(sq_sum / count);
+		double sq_sum = std::accumulate(stdRes.begin(), stdRes.end(), 0.0);
+		return std::sqrt(sq_sum / N);
 	}
 
 	double Q3(std::vector<double> &vect){
@@ -186,8 +193,17 @@ struct funcChi2XY {
 		std::transform(vect.begin(), vect.end(), diff.begin(), [mean](double x) { return abs(x - mean);});
 
 		std::sort(diff.begin(), diff.end());
-		int q3 = 0.6*(diff.size());
+		int q3 = 0.66*(diff.size());
 		return diff[q3];
+	}
+
+	double MAD(std::vector<double> &vect){
+		std::sort(vect.begin(), vect.end());
+		double median = vect[vect.size()/2];
+		std::vector<double> diff(vect.size());
+		std::transform(vect.begin(), vect.end(), diff.begin(), [median](double x) { return abs(x - median);});
+		std::sort(diff.begin(), diff.end());
+		return diff[diff.size()/2];
 	}
  
 	double operator() (const double *par) {
@@ -205,8 +221,9 @@ struct funcChi2XY {
 		double xerr = det.pitchY(avgYcentroid/tracks.size())/sqrt(12);
 		double yerr = det.pitchX(avgXcentroid/tracks.size())/sqrt(12);
 		
-		// double xyres = pow(stdVect(xresVect)/xerr, 2) + pow(stdVect(yresVect)/yerr, 2);
-		double xyres = pow(Q3(xresVect)/xerr, 2) + pow(Q3(yresVect)/yerr, 2);
+		double xyres = pow(stdVect(xresVect)/xerr, 2) + pow(stdVect(yresVect)/yerr, 2);
+		// double xyres = pow(Q3(xresVect)/xerr, 2) + pow(Q3(yresVect)/yerr, 2);
+		// double xyres = pow(MAD(xresVect)/xerr, 2) + pow(MAD(yresVect)/yerr, 2);
 
 		if (first) {
 			std::cout << "Total Initial chi2 = " << xyres << std::endl;
@@ -379,20 +396,22 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	minimum->SetFunction(fcn);
 
 	// Set the free variables to be minimized !
-	double step[6] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
+	// double step[6] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
+	double step[7] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
 	minimum->SetVariable(0,"zpos", pStart[0], step[0]);
    	minimum->SetVariable(1,"Tx", pStart[1], step[1]);
    	minimum->SetVariable(2,"Ty", pStart[2], step[2]);
 	minimum->SetVariable(3,"rotZ", pStart[3], step[3]);
 	minimum->SetVariable(4,"rotY", pStart[4], step[4]);
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
+	// minimum->SetVariable(6,"shearXY", 0., step[6]);
 
 	// minimum->FixVariable(1);
 	// minimum->FixVariable(2);
 	// minimum->FixVariable(3);
 
-	double pLow[6] = {pStart[0]-100., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180.};
-	double pUp[6]  = {pStart[0]+100., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180.};
+	double pLow[7] = {pStart[0]-100., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180., pStart[6]-10.*M_PI/180.};
+	double pUp[7]  = {pStart[0]+100., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180., pStart[6]+10.*M_PI/180.};
 	for(int i=0; i<6; i++){
 		minimum->SetVariableLimits(i, pLow[i], pUp[i]);
 	}
@@ -409,8 +428,8 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 		}
     }
 
-	double *pOut = new double[6];
-	for(int i=0; i<6; i++){
+	double *pOut = new double[7];
+	for(int i=0; i<7; i++){
 		pOut[i] = param[i];
 	}
 	return pOut;
@@ -456,7 +475,7 @@ void zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> 
 	
 	TGraph2D* grSigma = new TGraph2D();
 	std::vector<double> lim1= {-80, 120, 10};
-	std::vector<double> lim2= {-1.5, 1.5, 0.1};
+	std::vector<double> lim2= {-1., 1., 0.1};
 
 	double start1, start2;
 	start1 = p[0];
@@ -465,7 +484,7 @@ void zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> 
 	if(axis == "xy"){
 		start1 = p[4];
 		start2 = p[5];
-		lim1 = {-1.5, 1.5, 0.1};
+		lim1 = {-1., 1., 0.1};
 	}
 
 	funcChi2XY schi2(det, tracks, Xcls, Ycls);
@@ -783,29 +802,30 @@ int main(int argc, char const *argv[])
 	// std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<rotYout<<" "<<rotXout<<std::endl;
 	// std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[4]<<std::endl;
 	// std::cout<<getRes(det, tracksFit, XclsFit, YclsFit, pTrl, 'x', "test_"+detName+"_"+run+".png")<<std::endl;
-
-	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pTrl);
+	double ptest[6] = {pTrl[0], pTrl[1], pTrl[2], pTrl[3], pTrl[4], pTrl[5]};
+	
+	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, ptest);
 	std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
 
 	double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pRot, true);
 	std::cout<<"End : "<<pEnd[0]<<" "<<pEnd[1]<<" "<<pEnd[2]<<" "<<pEnd[3]<<" "<<pEnd[4]<<" "<<pEnd[5]<<std::endl;
 
 
-	zRotAlign(Form("RotXYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "xy");	
-	zRotAlign(Form("zRotXAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "zx");
-	zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "zy");
+	// zRotAlign(Form("RotXYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "xy");	
+	// zRotAlign(Form("zRotXAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "zx");
+	// zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "zy");
 
-	double zout    = zAlign(Form("zAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
-	double rotYout = yAlign(Form("yAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
-	double rotXout = xAlign(Form("xAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
+	// double zout    = zAlign(Form("zAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
+	// double rotYout = yAlign(Form("yAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
+	// double rotXout = xAlign(Form("xAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
 
-	double Xzout    = zAlign(Form("zAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
-	double XrotYout = yAlign(Form("yAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
-	double XrotXout = xAlign(Form("xAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
+	// double Xzout    = zAlign(Form("zAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
+	// double XrotYout = yAlign(Form("yAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
+	// double XrotXout = xAlign(Form("xAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
 
-	double Yzout    = zAlign(Form("zAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
-	double YrotYout = yAlign(Form("yAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
-	double YrotXout = xAlign(Form("xAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
+	// double Yzout    = zAlign(Form("zAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
+	// double YrotYout = yAlign(Form("yAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
+	// double YrotXout = xAlign(Form("xAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
 
 
 	// double pStart2[6] = {zout, pTrl[1], pTrl[2], pTrl[3], rotYout, rotXout};
@@ -847,11 +867,11 @@ int main(int argc, char const *argv[])
 	// double pStart[6] = {zout, initTx/nev, initTy/nev, rotZ, rotY, rotX};
 
 
-	// std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
-	// // std::ofstream outfile("test.txt");
-	// outfile << "# POS zpos Tx Ty rot(z y x)\n";
-	// outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd2[0], pEnd2[1], pEnd2[2], pEnd2[3], pEnd2[4], pEnd2[5]) << std::endl;
-	// outfile.close();
+	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
+	// std::ofstream outfile("test.txt");
+	outfile << "# POS zpos Tx Ty rot(z y x)\n";
+	outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd[0], pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]) << std::endl;
+	outfile.close();
 
 	// std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
 	// out += Form("%s %f %f %f %f \n", pos.c_str(), result.Parameter(0), result.Parameter(1), result.Parameter(2), result.Parameter(3));

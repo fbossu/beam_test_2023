@@ -392,9 +392,9 @@ void plotResidue(TFile* res, std::string graphname){
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-100*stdy, meanresy+100*stdy);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-100*stdx, meanresx+100*stdx);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
   nt->Draw("yres>>hx");
   nt->Draw("xres>>hy");
@@ -433,7 +433,7 @@ void plotResidue(TFile* res, std::string graphname){
   c->Divide(2,2);
   c->cd(1);
   hx->Draw();
-  gPad->SetLogy();
+  // gPad->SetLogy();
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
   latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
 
@@ -448,7 +448,7 @@ void plotResidue(TFile* res, std::string graphname){
 
   c->cd(2);
   hy->Draw();
-  gPad->SetLogy();
+  // gPad->SetLogy();
   label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
   latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
 
