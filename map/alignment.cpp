@@ -176,7 +176,7 @@ struct funcChi2XY {
 		std::vector<double> stdRes(vect.size());
 		int N = 0;
 		std::transform(vect.begin(), vect.end(), stdRes.begin(), [mean, &N](double x) { 
-			if(abs(x - mean) < 2.){
+			if(abs(x - mean) < 3.){
 				N++;
 				return pow(x - mean, 2);
 			}
