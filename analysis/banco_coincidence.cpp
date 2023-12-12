@@ -77,7 +77,7 @@ int main(int argc, char const *argv[])
 
   int stNb = 100; char axis = 'y';
 
-  double zpos = -425.6;
+  double zpos = -305.6;
   // double zpos = -785.6;
   // double zpos = -205.377; //FEU1 POS16
 

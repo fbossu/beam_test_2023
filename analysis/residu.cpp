@@ -272,9 +272,10 @@ double getStdDev(TNtupleD* nt, const char* columnName, std::vector<double> lim =
   for(int i = 0; i < nt->GetEntries(); i++) {
     nt->GetEntry(i);
     if(lim.size() == 2 and (col < lim[0] or col > lim[1])) continue;
-    sumDiff += pow(col - mean, 2);
-    // std::cout<<pow(col - mean, 2)<<" "<<sumDiff2<<std::endl;
-    count++;
+    // if(col - mean < 10){
+      sumDiff += pow(col - mean, 2);
+      count++;
+    // }
   }
 
   return sqrt(sumDiff / count);
@@ -333,6 +334,7 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
       std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
       double xdet = detPos[0];
       double ydet = detPos[1];
+      // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
 
       double xtrack = tr.x0 + detPos[2]*tr.mx;
       double ytrack = tr.y0 + detPos[2]*tr.my;
@@ -390,9 +392,9 @@ void plotResidue(TFile* res, std::string graphname){
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-100*stdy, meanresy+100*stdy);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-100*stdx, meanresx+100*stdx);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
   nt->Draw("yres>>hx");
   nt->Draw("xres>>hy");
@@ -431,6 +433,7 @@ void plotResidue(TFile* res, std::string graphname){
   c->Divide(2,2);
   c->cd(1);
   hx->Draw();
+  gPad->SetLogy();
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
   latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
 
@@ -445,6 +448,7 @@ void plotResidue(TFile* res, std::string graphname){
 
   c->cd(2);
   hy->Draw();
+  gPad->SetLogy();
   label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
   latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
 
@@ -521,6 +525,9 @@ void res3Dplot(TFile* res, std::string graphname){
   h2xres->Draw("colz");
   c->Print(graphname.c_str(), "png");
   delete c;
+
+  std::cout<<"stdx: "<<stdx<<" stdy: "<<stdy<<std::endl;
+  std::cout<<"squared sum of stdx and stdy: "<<sqrt(stdx*stdx + stdy*stdy)<<std::endl;
 }
 
 void plotResidueClsize(TFile* res, std::string graphname){

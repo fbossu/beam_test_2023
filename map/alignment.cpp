@@ -84,6 +84,7 @@ struct funcChi2 {
 		double ytr = tr.y0 + pr.Z()*tr.my;
 
 		double res = sqrt( pow(xtr - pr.X(),2) + pow(ytr - pr.Y(),2) );
+		// double res = abs(xtr - pr.X()) + abs(ytr - pr.Y());
 		// double res = ytr - pr.Y();
 		// double errx2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(clY.stripCentroid))/sqrt(12),2);
 		// double erry2 = pow(tr.ey0,2) + pow(tr.my*tr.emy,2) + pow(det.pitchX(int(clX.stripCentroid))/sqrt(12),2);
@@ -99,7 +100,8 @@ struct funcChi2 {
 		if(!stdOpt){
 			double sum = 0;
 			for (int i = 0; i < tracks.size(); ++i) {
-				sum += pow( chi2(tracks[i], Xcls[i], Ycls[i], par), 2 )/0.001;
+				// sum += pow( chi2(tracks[i], Xcls[i], Ycls[i], par), 2 )/0.001;
+				sum += abs(chi2(tracks[i], Xcls[i], Ycls[i], par));
 			}
 			if (first) {
 				std::cout << "Total Initial chi2 = " << sum << std::endl;
@@ -131,31 +133,29 @@ struct funcChi2 {
 
 };
 
-
 struct funcChi2XY {
 
 	std::vector<banco::track> tracks;
 	std::vector<cluster> Xcls;
 	std::vector<cluster> Ycls;
-	std::vector<double> resVect;
+	std::vector<double> xresVect;
+	std::vector<double> yresVect;
 	StripTable det;
-	char axis;
-	bool stdOpt = false;
 
-	funcChi2XY(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, char axis, bool stdOpt=false) : 
-	det(det), tracks(tracks), Xcls(Xcls) ,Ycls(Ycls), stdOpt(stdOpt), axis(axis) {
-		resVect.resize(tracks.size());
+	funcChi2XY(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls) : 
+	det(det), tracks(tracks), Xcls(Xcls) ,Ycls(Ycls) {
+		xresVect.resize(tracks.size());
+		yresVect.resize(tracks.size());
 	}
 	
 	// calculate distance line-point
-	double chi2(banco::track tr, cluster clX, cluster clY, const double *p) {
+	void chi2(banco::track tr, cluster clX, cluster clY, const double *p, double &xres, double &yres) {
 
 		double clxpos = det.posY(clY.stripCentroid)[0];
 		double clypos = det.posX(clX.stripCentroid)[1];
 
 		Rotation3D rot(RotationZYX(p[3], p[4], p[5])); // rotation around z, y, x
 		Translation3D trl(p[1], p[2], p[0]);
-
 		Transform3D trans(rot, trl);
 
 		ROOT::Math::XYZPoint pdet(clxpos, clypos, 0.);
@@ -164,45 +164,56 @@ struct funcChi2XY {
 		double xtr = tr.x0 + pr.Z()*tr.mx;
 		double ytr = tr.y0 + pr.Z()*tr.my;
 
-		double res = 0;
-		if(axis == 'y') res = xtr - pr.X();
-		else if(axis == 'x') res = ytr - pr.Y();
-
-		return res;
+		xres = xtr - pr.X();
+		yres = ytr - pr.Y();
    	}
+
+	double stdVect(std::vector<double> &vect){
+		double mean = std::accumulate(vect.begin(), vect.end(), 0.0) / vect.size();
+		std::vector<double> diff(vect.size());
+		std::transform(vect.begin(), vect.end(), diff.begin(), [mean](double x) { 
+			return (x - mean < 10.) ? x-mean : 0.; 
+			});
+		int count = std::count_if(diff.begin(), diff.end(), [](int num) {return num > 0.0;});
+
+		double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+		return std::sqrt(sq_sum / count);
+	}
+
+	double Q3(std::vector<double> &vect){
+		double mean = std::accumulate(vect.begin(), vect.end(), 0.0) / vect.size();
+		std::vector<double> diff(vect.size());
+		std::transform(vect.begin(), vect.end(), diff.begin(), [mean](double x) { return abs(x - mean);});
+
+		std::sort(diff.begin(), diff.end());
+		int q3 = 0.6*(diff.size());
+		return diff[q3];
+	}
  
 	double operator() (const double *par) {
 		
-		if(!stdOpt){
-			double sum = 0;
-			for (int i = 0; i < tracks.size(); ++i) {
-				sum += pow( chi2(tracks[i], Xcls[i], Ycls[i], par), 2 )/0.001;
-			}
-			if (first) {
-				std::cout << "Total Initial chi2 = " << sum << std::endl;
-			}
-			first = false;
-			return sum;
+		double avgXcentroid = 0., avgYcentroid = 0.;
+		double xres = 0., yres = 0.;
+		for (int i = 0; i < tracks.size(); ++i) {
+			chi2(tracks[i], Xcls[i], Ycls[i], par, xres, yres);
+			xresVect[i] = xres;
+			yresVect[i] = yres;
+			avgXcentroid += Xcls[i].stripCentroid;
+			avgYcentroid += Ycls[i].stripCentroid;
 		}
-		else{
-			for (int i = 0; i < tracks.size(); ++i) {
-        		resVect[i] = chi2(tracks[i], Xcls[i], Ycls[i], par);
-			}
+		
+		double xerr = det.pitchY(avgYcentroid/tracks.size())/sqrt(12);
+		double yerr = det.pitchX(avgXcentroid/tracks.size())/sqrt(12);
+		
+		// double xyres = pow(stdVect(xresVect)/xerr, 2) + pow(stdVect(yresVect)/yerr, 2);
+		double xyres = pow(Q3(xresVect)/xerr, 2) + pow(Q3(yresVect)/yerr, 2);
 
-			double sum = std::accumulate(resVect.begin(), resVect.end(), 0.0);
-			double mean = sum / resVect.size();
-			std::vector<double> diff(resVect.size());
-			std::transform(resVect.begin(), resVect.end(), diff.begin(), [mean](double x) { return x - mean; });
-			double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
-			double stdev = std::sqrt(sq_sum / resVect.size());
-
-			if (first) {
-				std::cout << "Total Initial chi2 = " << sum << std::endl;
-			}
-			first = false;
-			// std::cout<<"stdev "<<stdev<<std::endl;
-			return stdev;
+		if (first) {
+			std::cout << "Total Initial chi2 = " << xyres << std::endl;
 		}
+		first = false;
+		// std::cout<<"stdev "<<stdev<<std::endl;
+		return xyres;
 
    	}
 };
@@ -281,7 +292,67 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 }
 
 
-double* alignXY(std::string pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double *pStart, char axis){
+double getQ(StripTable &det, std::vector<banco::track> &tracks, std::vector<cluster> &Xcls, std::vector<cluster> &Ycls, const double* p, char axis = 'o', std::string plot = ""){
+	std::vector<double> resX(tracks.size());
+	std::vector<double> resY(tracks.size());
+	double resX_avg = 0.;
+	double resY_avg = 0.;
+	std::cout<<"p "<<p[0]<<" "<<p[1]<<" "<<p[2]<<" "<<p[3]<<" "<<p[4]<<" "<<p[5]<<std::endl;
+	det.setTransform(p[0], p[1], p[2], p[3], p[4], p[5]);
+	
+	for(int j=0; j<tracks.size(); j++){
+		std::vector<double> posdet = det.pos3D(Xcls[j].stripCentroid, Ycls[j].stripCentroid);
+		double xtr = tracks[j].x0 + posdet[2]*tracks[j].mx;
+		double ytr = tracks[j].y0 + posdet[2]*tracks[j].my;
+		resX[j] = ytr - posdet[1];
+		resY[j] = xtr - posdet[0];
+
+		resX_avg += resX[j];
+		resY_avg += resY[j];
+	}
+	double outQX = 0.;
+	double outQY = 0.;
+
+	if(axis != 'y'){
+		double mean = std::accumulate(resX.begin(), resX.end(), 0.0) / resX.size();
+		std::vector<double> diff(resX.size());
+		std::transform(resX.begin(), resX.end(), diff.begin(), [mean](double x) { return abs(x - mean);});
+
+		std::sort(diff.begin(), diff.end());
+		int q3 = 0.6*(diff.size());
+		outQX = diff[q3];
+	}
+	if(axis != 'x'){
+		double mean = std::accumulate(resY.begin(), resY.end(), 0.0) / resY.size();
+		std::vector<double> diff(resY.size());
+		std::transform(resY.begin(), resY.end(), diff.begin(), [mean](double x) { return abs(x - mean);});
+
+		std::sort(diff.begin(), diff.end());
+		int q3 = 0.6*(diff.size());
+		outQY = diff[q3];
+	}
+
+	// if(plot!=""){
+	// 	TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
+	// 	if(axis == 'x') hresX->Draw();
+	// 	else if(axis == 'y') hresY->Draw();
+	// 	else{
+	// 		hresX->Draw();
+	// 		hresY->SetLineColor(kRed);
+	// 		hresY->Draw("same");
+	// 	}
+	// 	c1->Print(plot.c_str(), ".png");
+	// }
+
+	if(axis == 'x') return outQX;
+	else if(axis == 'y') return outQY;
+	else return sqrt( pow(outQX,2) + pow(outQY,2));
+}
+
+
+
+
+double* alignXY(std::string pos, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double *pStart){
 	
 	first = true;
 	const char * minName = "Minuit2";
@@ -298,17 +369,17 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
 	minimum->SetMaxIterations(10000);  // for GSL
-	minimum->SetTolerance(0.0001);
+	minimum->SetTolerance(1e-6);
 	// minimum->SetTolerance(100);
 	minimum->SetPrintLevel(2);
  
 	// make the functor objet
-	funcChi2XY schi2(det, tracks, Xcls, Ycls, axis);
+	funcChi2XY schi2(det, tracks, Xcls, Ycls);
 	ROOT::Math::Functor fcn(schi2, 6);
 	minimum->SetFunction(fcn);
 
 	// Set the free variables to be minimized !
-	double step[6] = {0.05, 0.05, 0.05, 0.005*M_PI/180., 0.005*M_PI/180., 0.005*M_PI/180.};
+	double step[6] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
 	minimum->SetVariable(0,"zpos", pStart[0], step[0]);
    	minimum->SetVariable(1,"Tx", pStart[1], step[1]);
    	minimum->SetVariable(2,"Ty", pStart[2], step[2]);
@@ -316,14 +387,9 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	minimum->SetVariable(4,"rotY", pStart[4], step[4]);
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
 
-	minimum->FixVariable(1);
-	minimum->FixVariable(2);
-	minimum->FixVariable(3);
-	if(axis == 'x'){
-		minimum->FixVariable(4);
-	}else if(axis == 'y'){
-		minimum->FixVariable(5);
-	}
+	// minimum->FixVariable(1);
+	// minimum->FixVariable(2);
+	// minimum->FixVariable(3);
 
 	double pLow[6] = {pStart[0]-100., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180.};
 	double pUp[6]  = {pStart[0]+100., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180.};
@@ -349,10 +415,6 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	}
 	return pOut;
 }
-
-
-
-
 
 
 double getXmin(TGraph* gr){
@@ -390,111 +452,50 @@ double* get2DMin(TGraph2D* gr){
 }
 
 
-double getRes(StripTable &det, std::vector<banco::track> &tracks, std::vector<cluster> &Xcls, std::vector<cluster> &Ycls, const double* p, char axis = 'o', std::string plot = ""){
-	std::vector<double> resX(tracks.size());
-	std::vector<double> resY(tracks.size());
-	double resX_avg = 0.;
-	double resY_avg = 0.;
-	std::cout<<"p "<<p[0]<<" "<<p[1]<<" "<<p[2]<<" "<<p[3]<<" "<<p[4]<<" "<<p[5]<<std::endl;
-	det.setTransform(p[0], p[1], p[2], p[3], p[4], p[5]);
-	
-	for(int j=0; j<tracks.size(); j++){
-		std::vector<double> posdet = det.pos3D(Xcls[j].stripCentroid, Ycls[j].stripCentroid);
-		double xtr = tracks[j].x0 + posdet[2]*tracks[j].mx;
-		double ytr = tracks[j].y0 + posdet[2]*tracks[j].my;
-		resX[j] = ytr - posdet[1];
-		resY[j] = xtr - posdet[0];
-
-		resX_avg += resX[j];
-		resY_avg += resY[j];
-	}
-	TH1F* hresX; TH1F* hresY;
-	TF1* fitX; TF1* fitY;
-	if(axis != 'y'){
-		hresX = new TH1F("hresX", "", 1000, resX_avg/resX.size()-2., resX_avg/resX.size()+2);
-		for(int j=0; j<resX.size(); j++){
-			hresX->Fill(resX[j]);
-		}
-		fitX = new TF1("fitX", "gaus", resX_avg/resX.size()-2., resX_avg/resX.size()+2);
-		fitX->SetParameters(100, resX_avg/resX.size(), 0.1);
-		hresX->Fit(fitX, "R");
-	}
-	if(axis != 'x'){
-		hresY = new TH1F("hresY", "", 1000, resY_avg/resY.size()-2., resY_avg/resY.size()+2);
-		for(int j=0; j<resY.size(); j++){
-			hresY->Fill(resY[j]);
-		}
-		fitY = new TF1("fitY", "gaus", resY_avg/resY.size()-2., resY_avg/resY.size()+2);
-		fitY->SetParameters(100, resY_avg/resY.size(), 0.1);
-		hresY->Fit(fitY, "R");
-	}
-
-	if(plot!=""){
-		TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
-		if(axis == 'x') hresX->Draw();
-		else if(axis == 'y') hresY->Draw();
-		else{
-			hresX->Draw();
-			hresY->SetLineColor(kRed);
-			hresY->Draw("same");
-		}
-		c1->Print(plot.c_str(), ".png");
-	}
-
-	if(axis == 'x') return fitX->GetParameter(2);
-	else if(axis == 'y') return fitY->GetParameter(2);
-	else return sqrt( pow(fitX->GetParameter(2),2) + pow(fitY->GetParameter(2),2));
-}
-
-
-void zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p, char axis = 'o'){
+void zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p, std::string axis){
 	
 	TGraph2D* grSigma = new TGraph2D();
-	double rotStart;
-	if(axis == 'x') rotStart = p[5];
-	else rotStart = p[4];
-	funcChi2 schi2(det, tracks, Xcls, Ycls);
+	std::vector<double> lim1= {-80, 120, 10};
+	std::vector<double> lim2= {-1.5, 1.5, 0.1};
 
-	for(double z=p[0]-80; z<p[0]+120; z+=10){
-	// for(double rotX=rotStart-0.4; rotX<rotStart+0.4; rotX+=0.05){
-		for(double rot=rotStart-0.4; rot<rotStart+0.4; rot+=0.05){
-			double pRes[6] = {z, p[1], p[2], p[3], p[4], p[5]};
-			if(axis == 'x') pRes[5] = rot;
-			else pRes[4] = rot;
-			// double sigma = getRes(det, tracks, Xcls, Ycls, pRes);
-			// grSigma->SetPoint(grSigma->GetN(), z, rot, sigma);
-			grSigma->SetPoint(grSigma->GetN(), z, rot, schi2(pRes));
+	double start1, start2;
+	start1 = p[0];
+	if(axis == "zx") start2 = p[5];
+	if(axis == "zy") start2 = p[4];
+	if(axis == "xy"){
+		start1 = p[4];
+		start2 = p[5];
+		lim1 = {-1.5, 1.5, 0.1};
+	}
+
+	funcChi2XY schi2(det, tracks, Xcls, Ycls);
+
+	for(double var1=start1+lim1[0]; var1<start1+lim1[1]; var1+=lim1[2]){
+		for(double var2=start2+lim2[0]; var2<start2+lim2[1]; var2+=lim2[2]){
+			double pRes[6] = {p[0], p[1], p[2], p[3], p[4], p[5]};
+			if(axis == "zx") { pRes[0] = var1; pRes[5] = var2;}
+			if(axis == "zy") { pRes[0] = var1; pRes[4] = var2;}
+			if(axis == "xy"){ pRes[5] = var1; pRes[4] = var2;}
+			grSigma->SetPoint(grSigma->GetN(), var1, var2, schi2(pRes));
 		}
 	}
 	double* min = get2DMin(grSigma);
-	// TF1* fitFunc = new TF1("fitFunc", "pol2", xmin-40, xmin+40);
-	// fitFunc->SetParLimits(2, 0., 100);
-	// grSigma->Fit(fitFunc, "R");
-	// double zout = -fitFunc->GetParameter(1)/(2*fitFunc->GetParameter(2));	
 	
 	TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
 	grSigma->SetMarkerStyle(20);
 	grSigma->SetMarkerSize(0.8);
 	grSigma->SetMarkerColor(kBlue);
-	grSigma->SetTitle("z alignment");
-	grSigma->GetXaxis()->SetTitle("z position [mm]");
-	grSigma->GetYaxis()->SetTitle("rot [rad]");
-	grSigma->GetZaxis()->SetTitle("sigma [mm]");
+	grSigma->SetTitle("Alignment");
 	grSigma->Draw("surf1");
 
 	TLatex* latex = new TLatex();
 	latex->SetTextSize(0.03);
 	latex->SetTextColor(kRed);
-	latex->DrawLatexNDC(0.2, 0.22, Form("zmin = %.2f", min[0]));
-	latex->DrawLatexNDC(0.2, 0.19, Form("%cRotmin = %.2f", axis, min[1]));
+	latex->DrawLatexNDC(0.2, 0.22, Form("var1Min = %.2f", min[0]));
+	latex->DrawLatexNDC(0.2, 0.19, Form("var2Min = %.2f", min[1]));
 	gStyle->SetOptFit(1111);
 	
 	c1->SaveAs(graphName.c_str());
-
-	// double pRes[6] = {zout, p[1], p[2], p[2], p[4], p[5]};
-	// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis, "minZ_"+graphName);
-
-	// return zout;
 }
 
 double zAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p, char axis = 'o'){
@@ -503,7 +504,8 @@ double zAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	for(double z=p[0]-100; z<p[0]+140; z+=3){
 		std::cout<<"z "<<z<<std::endl;
 		double pRes[6] = {z, p[1], p[2], p[3], p[4], p[5]};
-		double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis);
+		// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis);
+		double sigma = getQ(det, tracks, Xcls, Ycls, pRes, axis);
 		grSigma->SetPoint(grSigma->GetN(), z, sigma);
 	}
 	double xmin = getXmin(grSigma);
@@ -529,8 +531,8 @@ double zAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	
 	c1->SaveAs(graphName.c_str());
 
-	double pRes[6] = {zout, p[1], p[2], p[3], p[4], p[5]};
-	double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis, "minZ_"+graphName);
+	// double pRes[6] = {zout, p[1], p[2], p[3], p[4], p[5]};
+	// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis, "minZ_"+graphName);
 
 	return zout;
 }
@@ -540,7 +542,8 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	TGraph* grSigma = new TGraph();
 	for(double yRot=p[4]-0.4; yRot<p[4]+0.4; yRot+=0.005){
 		double pRes[6] = {p[0], p[1], p[2], p[3], yRot, p[5]};
-		double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis);
+		// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis);
+		double sigma = getQ(det, tracks, Xcls, Ycls, pRes, axis);
 		grSigma->SetPoint(grSigma->GetN(), yRot, sigma);
 	}
 	double xmin = getXmin(grSigma);
@@ -571,8 +574,8 @@ double yAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	
 	c1->SaveAs(graphName.c_str());
 
-	double pRes[6] = {p[0], p[1], p[2], p[3], xmin, p[5]};
-	double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis, "minyRot_"+graphName);
+	// double pRes[6] = {p[0], p[1], p[2], p[3], xmin, p[5]};
+	// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis, "minyRot_"+graphName);
 
 	return yRotOut;
 }
@@ -583,7 +586,8 @@ double xAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	
 	for(double xRot=p[5]-0.4; xRot<p[5]+0.4; xRot+=0.005){
 		double pRes[6] = {p[0], p[1], p[2], p[3], p[4], xRot};
-		double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis);
+		// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis);
+		double sigma = getQ(det, tracks, Xcls, Ycls, pRes, axis);
 		grSigma->SetPoint(grSigma->GetN(), xRot, sigma);
 	}
 
@@ -614,8 +618,8 @@ double xAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 	
 	c1->SaveAs(graphName.c_str());
 
-	double pRes[6] = {p[0], p[1], p[2], p[3], p[4], xmin};
-	double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis, "minxRot_"+graphName);
+	// double pRes[6] = {p[0], p[1], p[2], p[3], p[4], xmin};
+	// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis, "minxRot_"+graphName);
 
 	return xRotOut;
 }
@@ -742,8 +746,8 @@ int main(int argc, char const *argv[])
 	for(int i=0; i<tracksFit.size(); i++){
 		double dist = sqrt( pow(Yavg - det.posY(YclsFit[i].stripCentroid)[0], 2) + 
 				  pow(Xavg - det.posX(XclsFit[i].stripCentroid)[1], 2) );
-		std::cout<<"dist "<<dist<<std::endl;
-		if( dist> 10. ){
+		// std::cout<<"dist "<<dist<<std::endl;
+		if( dist > 10. ){
 			tracksFit.erase(tracksFit.begin()+i);
 			XclsFit.erase(XclsFit.begin()+i);
 			YclsFit.erase(YclsFit.begin()+i);
@@ -767,27 +771,41 @@ int main(int argc, char const *argv[])
 	std::cout<<"Initial parameters: "<<pStart[0]<<" "<<pStart[1]<<" "<<pStart[2]<<" "<<pStart[3]<<" "<<pStart[4]<<" "<<pStart[5]<<std::endl;
 
 	double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
+	std::cout<<"First Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[5]<<std::endl;
+
+	
 	// globalMinima(det, tracksFit, XclsFit, YclsFit, pTrl);
 	// double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pTrl, false, true);
 
-	double zout    = zAlign(Form("zAlign_trlz0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl);
-	double rotYout = yAlign(Form("yAlign_trlz0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl);
-	double rotXout = xAlign(Form("xAlign_trlz0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl);
+	// double zout    = zAlign(Form("zAlign_trlz0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl);
+	// double rotYout = yAlign(Form("yAlign_trlz0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl);
+	// double rotXout = xAlign(Form("xAlign_trlz0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl);
 	// std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<rotYout<<" "<<rotXout<<std::endl;
-	std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[4]<<std::endl;
+	// std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[4]<<std::endl;
 	// std::cout<<getRes(det, tracksFit, XclsFit, YclsFit, pTrl, 'x', "test_"+detName+"_"+run+".png")<<std::endl;
-	
-	zRotAlign(Form("zRotXAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
-	zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
+
+	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pTrl);
+	std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
+
+	double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pRot, true);
+	std::cout<<"End : "<<pEnd[0]<<" "<<pEnd[1]<<" "<<pEnd[2]<<" "<<pEnd[3]<<" "<<pEnd[4]<<" "<<pEnd[5]<<std::endl;
 
 
-	double Xzout    = zAlign(Form("zAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
-	double XrotYout = yAlign(Form("yAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
-	double XrotXout = xAlign(Form("xAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'x');
+	zRotAlign(Form("RotXYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "xy");	
+	zRotAlign(Form("zRotXAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "zx");
+	zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, "zy");
 
-	double Yzout    = zAlign(Form("zAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
-	double YrotYout = yAlign(Form("yAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
-	double YrotXout = xAlign(Form("xAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pTrl, 'y');
+	double zout    = zAlign(Form("zAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
+	double rotYout = yAlign(Form("yAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
+	double rotXout = xAlign(Form("xAlign_resxy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd);
+
+	double Xzout    = zAlign(Form("zAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
+	double XrotYout = yAlign(Form("yAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
+	double XrotXout = xAlign(Form("xAlign_resx_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'x');
+
+	double Yzout    = zAlign(Form("zAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
+	double YrotYout = yAlign(Form("yAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
+	double YrotXout = xAlign(Form("xAlign_resy_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pEnd, 'y');
 
 
 	// double pStart2[6] = {zout, pTrl[1], pTrl[2], pTrl[3], rotYout, rotXout};
