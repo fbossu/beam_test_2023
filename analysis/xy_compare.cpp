@@ -14,10 +14,15 @@
 void xy_compare(std::string fname, StripTable det, int zone, std::string graphName){
 
     TH1F* h1[5];
+    TH1F* h2[5];
     std::vector<std::string> labels = {"1/1", "1/2", "2/1", "2/2", "other"};
     for(int i=0; i<5; i++){
-        h1[i] = new TH1F("h1", Form("Ratio xAmp/yAmp cluster size %s X/Y",labels[i].c_str()), 200, 0., 3);
-        h1[i]->GetXaxis()->SetTitle("xAmp/yAmp");
+        h1[i] = new TH1F("h1", Form("Ratio xAmp/(xAmp+yAmp) cluster size %s X/Y",labels[i].c_str()), 200, 0., 1);
+        h1[i]->GetXaxis()->SetTitle("amplitude ratio");
+        h1[i]->SetLineColor(kBlue);
+        h2[i] = new TH1F("h2", Form("Ratio yAmp/(xAmp+yAmp) cluster size %s X/Y",labels[i].c_str()), 200, 0., 1);
+        h2[i]->GetXaxis()->SetTitle("amplitude ratio");
+        h2[i]->SetLineColor(kRed);
     }
 
     TH2F *h2clsize = new TH2F("h2clsize", "cluster size X vs Y", 8,-0.5,7.5, 8,-0.5,7.5);
@@ -62,11 +67,11 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
             if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
             h2clsize->Fill(maxY->size, maxX->size);
             ampXY->Fill(ampY, ampX);
-            if (maxX->size == 1 && maxY->size == 1) h1[0]->Fill((float) ampX/ampY);
-            else if (maxX->size == 1 && maxY->size == 2) h1[1]->Fill((float) ampX/ampY);
-            else if (maxX->size == 2 && maxY->size == 1) h1[2]->Fill((float) ampX/ampY);
-            else if (maxX->size == 2 && maxY->size == 2) h1[3]->Fill((float) ampX/ampY);
-            else h1[4]->Fill((float) ampX/ampY);
+            if (maxX->size == 1 && maxY->size == 1)      {h1[0]->Fill((float) ampX/(ampY+ampX)); h2[0]->Fill((float)ampY/(ampY+ampX));}
+            else if (maxX->size == 1 && maxY->size == 2) {h1[1]->Fill((float) ampX/(ampY+ampX)); h2[1]->Fill((float)ampY/(ampY+ampX));}
+            else if (maxX->size == 2 && maxY->size == 1) {h1[2]->Fill((float) ampX/(ampY+ampX)); h2[2]->Fill((float)ampY/(ampY+ampX));}
+            else if (maxX->size == 2 && maxY->size == 2) {h1[3]->Fill((float) ampX/(ampY+ampX)); h2[3]->Fill((float)ampY/(ampY+ampX));}
+            else {h1[4]->Fill((float) ampX/(ampX+ampY)); h2[4]->Fill((float)ampY/(ampX+ampY));}
         }
     }
     file->Close();
@@ -85,11 +90,12 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
     for(int i=0; i<5; i++){
         c1->cd(i+2);
         h1[i]->Draw();
+        h2[i]->Draw("same");
     }
     c1->cd(0);
     TLegend* leg = new TLegend(0.8, 0.2, 0.95, 0.3);
-    leg->AddEntry("", Form("x pitch: %.2f mm", det.pitchXzone(zone)), "");
-    leg->AddEntry("", Form("y pitch: %.2f mm", det.pitchYzone(zone)), "");
+    leg->AddEntry(h1[0], Form("x pitch: %.2f mm", det.pitchXzone(zone)), "");
+    leg->AddEntry(h2[0], Form("y pitch: %.2f mm", det.pitchYzone(zone)), "");
     leg->AddEntry("", Form("efficiency nX/nY: %.2f", eff), "");
     leg->Draw();
     c1->SaveAs(graphName.c_str());
@@ -133,7 +139,7 @@ int main(int argc, char* argv[]) {
         zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
         det = StripTable(basedir+"../map/strip_map.txt");
     }
-    if (detName.find("inter") != std::string::npos){
+    else if (detName.find("inter") != std::string::npos){
         zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
         det = StripTable(basedir+"../map/inter_map.txt");
     }

@@ -92,7 +92,8 @@ struct funcChi2 {
 		// double err2 = pow(xtr - pr.X(),2)/(res*res) * errx2 + pow(ytr - pr.Y(),2)/(res*res) * erry2;
 		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
 		// return (res*res)/err2;
-		return res;
+		if(res<4) return res;
+		else return 0.;
    	}
  
 	double operator() (const double *par) {
@@ -176,9 +177,10 @@ struct funcChi2XY {
 		std::vector<double> stdRes(vect.size());
 		int N = 0;
 		std::transform(vect.begin(), vect.end(), stdRes.begin(), [mean, &N](double x) { 
-			if(abs(x - mean) < 3.){
+			if(abs(x - mean) < 4.){
 				N++;
-				return pow(x - mean, 2);
+				// return pow(x - mean, 2);
+				return abs(x - mean);
 			}
 			return 0.; 
 		});
@@ -203,7 +205,7 @@ struct funcChi2XY {
 		std::vector<double> diff(vect.size());
 		std::transform(vect.begin(), vect.end(), diff.begin(), [median](double x) { return abs(x - median);});
 		std::sort(diff.begin(), diff.end());
-		return diff[diff.size()/2];
+		return 1.4826*diff[diff.size()/2];
 	}
  
 	double operator() (const double *par) {
@@ -221,9 +223,9 @@ struct funcChi2XY {
 		double xerr = det.pitchY(avgYcentroid/tracks.size())/sqrt(12);
 		double yerr = det.pitchX(avgXcentroid/tracks.size())/sqrt(12);
 		
-		double xyres = pow(stdVect(xresVect)/xerr, 2) + pow(stdVect(yresVect)/yerr, 2);
+		// double xyres = pow(stdVect(xresVect)/xerr, 2) + pow(stdVect(yresVect)/yerr, 2);
 		// double xyres = pow(Q3(xresVect)/xerr, 2) + pow(Q3(yresVect)/yerr, 2);
-		// double xyres = pow(MAD(xresVect)/xerr, 2) + pow(MAD(yresVect)/yerr, 2);
+		double xyres = pow(MAD(xresVect)/xerr, 2) + pow(MAD(yresVect)/yerr, 2);
 
 		if (first) {
 			std::cout << "Total Initial chi2 = " << xyres << std::endl;
@@ -253,7 +255,7 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
 	minimum->SetMaxIterations(10000);  // for GSL
-	minimum->SetTolerance(1e-6);
+	minimum->SetTolerance(1e-4);
 	// minimum->SetTolerance(100);
 	minimum->SetPrintLevel(2);
  
@@ -386,7 +388,7 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
 	minimum->SetMaxIterations(10000);  // for GSL
-	minimum->SetTolerance(1e-6);
+	minimum->SetTolerance(1e-2);
 	// minimum->SetTolerance(100);
 	minimum->SetPrintLevel(2);
  
@@ -397,7 +399,7 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 
 	// Set the free variables to be minimized !
 	// double step[6] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
-	double step[7] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
+	double step[7] = {0.005, 0.005, 0.005, 0.005*M_PI/180., 0.005*M_PI/180., 0.005*M_PI/180., 0.005*M_PI/180.};
 	minimum->SetVariable(0,"zpos", pStart[0], step[0]);
    	minimum->SetVariable(1,"Tx", pStart[1], step[1]);
    	minimum->SetVariable(2,"Ty", pStart[2], step[2]);
@@ -406,8 +408,8 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
 	// minimum->SetVariable(6,"shearXY", 0., step[6]);
 
-	// minimum->FixVariable(1);
-	// minimum->FixVariable(2);
+	minimum->FixVariable(1);
+	minimum->FixVariable(2);
 	// minimum->FixVariable(3);
 
 	double pLow[7] = {pStart[0]-100., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180., pStart[6]-10.*M_PI/180.};
@@ -429,9 +431,10 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
     }
 
 	double *pOut = new double[7];
-	for(int i=0; i<7; i++){
+	for(int i=0; i<6; i++){
 		pOut[i] = param[i];
 	}
+	pOut[6] = minimum->Status();
 	return pOut;
 }
 
@@ -765,7 +768,6 @@ int main(int argc, char const *argv[])
 	for(int i=0; i<tracksFit.size(); i++){
 		double dist = sqrt( pow(Yavg - det.posY(YclsFit[i].stripCentroid)[0], 2) + 
 				  pow(Xavg - det.posX(XclsFit[i].stripCentroid)[1], 2) );
-		// std::cout<<"dist "<<dist<<std::endl;
 		if( dist > 10. ){
 			tracksFit.erase(tracksFit.begin()+i);
 			XclsFit.erase(XclsFit.begin()+i);
@@ -791,7 +793,7 @@ int main(int argc, char const *argv[])
 
 	double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	std::cout<<"First Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[5]<<std::endl;
-
+	pTrl[4] = 0.4;
 	
 	// globalMinima(det, tracksFit, XclsFit, YclsFit, pTrl);
 	// double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pTrl, false, true);
@@ -806,6 +808,7 @@ int main(int argc, char const *argv[])
 	
 	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, ptest);
 	std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
+	double status = pRot[6];
 
 	double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pRot, true);
 	std::cout<<"End : "<<pEnd[0]<<" "<<pEnd[1]<<" "<<pEnd[2]<<" "<<pEnd[3]<<" "<<pEnd[4]<<" "<<pEnd[5]<<std::endl;
@@ -870,7 +873,7 @@ int main(int argc, char const *argv[])
 	std::ofstream outfile("alignFiles/"+ detName + "_" + run + ".txt");
 	// std::ofstream outfile("test.txt");
 	outfile << "# POS zpos Tx Ty rot(z y x)\n";
-	outfile << Form("%s %f %f %f %f %f %f", run.c_str(), pEnd[0], pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5]) << std::endl;
+	outfile << Form("%s %f %f %f %f %f %f %f", run.c_str(), pEnd[0], pEnd[1], pEnd[2], pEnd[3], pEnd[4], pEnd[5], status) << std::endl;
 	outfile.close();
 
 	// std::string out = "# POS zpos Tx Ty rot(x y x)\n# POS ezpos eTx eTy erot\n";
