@@ -87,8 +87,8 @@ std::vector<double> StripTable::pos(double sn, char axis){
 							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
 
 	// a translation form the 0,0 origin of the gerber axis to the center of the active region of the detector
-	v[0] = v[0] + 50.;
-	v[1] = v[1] - 50.;
+	// v[0] = v[0] + 50.;
+	// v[1] = v[1] - 50.;
 
 	// std::vector<double> vAlign = { (v[0] + Tx) * cos(rot) - (v[1] + Ty)* sin(rot),
 								//    (v[0] + Tx) * sin(rot) + (v[1] + Ty)* cos(rot)  };
