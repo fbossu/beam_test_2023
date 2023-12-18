@@ -221,7 +221,7 @@ struct funcChi2XY {
 		});
 
 		double sq_sum = std::accumulate(stdRes.begin(), stdRes.end(), 0.0);
-		return std::sqrt(sq_sum / N);
+		return std::sqrt(sq_sum);
 	}
 
 	double Q3(std::vector<double> &vect){
@@ -243,8 +243,8 @@ struct funcChi2XY {
 		// std::sort(diff.begin(), diff.end());
 		// int q3 = 0.66*(diff.size());
 		// return diff[q3];
-		return median(diff, 0.6);
-		// return 1.4826*diff[diff.size()/2];
+		// return median(diff, 0.6);
+		return 1.4826*median(diff);
 	}
  
 	double operator() (const double *par) {
@@ -264,8 +264,8 @@ struct funcChi2XY {
 		
 		// double xyres = pow(stdVect(xresVect)/xerr, 2) + pow(stdVect(yresVect)/yerr, 2);
 		// double xyres = pow(Q3(xresVect)/xerr, 2) + pow(Q3(yresVect)/yerr, 2);
-		// double xyres = pow(MAD(xresVect)/xerr, 2) + pow(MAD(yresVect)/yerr, 2);
-		double xyres = pow(MAD(xresVect), 2) + pow(MAD(yresVect), 2);
+		double xyres = pow(MAD(xresVect)/xerr, 2) + pow(MAD(yresVect)/yerr, 2);
+		// double xyres = pow(MAD(xresVect), 2) + pow(MAD(yresVect), 2);
 
 		if (first) {
 			std::cout << "Total Initial chi2 = " << xyres << std::endl;
@@ -431,7 +431,7 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
 	minimum->SetMaxIterations(10000);  // for GSL
-	minimum->SetTolerance(1e-3);
+	minimum->SetTolerance(1e-2);
 	minimum->SetPrintLevel(2);
  
 	// make the functor objet
