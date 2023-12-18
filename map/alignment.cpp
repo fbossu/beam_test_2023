@@ -85,14 +85,15 @@ struct funcChi2 {
 
 		double xres = abs(xtr - pr.X());
 		double yres = abs(ytr - pr.Y());
-
-		return pow(xres,2) + pow(yres,2);
+		// std::cout<<p[0]<<" "<<p[1]<<" "<<p[2]<<" "<<p[3]<<" "<<p[4]<<" "<<p[5]<<" "<<xres<<" "<<yres<<std::endl;
+		// std::cout<<xres<<" "<<yres<<std::endl;
    	
 		// double res = sqrt( pow(xtr - pr.X(),2) + pow(ytr - pr.Y(),2) );
 		// double res = abs(xtr - pr.X()) + abs(ytr - pr.Y());
 		// double res = ytr - pr.Y();
-		// double errx2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(clY.stripCentroid))/sqrt(12),2);
-		// double erry2 = pow(tr.ey0,2) + pow(tr.my*tr.emy,2) + pow(det.pitchX(int(clX.stripCentroid))/sqrt(12),2);
+		double errx2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(clY.stripCentroid))/sqrt(12),2);
+		double erry2 = pow(tr.ey0,2) + pow(tr.my*tr.emy,2) + pow(det.pitchX(int(clX.stripCentroid))/sqrt(12),2);
+		return pow(xres,2) + pow(yres,2);
 
 		// double err2 = pow(xtr - pr.X(),2)/(res*res) * errx2 + pow(ytr - pr.Y(),2)/(res*res) * erry2;
 		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
@@ -100,9 +101,20 @@ struct funcChi2 {
 		// if(res<4) return res;
 		// else return 0.;
    	}
- 
+
+ 	double median(std::vector<double> &v, double q=0.5){
+		int n = v.size()*q;
+		std::nth_element(v.begin(), v.begin()+n, v.end());
+		double med = v[n];
+		if(!(v.size() & 1)) { //If the set size is even
+			auto max_it = std::max_element(v.begin(), v.begin()+n);
+			med = (*max_it + med) / 2.0;
+		}
+		return med;    
+	}
+
 	double operator() (const double *par) {
-		
+		std::cout<<"par "<<par[0]<<" "<<par[1]<<" "<<par[2]<<" "<<par[3]<<" "<<par[4]<<" "<<par[5]<<std::endl;
 		if(!stdOpt){
 			double sum = 0;
 			for (int i = 0; i < tracks.size(); ++i) {
@@ -120,15 +132,22 @@ struct funcChi2 {
         		resVect[i] = chi2(tracks[i], Xcls[i], Ycls[i], par);
 			}
 
-			double sum = std::accumulate(resVect.begin(), resVect.end(), 0.0);
-			double mean = sum / resVect.size();
+			double mean = median(resVect);
 			std::vector<double> diff(resVect.size());
-			std::transform(resVect.begin(), resVect.end(), diff.begin(), [mean](double x) { return x - mean; });
-			double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
-			double stdev = std::sqrt(sq_sum / resVect.size());
-
+			int N=0;
+			std::transform(resVect.begin(), resVect.end(), diff.begin(), [mean, &N](double x) {
+				// std::cout<<"x "<<abs(x - mean)<<std::endl;
+				if(abs(x - mean)<5.){
+					N++;
+					return x;
+				}
+				return 0.; });
+			std::cout<<"N "<<N<<std::endl;
+			// double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+			// double stdev = std::sqrt(sq_sum / resVect.size());
+			double stdev = std::accumulate(diff.begin(), diff.end(), 0.0);
 			if (first) {
-				std::cout << "Total Initial chi2 = " << sum << std::endl;
+				std::cout << "Total Initial chi2 = " << stdev << std::endl;
 			}
 			first = false;
 			// std::cout<<"stdev "<<stdev<<std::endl;
@@ -252,7 +271,7 @@ struct funcChi2XY {
 			std::cout << "Total Initial chi2 = " << xyres << std::endl;
 		}
 		first = false;
-		// std::cout<<"stdev "<<stdev<<std::endl;
+		// std::cout<<par[0]<<" "<<par[4]<<" "<<par[5]<<" xyres "<<xyres<<std::endl;
 		return xyres;
 
    	}
@@ -276,7 +295,8 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
 	minimum->SetMaxIterations(10000);  // for GSL
-	minimum->SetTolerance(1e-2);
+	// minimum->SetTolerance(1e-1);
+	minimum->SetTolerance(10);
 	// minimum->SetTolerance(100);
 	minimum->SetPrintLevel(2);
  
@@ -286,10 +306,10 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 	minimum->SetFunction(fcn);
 
 	// Set the free variables to be minimized !
-	double step[7] = {1., 1., 1., 1., 1.,1., 1.};
+	double step[6] = {15., 10., 10., 0.1, 0.3, 0.1};
 	minimum->SetVariable(0,"zpos", pStart[0], step[0]);
-   	minimum->SetVariable(1,"Tx", pStart[1], step[1]);
-   	minimum->SetVariable(2,"Ty", pStart[2], step[2]);
+   	minimum->SetVariable(1,"Tx",   pStart[1], step[1]);
+   	minimum->SetVariable(2,"Ty",   pStart[2], step[2]);
 	minimum->SetVariable(3,"rotZ", pStart[3], step[3]);
 	minimum->SetVariable(4,"rotY", pStart[4], step[4]);
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
@@ -397,6 +417,9 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	const char * minName = "Minuit2";
 	const char * algoName = "Migrad";
 
+	// const char * minName = "GSLMultiMin";
+	// const char * algoName = "ConjugateFR";
+
    	ROOT::Math::Minimizer* minimum = ROOT::Math::Factory::CreateMinimizer(minName, algoName);
 
 	if (!minimum) {
@@ -407,6 +430,7 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
+	minimum->SetMaxIterations(10000);  // for GSL
 	minimum->SetTolerance(1e-3);
 	minimum->SetPrintLevel(2);
  
@@ -418,7 +442,7 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	// Set the free variables to be minimized !
 	// double step[6] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
 	// double step[7] = {0.1, 0.005, 0.005, 1*M_PI/180., 1.*M_PI/180., 1.*M_PI/180., 1.*M_PI/180.};
-	double step[7] = {20., 1., 1., 0.1, 0.2, 0.2, 1.};
+	double step[6] = {10., 1., 1., 0.1, 0.1, 0.1};
 	minimum->SetVariable(0,"zpos", pStart[0], step[0]);
    	minimum->SetVariable(1,"Tx", pStart[1], step[1]);
    	minimum->SetVariable(2,"Ty", pStart[2], step[2]);
@@ -685,7 +709,7 @@ double* globalMinima(StripTable det, std::vector<banco::track> tracks, std::vect
 	double distMin = 1e9;
 
 	for(double z=p[0]-15; z<p[0]+15; z+=3){
-		for(double rotX=p[5]-0.2; rotX<p[5]+0.2; rotX+=0.05){
+		for(double rotX=p[5]-0.1; rotX<p[5]+0.1; rotX+=0.02){
 			for(double rotY=p[4]-0.2; rotY<p[4]+0.2; rotY+=0.05){
 				double pRes[6] = {z, p[1], p[2], p[3], rotY, rotX};
 				double dist = schi2(pRes);
@@ -826,7 +850,7 @@ int main(int argc, char const *argv[])
 	// pStart[4] = M_PI;
 	// pStart[5] = 0.;
 	std::cout<<"Initial parameters: "<<pStart[0]<<" "<<pStart[1]<<" "<<pStart[2]<<" "<<pStart[3]<<" "<<pStart[4]<<" "<<pStart[5]<<std::endl;
-	// double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart);
+	// double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, true);
 	// std::cout<<"First Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[5]<<std::endl;
 	
 	// globalMinima(det, tracksFit, XclsFit, YclsFit, pTrl);
@@ -843,12 +867,12 @@ int main(int argc, char const *argv[])
 	// double* minXY = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
 	// pStart[4] = minXY[1];
 	// pStart[5] = minXY[0];
-	// double* pGrid = globalMinima(det, tracksFit, XclsFit, YclsFit, pStart);
+	double* pGrid = globalMinima(det, tracksFit, XclsFit, YclsFit, pStart);
 	// zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "zy");
 	// double pGrid[6] = {-286.6, pStart[1], pStart[2], pStart[3], 0.4, pStart[5]};
 	// double* minXY = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
 	
-	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pStart);
+	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pGrid);
 	std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
 	double status = pRot[6];
 
