@@ -540,8 +540,8 @@ void plotResidueClsize(TFile* res, std::string graphname){
 
   double meanxdet = getMean(nt, "xdet",{-200, 200});
   double meanydet = getMean(nt, "ydet",{-200, 200});
-  double stdx = getStdDev(nt, "xres",{-50, 50});
-  double stdy = getStdDev(nt, "yres",{-50, 50});
+  double stdx = getStdDev(nt, "xres",{-20, 20});
+  double stdy = getStdDev(nt, "yres",{-20, 20});
 
   double meanresx = getMean(nt, "xres",{-200, 200});
   double meanresy = getMean(nt, "yres",{-200, 200});

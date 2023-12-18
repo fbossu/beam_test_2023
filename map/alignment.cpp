@@ -83,7 +83,12 @@ struct funcChi2 {
 		double xtr = tr.x0 + pr.Z()*tr.mx;
 		double ytr = tr.y0 + pr.Z()*tr.my;
 
-		double res = sqrt( pow(xtr - pr.X(),2) + pow(ytr - pr.Y(),2) );
+		double xres = abs(xtr - pr.X());
+		double yres = abs(ytr - pr.Y());
+
+		return pow(xres,2) + pow(yres,2);
+   	
+		// double res = sqrt( pow(xtr - pr.X(),2) + pow(ytr - pr.Y(),2) );
 		// double res = abs(xtr - pr.X()) + abs(ytr - pr.Y());
 		// double res = ytr - pr.Y();
 		// double errx2 = pow(tr.ex0,2) + pow(tr.mx*tr.emx,2) + pow(det.pitchY(int(clY.stripCentroid))/sqrt(12),2);
@@ -92,8 +97,8 @@ struct funcChi2 {
 		// double err2 = pow(xtr - pr.X(),2)/(res*res) * errx2 + pow(ytr - pr.Y(),2)/(res*res) * erry2;
 		// std::cout<<res*res<< " " <<err2<<" "<<(res*res)/err2<<std::endl;
 		// return (res*res)/err2;
-		if(res<4) return res;
-		else return 0.;
+		// if(res<4) return res;
+		// else return 0.;
    	}
  
 	double operator() (const double *par) {
@@ -102,7 +107,7 @@ struct funcChi2 {
 			double sum = 0;
 			for (int i = 0; i < tracks.size(); ++i) {
 				// sum += pow( chi2(tracks[i], Xcls[i], Ycls[i], par), 2 )/0.001;
-				sum += abs(chi2(tracks[i], Xcls[i], Ycls[i], par));
+				sum += chi2(tracks[i], Xcls[i], Ycls[i], par);
 			}
 			if (first) {
 				std::cout << "Total Initial chi2 = " << sum << std::endl;
@@ -150,7 +155,7 @@ struct funcChi2XY {
 	}
 	
 	// calculate distance line-point
-	void chi2(banco::track tr, cluster clX, cluster clY, const double *p, double &xres, double &yres) {
+	void chi2(const banco::track &tr, const cluster &clX, const cluster &clY, const double *p, double &xres, double &yres) {
 
 		double clxpos = det.posY(clY.stripCentroid)[0];
 		double clypos = det.posX(clX.stripCentroid)[1];
@@ -172,15 +177,26 @@ struct funcChi2XY {
 		yres = ytr - pr.Y();
    	}
 
+	double median(std::vector<double> &v, double q=0.5){
+		int n = v.size()*q;
+		std::nth_element(v.begin(), v.begin()+n, v.end());
+		double med = v[n];
+		if(!(v.size() & 1)) { //If the set size is even
+			auto max_it = std::max_element(v.begin(), v.begin()+n);
+			med = (*max_it + med) / 2.0;
+		}
+		return med;    
+	}
+
 	double stdVect(std::vector<double> &vect){
 		double mean = std::accumulate(vect.begin(), vect.end(), 0.0) / vect.size();
 		std::vector<double> stdRes(vect.size());
 		int N = 0;
 		std::transform(vect.begin(), vect.end(), stdRes.begin(), [mean, &N](double x) { 
-			if(abs(x - mean) < 4.){
+			if(abs(x - mean) < 3.){
 				N++;
 				// return pow(x - mean, 2);
-				return abs(x - mean);
+				return pow(x - mean,2);
 			}
 			return 0.; 
 		});
@@ -192,7 +208,7 @@ struct funcChi2XY {
 	double Q3(std::vector<double> &vect){
 		double mean = std::accumulate(vect.begin(), vect.end(), 0.0) / vect.size();
 		std::vector<double> diff(vect.size());
-		std::transform(vect.begin(), vect.end(), diff.begin(), [mean](double x) { return abs(x - mean);});
+		std::transform(vect.begin(), vect.end(), diff.begin(), [mean](double x) { return pow(x - mean, 2);});
 
 		std::sort(diff.begin(), diff.end());
 		int q3 = 0.66*(diff.size());
@@ -200,12 +216,16 @@ struct funcChi2XY {
 	}
 
 	double MAD(std::vector<double> &vect){
-		std::sort(vect.begin(), vect.end());
-		double median = vect[vect.size()/2];
+		// std::sort(vect.begin(), vect.end());
+		// double median = vect[vect.size()/2];
+		double med = median(vect);
 		std::vector<double> diff(vect.size());
-		std::transform(vect.begin(), vect.end(), diff.begin(), [median](double x) { return abs(x - median);});
-		std::sort(diff.begin(), diff.end());
-		return 1.4826*diff[diff.size()/2];
+		std::transform(vect.begin(), vect.end(), diff.begin(), [med](double x) { return abs(x - med);});
+		// std::sort(diff.begin(), diff.end());
+		// int q3 = 0.66*(diff.size());
+		// return diff[q3];
+		return median(diff, 0.6);
+		// return 1.4826*diff[diff.size()/2];
 	}
  
 	double operator() (const double *par) {
@@ -225,7 +245,8 @@ struct funcChi2XY {
 		
 		// double xyres = pow(stdVect(xresVect)/xerr, 2) + pow(stdVect(yresVect)/yerr, 2);
 		// double xyres = pow(Q3(xresVect)/xerr, 2) + pow(Q3(yresVect)/yerr, 2);
-		double xyres = pow(MAD(xresVect)/xerr, 2) + pow(MAD(yresVect)/yerr, 2);
+		// double xyres = pow(MAD(xresVect)/xerr, 2) + pow(MAD(yresVect)/yerr, 2);
+		double xyres = pow(MAD(xresVect), 2) + pow(MAD(yresVect), 2);
 
 		if (first) {
 			std::cout << "Total Initial chi2 = " << xyres << std::endl;
@@ -255,18 +276,17 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
 	minimum->SetMaxIterations(10000);  // for GSL
-	minimum->SetTolerance(1e-4);
+	minimum->SetTolerance(1e-2);
 	// minimum->SetTolerance(100);
 	minimum->SetPrintLevel(2);
  
-
 	// make the functor objet
 	funcChi2 schi2(det, tracks, Xcls, Ycls, stdOpt);
 	ROOT::Math::Functor fcn(schi2, 6);
 	minimum->SetFunction(fcn);
 
 	// Set the free variables to be minimized !
-	double step[6] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
+	double step[7] = {1., 1., 1., 1., 1.,1., 1.};
 	minimum->SetVariable(0,"zpos", pStart[0], step[0]);
    	minimum->SetVariable(1,"Tx", pStart[1], step[1]);
    	minimum->SetVariable(2,"Ty", pStart[2], step[2]);
@@ -288,7 +308,7 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 	double pLow[6] = {pStart[0]-100., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180.};
 	double pUp[6]  = {pStart[0]+100., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180.};
 	for(int i=0; i<6; i++){
-		// minimum->SetVariableLimits(i, pLow[i], pUp[i]);
+		minimum->SetVariableLimits(i, pLow[i], pUp[i]);
 	}
 
 	minimum->Minimize();
@@ -387,9 +407,7 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 
 	// set tolerance , etc...
 	minimum->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
-	minimum->SetMaxIterations(10000);  // for GSL
-	minimum->SetTolerance(1e-2);
-	// minimum->SetTolerance(100);
+	minimum->SetTolerance(1e-3);
 	minimum->SetPrintLevel(2);
  
 	// make the functor objet
@@ -399,7 +417,8 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 
 	// Set the free variables to be minimized !
 	// double step[6] = {0.05, 0.05, 0.05, 0.01*M_PI/180., 0.01*M_PI/180., 0.01*M_PI/180.};
-	double step[7] = {0.005, 0.005, 0.005, 0.005*M_PI/180., 0.005*M_PI/180., 0.005*M_PI/180., 0.005*M_PI/180.};
+	// double step[7] = {0.1, 0.005, 0.005, 1*M_PI/180., 1.*M_PI/180., 1.*M_PI/180., 1.*M_PI/180.};
+	double step[7] = {20., 1., 1., 0.1, 0.2, 0.2, 1.};
 	minimum->SetVariable(0,"zpos", pStart[0], step[0]);
    	minimum->SetVariable(1,"Tx", pStart[1], step[1]);
    	minimum->SetVariable(2,"Ty", pStart[2], step[2]);
@@ -408,12 +427,13 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
 	// minimum->SetVariable(6,"shearXY", 0., step[6]);
 
+	// minimum->FixVariable(0);
 	minimum->FixVariable(1);
 	minimum->FixVariable(2);
 	// minimum->FixVariable(3);
 
-	double pLow[7] = {pStart[0]-100., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180., pStart[6]-10.*M_PI/180.};
-	double pUp[7]  = {pStart[0]+100., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180., pStart[6]+10.*M_PI/180.};
+	double pLow[7] = {pStart[0]-50., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180., pStart[6]-10.*M_PI/180.};
+	double pUp[7]  = {pStart[0]+50., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180., pStart[6]+10.*M_PI/180.};
 	for(int i=0; i<6; i++){
 		minimum->SetVariableLimits(i, pLow[i], pUp[i]);
 	}
@@ -474,20 +494,20 @@ double* get2DMin(TGraph2D* gr){
 }
 
 
-void zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p, std::string axis){
+double* zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p, std::string axis){
 	
 	TGraph2D* grSigma = new TGraph2D();
-	std::vector<double> lim1= {-80, 120, 10};
-	std::vector<double> lim2= {-1., 1., 0.1};
+	std::vector<double> lim1= {-30, 30, 3};
+	std::vector<double> lim2= {-0.2, 0.2, 0.02};
 
 	double start1, start2;
 	start1 = p[0];
 	if(axis == "zx") start2 = p[5];
 	if(axis == "zy") start2 = p[4];
 	if(axis == "xy"){
-		start1 = p[4];
-		start2 = p[5];
-		lim1 = {-1., 1., 0.1};
+		start1 = p[5];
+		start2 = p[4];
+		lim1 = {-0.3, 0.3, 0.01};
 	}
 
 	funcChi2XY schi2(det, tracks, Xcls, Ycls);
@@ -518,12 +538,22 @@ void zRotAlign(std::string graphName, StripTable det, std::vector<banco::track> 
 	gStyle->SetOptFit(1111);
 	
 	c1->SaveAs(graphName.c_str());
+
+	std::cout<<"min "<<min[2]<<std::endl;
+
+	double pRes[6] = {p[0], p[1], p[2], p[3], p[4], p[5]};
+	std::cout<<"p0 "<<schi2(pRes)<<std::endl;
+	pRes[0] = -315.6;
+	pRes[5] = min[0];
+	pRes[4] = min[1];
+	std::cout<<"p315 "<<schi2(pRes)<<std::endl;
+	return min;
 }
 
 double zAlign(std::string graphName, StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, const double* p, char axis = 'o'){
 	
 	TGraph* grSigma = new TGraph();
-	for(double z=p[0]-100; z<p[0]+140; z+=3){
+	for(double z=p[0]-30; z<p[0]+30; z+=3){
 		std::cout<<"z "<<z<<std::endl;
 		double pRes[6] = {z, p[1], p[2], p[3], p[4], p[5]};
 		// double sigma = getRes(det, tracks, Xcls, Ycls, pRes, axis);
@@ -648,31 +678,37 @@ double xAlign(std::string graphName, StripTable det, std::vector<banco::track> t
 
 
 
-void globalMinima(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double *p){
+double* globalMinima(StripTable det, std::vector<banco::track> tracks, std::vector<cluster> Xcls, std::vector<cluster> Ycls, double *p){
 	
-	funcChi2 schi2(det, tracks, Xcls, Ycls);
-	double zmin, rotXmin, rotYmin, rotZmin;
+	funcChi2XY schi2(det, tracks, Xcls, Ycls);
+	double zmin, rotXmin, rotYmin;
 	double distMin = 1e9;
 
-	for(double z=p[0]-50; z<p[0]+50; z+=10){
-		std::cout<<"z "<<z<<std::endl;
-		for(double rotX=p[5]-0.3; rotX<p[5]+0.3; rotX+=0.1){
-			for(double rotY=p[4]-0.3; rotY<p[4]+0.3; rotY+=0.1){
-				for(double rotZ=p[3]-0.3; rotZ<p[3]+0.3; rotZ+=0.1){
-					double pRes[6] = {z, p[1], p[2], rotZ, rotY, rotX};
-					double dist = schi2(pRes);
-					if(dist < distMin){
-						distMin = dist;
-						zmin = z;
-						rotXmin = rotX;
-						rotYmin = rotY;
-						rotZmin = rotZ;
-					}
+	for(double z=p[0]-15; z<p[0]+15; z+=3){
+		for(double rotX=p[5]-0.2; rotX<p[5]+0.2; rotX+=0.05){
+			for(double rotY=p[4]-0.2; rotY<p[4]+0.2; rotY+=0.05){
+				double pRes[6] = {z, p[1], p[2], p[3], rotY, rotX};
+				double dist = schi2(pRes);
+				if(dist < distMin){
+					std::cout<<"dist="<<dist<<" z,rotX,rotY="<<z<<","<<rotX<<","<<rotY<<std::endl;
+					distMin = dist;
+					zmin = z;
+					rotXmin = rotX;
+					rotYmin = rotY;
 				}
 			}
 		}
 	}
-	std::cout<<"zmin "<<zmin<<" rotXmin "<<rotXmin<<" rotYmin "<<rotYmin<<" rotZmin "<<rotZmin<<std::endl;
+	
+	std::cout<<"zmin "<<zmin<<" rotXmin "<<rotXmin<<" rotYmin "<<rotYmin<<std::endl;
+	double *pOut = new double[6];
+	pOut[0] = zmin;
+	pOut[1] = p[1];
+	pOut[2] = p[2];
+	pOut[3] = p[3];
+	pOut[4] = rotYmin;
+	pOut[5] = rotXmin;
+	return pOut;
 }
 
 
@@ -686,13 +722,13 @@ int main(int argc, char const *argv[])
 
 	std::string basedir = argv[0];
 	basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
-	std::string detName = argv[1];
-	std::string fnameBanco =  argv[2];
-	std::string fnameMM =  argv[3];
+	std::string detName    = argv[1];
+	std::string fnameBanco = argv[2];
+	std::string fnameMM    = argv[3];
 
 	std::string mapName;
 	// double zpos = 0., rotZ = 0., rotY = -0.15, rotX = 0.088;
-	double zpos = 0., rotZ = 0., rotY = 0.0, rotX = 0.0;
+	double zpos = 0., rotZ = 0., rotY = 0.6, rotX = 0.0;
 
 	if (detName == "asaFEU4") {
 		mapName = "asa_map.txt";
@@ -790,10 +826,8 @@ int main(int argc, char const *argv[])
 	// pStart[4] = M_PI;
 	// pStart[5] = 0.;
 	std::cout<<"Initial parameters: "<<pStart[0]<<" "<<pStart[1]<<" "<<pStart[2]<<" "<<pStart[3]<<" "<<pStart[4]<<" "<<pStart[5]<<std::endl;
-
-	double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
-	std::cout<<"First Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[5]<<std::endl;
-	pTrl[4] = 0.4;
+	// double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart);
+	// std::cout<<"First Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[5]<<std::endl;
 	
 	// globalMinima(det, tracksFit, XclsFit, YclsFit, pTrl);
 	// double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pTrl, false, true);
@@ -804,9 +838,17 @@ int main(int argc, char const *argv[])
 	// std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<rotYout<<" "<<rotXout<<std::endl;
 	// std::cout<<"Final Trl: "<<pTrl[0]<<" "<<pTrl[1]<<" "<<pTrl[2]<<" "<<pTrl[3]<<" "<<pTrl[4]<<" "<<pTrl[4]<<std::endl;
 	// std::cout<<getRes(det, tracksFit, XclsFit, YclsFit, pTrl, 'x', "test_"+detName+"_"+run+".png")<<std::endl;
-	double ptest[6] = {pTrl[0], pTrl[1], pTrl[2], pTrl[3], pTrl[4], pTrl[5]};
+	// double ptest[6] = {pTrl[0], pTrl[1], pTrl[2], pTrl[3], pTrl[4], pTrl[5]};
 	
-	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, ptest);
+	// double* minXY = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
+	// pStart[4] = minXY[1];
+	// pStart[5] = minXY[0];
+	// double* pGrid = globalMinima(det, tracksFit, XclsFit, YclsFit, pStart);
+	// zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "zy");
+	// double pGrid[6] = {-286.6, pStart[1], pStart[2], pStart[3], 0.4, pStart[5]};
+	// double* minXY = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
+	
+	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pStart);
 	std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
 	double status = pRot[6];
 
