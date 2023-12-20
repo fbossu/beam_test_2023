@@ -382,38 +382,40 @@ void plotResidue(TFile* res, std::string graphname){
 
   double meanxdet = getMean(nt, "xdet",{-200, 200});
   double meanydet = getMean(nt, "ydet",{-200, 200});
-  double stdx = getStdDev(nt, "xres",{-100, 100});
-  double stdy = getStdDev(nt, "yres",{-100, 100});
+  double stdx = getStdDev(nt, "xres",{-50, 50});
+  double stdy = getStdDev(nt, "yres",{-50, 50});
 
   double meanresx = getMean(nt, "xres",{-200, 200});
   double meanresy = getMean(nt, "yres",{-200, 200});
   double meanstX = getMean(nt, "stX",{-200, 200});
   double meanstY = getMean(nt, "stY",{-200, 200});
 
+  double avg_std = (stdx+stdy)/2.;
+
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
+  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-1.*avg_std, meanresy+1.*avg_std);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
+  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-1.*avg_std, meanresx+1.*avg_std);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
   nt->Draw("yres>>hx");
   nt->Draw("xres>>hy");
 
   // Fit hx with a Gaussian function
-  TF1* fitFuncX = new TF1("fitFuncX", "gaus", meanresy-1.5*stdy, meanresy+1.5*stdy);
+  TF1* fitFuncX = new TF1("fitFuncX", "gaus", meanresy-1.*avg_std, meanresy+1.*avg_std);
   fitFuncX->SetParameters(0, stdy);
   hx->Fit(fitFuncX, "R");
 
   // Fit hy with a Gaussian function
-  TF1* fitFuncY = new TF1("fitFuncY", "gaus", meanresx-1.5*stdx, meanresx+1.5*stdx);
+  TF1* fitFuncY = new TF1("fitFuncY", "gaus", meanresx-1.*avg_std, meanresx+1.*avg_std);
   fitFuncY->SetParameters(0, stdx);
   hy->Fit(fitFuncY, "R");
 
-  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.*avg_std, meanresy+1.*avg_std);
   h2x->GetXaxis()->SetTitle("position y axis (mm)");
   h2x->GetYaxis()->SetTitle("residue (mm)");
 
-  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.*avg_std, meanresx+1.*avg_std);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
 

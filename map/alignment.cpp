@@ -522,7 +522,7 @@ double* zRotAlign(std::string graphName, StripTable det, std::vector<banco::trac
 	
 	TGraph2D* grSigma = new TGraph2D();
 	std::vector<double> lim1= {-30, 30, 3};
-	std::vector<double> lim2= {-0.2, 0.2, 0.02};
+	std::vector<double> lim2= {-0.4, 0.4, 0.02};
 
 	double start1, start2;
 	start1 = p[0];
@@ -531,7 +531,7 @@ double* zRotAlign(std::string graphName, StripTable det, std::vector<banco::trac
 	if(axis == "xy"){
 		start1 = p[5];
 		start2 = p[4];
-		lim1 = {-0.3, 0.3, 0.01};
+		lim1 = {-0.2, 0.2, 0.01};
 	}
 
 	funcChi2XY schi2(det, tracks, Xcls, Ycls);
@@ -752,7 +752,7 @@ int main(int argc, char const *argv[])
 
 	std::string mapName;
 	// double zpos = 0., rotZ = 0., rotY = -0.15, rotX = 0.088;
-	double zpos = 0., rotZ = 0., rotY = 0.6, rotX = 0.0;
+	double zpos = 0., rotZ = 0., rotY = 0., rotX = 0.0;
 
 	if (detName == "asaFEU4") {
 		mapName = "asa_map.txt";
@@ -867,16 +867,17 @@ int main(int argc, char const *argv[])
 	// double* minXY = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
 	// pStart[4] = minXY[1];
 	// pStart[5] = minXY[0];
-	double* pGrid = globalMinima(det, tracksFit, XclsFit, YclsFit, pStart);
+	// double* pGrid = globalMinima(det, tracksFit, XclsFit, YclsFit, pStart);
 	// zRotAlign(Form("zRotYAlign_funcchi2_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "zy");
 	// double pGrid[6] = {-286.6, pStart[1], pStart[2], pStart[3], 0.4, pStart[5]};
-	// double* minXY = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
+	// double* pGrid = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
 	
-	double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pGrid);
-	std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
-	double status = pRot[6];
+	// double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pGrid);
+	// std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
+	// double status = pRot[6];
+	double status = 5.;
 
-	double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pRot, true);
+	double* pEnd = align(run, det, tracksFit, XclsFit, YclsFit, pStart, true);
 	std::cout<<"End : "<<pEnd[0]<<" "<<pEnd[1]<<" "<<pEnd[2]<<" "<<pEnd[3]<<" "<<pEnd[4]<<" "<<pEnd[5]<<std::endl;
 
 

@@ -81,10 +81,13 @@ std::vector<double> StripTable::pos(double sn, char axis){
 	int GBchmin = this->toGB(snmin, axis);	
 	int GBchmax = this->toGB(snmax, axis);
 	if(GBchmin<0 or GBchmax<0) return {-9999., -9999.};
+	// std::cout<<axis<<" PosX "<<this->getPosx(GBchmin)<<" "<<this->getPosx(GBchmax)<<std::endl;
+	// std::cout<<axis<<" PosY "<<this->getPosy(GBchmin)<<" "<<this->getPosy(GBchmax)<<std::endl;
 	// std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*abs(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
 							  // this->getPosy(GBchmin) + (sn - snmin)*abs(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
 	std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
 							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
+	// std::cout<<axis<<" vxy "<<v[0]<<" "<<v[1]<<std::endl;
 
 	// a translation form the 0,0 origin of the gerber axis to the center of the active region of the detector
 	// v[0] = v[0] + 50.;

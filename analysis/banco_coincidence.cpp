@@ -54,28 +54,93 @@ void plotStripMap(StripTable det, std::string fname){
 
 }
 
-int main(int argc, char const *argv[])
-{
 
-  std::string basedir = argv[0];
-  basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
-  std::cout << basedir << std::endl;
+void efficiencyMap(std::string fnameBanco, std::string fnameMM){
+  
+    std::string run = fnameMM.substr(fnameMM.find("POS"), 5);
+    std::string alignName = "../map/alignFiles/stripFEU1_" + run + ".txt";
+    StripTable det("../map/strip_map.txt", alignName);
+  
+  
+    std::string graphname = "efficiencyMap_"+run+"_stripFEU1_cut.png";
+  
+    double zpos = -305.6;
+  
+    TH2F *h2tr = new TH2F("h2tr", "banco", 80, 4, 11, 80, 2, 10);
+    h2tr->SetXTitle("x (mm)");
+    h2tr->SetYTitle("y (mm)");
+  
+    TH2F *h2det = new TH2F("h2det", "MM",  80, 4, 11, 80, 2, 10);
+    h2det->SetXTitle("x (mm)");
+    h2det->SetYTitle("y (mm)");
+    
+    TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
+    TFile *fMM = TFile::Open(fnameMM.c_str(), "read");
+  
+    TTreeReader MM("events", fMM);
+    TTreeReader banco("events", fbanco);
+  
+    TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
+    TTreeReaderValue< std::vector<hit> > hits( MM, "hits");
+    TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
+  
+    std::vector<float> Xstrip, Ystrip;
+    std::vector<float> xtrack, ytrack;
+  
+    int ev = 0, n=0;
+  
+    while( MM.Next()){
+      bool isBanco = banco.Next();
+      if(!isBanco){
+        std::cout<<"WARNING: Missing banco event"<<std::endl; 
+        continue;
+      }
+      ev++;
+      if(hits->size() == 0) continue;
+  
+      for(auto tr : *tracks){
+        if(tr.chi2x>1. or tr.chi2y>1.) continue;
+        double xtr = tr.x0 + zpos*tr.mx;
+        double ytr = tr.y0 + zpos*tr.my;
 
-  StripTable det(basedir+"../map/strip_map.txt");
-  // StripTable det(basedir+"../map/asa_map.txt");
+        h2tr->Fill(xtr, ytr);
+        auto maxX = maxSizeClX(*cls);
+        auto maxY = maxSizeClY(*cls);
+        if(maxX && maxY){
+          // if(maxX->size != 1) continue;
+          std::cout<<"\ncoincidence XY "<<maxX->stripCentroid<<" "<<maxY->stripCentroid<<std::endl;
+          std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+          std::cout<<"pos axisxy "<<detPos[0]<<" "<<detPos[1]<<std::endl;
+          h2det->Fill(detPos[0], detPos[1]);
+        }
+      }
+    }
+    if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
-  std::string fnameBanco =  argv[1];
-  std::string fnameMM =  argv[2];
+    TCanvas *c3 = new TCanvas("c3", "c3", 1000,1000);
+    h2det->SetStats(11111);
+    gStyle->SetPalette(kRainBow);
+    h2det->Divide(h2tr);
+    h2det->Draw("colz");
+    gPad->SetLogz();
+    gPad->SetGrid();
+    c3->Print(graphname.c_str(), "png");
+    fbanco->Close();
+    fMM->Close();
+}
 
-  plotStripMap(det, fnameMM);
 
+void coincidence(std::string fnameBanco, std::string fnameMM){
 
+  StripTable det("../map/strip_map.txt");
+  // StripTable det("../map/asa_map.txt");
+  
   int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, fnameMM.find("POS")+5) );
 
   std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_stripFEU1_test_Y.png";
   // std::string graphname = "bancoCoincidence_POS"+std::to_string(pos)+"_asaFEU4_Y80.png";
 
-  int stNb = 100; char axis = 'y';
+  int stNb = 101; char axis = 'y';
 
   double zpos = -305.6;
   // double zpos = -785.6;
@@ -87,12 +152,12 @@ int main(int argc, char const *argv[])
 
   // TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 1500, 4*1024*0.02688, 5*1024*0.02688, 1500, 0, 512*0.02924);
   // TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, 6, 16, 150, 2, 12);
-  TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, 0, 15, 150, -3, 17);
+  TH2F *h2c = new TH2F("h2c", "Map banco with MM coincidence", 150, 4, 11, 150, 2, 10);
   h2c->SetXTitle("x (mm)");
   h2c->SetYTitle("y (mm)");
 
   // TH2F *h2f = new TH2F("h2f", "full beam spot", 150, 6, 16, 150, 2, 12);
-  TH2F *h2f = new TH2F("h2f", "full beam spot", 150, -5, 20, 150, -5, 20);
+  TH2F *h2f = new TH2F("h2f", "full beam spot",  150, 4, 11, 150, 2, 10);
   h2f->SetXTitle("x (mm)");
   h2f->SetYTitle("y (mm)");
   
@@ -139,9 +204,9 @@ int main(int argc, char const *argv[])
       // int Nmax = std::count_if(hitsAxis.begin(), hitsAxis.end(),
       //                             [maxHit](const hit& h) { return h.maxamp > 0.90*maxHit.maxamp;});
       
-      // if(maxHit.strip == stNb and Nmax==1){
+      // std::cout<<maxHit.strip<<std::endl;
+      // if(maxHit.strip == stNb){
       //   keepTrack = true; 
-      //   // std::cout<<maxHit.maxamp<<std::endl;
       // }
       auto maxX = maxSizeClX(*cls);
       auto maxY = maxSizeClY(*cls);
@@ -149,21 +214,34 @@ int main(int argc, char const *argv[])
       if( (maxX && axis=='x')){
         auto hitsX = getHits(*hits, maxX->id);
         if(maxX->size == 1 and hitsX.at(0).maxamp > 400){
+          // if(hitsX[0].strip == stNb) keepTrack = true;
           keepTrack = true;
+          std::cout<<hitsX.at(0).strip<<std::endl;
         }
       }
       if( (maxY && axis=='y')){
         auto hitsY = getHits(*hits, maxY->id);
         if(maxY->size == 1 and hitsY.at(0).maxamp > 400){
+          // if(hitsY[0].strip == stNb) keepTrack = true;
           keepTrack = true;
+          std::cout<<hitsY.at(0).strip<<std::endl;
         }
       }
+
+      // if( (maxY && maxY)){
+      //   auto hitsY = getHits(*hits, maxY->id);
+      //   if(maxY->size == 1 and hitsY.at(0).maxamp > 400){
+      //     // if(hitsY[0].strip == stNb) keepTrack = true;
+      //     keepTrack = true;
+      //     std::cout<<hitsY.at(0).strip<<std::endl;
+      //   }
+      // }
       if(keepTrack){
         h2c->Fill(xdet, ydet);
       }
     }
   }
-  std::cout<<n<<std::endl;
+  // std::cout<<n<<std::endl;
 
   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
 
@@ -174,6 +252,7 @@ int main(int argc, char const *argv[])
   gPad->SetLogz();
   gPad->Modified();
   gPad->Update();
+  gPad->SetGrid();
 
   TLatex latex;
   latex.SetTextSize(0.025);
@@ -187,5 +266,24 @@ int main(int argc, char const *argv[])
 
   fbanco->Close();
   fMM->Close();
+
+}
+
+
+int main(int argc, char const *argv[])
+{
+
+  std::string basedir = argv[0];
+  basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
+  std::cout << basedir << std::endl;
+
+  std::string fnameBanco =  argv[1];
+  std::string fnameMM =  argv[2];
+
+  // plotStripMap(det, fnameMM);
+  // efficiencyMap(fnameBanco, fnameMM);
+  coincidence(fnameBanco, fnameMM);
+
+  return 0;
 }
 
