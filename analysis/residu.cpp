@@ -308,6 +308,11 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
   double avgxdet = 0;
 
   while( MM.Next() ){
+    // if(n==1000){
+      // std::cout<<"n: "<<n<<std::endl;
+      // n++;
+      // continue;
+    // }
     bool isBanco = banco.Next();
     if(!isBanco){
       std::cout<<"WARNING: Missing banco event"<<std::endl;
@@ -711,9 +716,9 @@ int main(int argc, char const *argv[])
 
   StripTable det(mapName, alignName);
   // StripTable det(mapName);
-  std::string graphname = "residue_"+run+"_"+detName+""+"_cuts.png";
-  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_cuts"+".png";
-  std::string graphname3D = "residue_"+run+"_"+detName+"_3D_cuts"+".png";
+  std::string graphname = "residue_"+run+"_"+detName+""+"_test.png";
+  std::string graphnameCl = "residue_"+run+"_"+detName+"_clsize_test"+".png";
+  std::string graphname3D = "residue_"+run+"_"+detName+"_3D_test"+".png";
   
   std::string resfname = "residue_"+run+"_"+detName+"_residue"+".root";
   TFile* res = new TFile((resfname).c_str(), "recreate");
