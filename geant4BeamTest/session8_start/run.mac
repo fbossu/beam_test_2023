@@ -1,0 +1,43 @@
+# Macro file for example ED
+# 
+# Can be run in batch, without graphic
+# or interactively: Idle> /control/execute run1.mac
+#
+/run/initialize
+#
+# Limit thread output to 1 thread
+#/control/cout/ignoreThreadsExcept 0
+#
+# Dump particle processes
+#
+/particle/select proton
+/particle/process/dump
+#
+/particle/select e+
+/particle/process/dump
+#
+/particle/select e-
+/particle/process/dump
+#
+/particle/select gamma
+/particle/process/dump
+#
+#/ED/event/setVerbose
+#
+# Run processing
+#
+/gun/particle e-
+/run/beamOn 100
+#
+#/gun/particle e+
+#/run/beamOn 3
+#
+#/gun/particle pi-
+#/run/beamOn 3
+#
+# Activate histograms plotting
+#
+#/analysis/h1/setPlottingToAll true  
+#
+#/gun/particle mu+
+#/run/beamOn 1000
