@@ -312,7 +312,7 @@ int main( int argc, char **argv ){
       // det.setInversion(false, true, true, true);
       // det = DreamTable(basedir + "../map/strip_map.txt", atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]));
       // printf("det %d %d %d %d \n", atoi(argv[4]), atoi(argv[5]), atoi(argv[6]), atoi(argv[7]));
-      det.setInversion(false, true, false, true);
+      det.setInversion(false, true, true, false);
     }
     else if(nbDet == 2){
       det = DreamTable(basedir + "../map/inter_map.txt", 4, 5, 6, 7);
