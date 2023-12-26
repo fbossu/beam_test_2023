@@ -46,34 +46,36 @@ namespace ED
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 {
-  G4int nofParticles = 1;
-  fParticleGun  = new G4ParticleGun(nofParticles);
+  // G4int nofParticles = 1;
+  // fParticleGun  = new G4ParticleGun(nofParticles);
 
-  // Define particle properties
-  G4String particleName = "e-";
-  //G4String particleName = "geantino";
-  // G4ThreeVector position(0, 0, 152.*mm);
-  G4ThreeVector position(0, 0, 0.*mm);
-  G4ThreeVector momentum(0, 0, 880.*MeV);
+  // // Define particle properties
+  // G4String particleName = "e-";
+  // //G4String particleName = "geantino";
+  // // G4ThreeVector position(0, 0, 152.*mm);
+  // G4ThreeVector position(0, 0, 0.*mm);
+  // G4ThreeVector momentum(0, 0, 880.*MeV);
 
-  // Default particle kinematics
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition* particle
-    = particleTable->FindParticle(particleName);
-  fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticleMomentum(momentum);
-  fParticleGun->SetParticlePosition(position);
+  // // Default particle kinematics
+  // G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  // G4ParticleDefinition* particle
+  //   = particleTable->FindParticle(particleName);
+  // fParticleGun->SetParticleDefinition(particle);
+  // fParticleGun->SetParticleMomentum(momentum);
+  // fParticleGun->SetParticlePosition(position);
 
-  // Generic messenger
-  // Define /ED/primary commands using generic messenger class
-  fMessenger
-    = new G4GenericMessenger(this, "/ED/primary/", "Primary generator control");
+  // // Generic messenger
+  // // Define /ED/primary commands using generic messenger class
+  // fMessenger
+  //   = new G4GenericMessenger(this, "/ED/primary/", "Primary generator control");
 
-  // Define /B4/event/setPrintModulo command
-  fMessenger
-    ->DeclareProperty("setRandom",
-                      fRandom,
-                      "Activate/Inactivate random option");
+  // // Define /B4/event/setPrintModulo command
+  // fMessenger
+  //   ->DeclareProperty("setRandom",
+  //                     fRandom,
+  //                     "Activate/Inactivate random option");
+
+  fGPS = new G4GeneralParticleSource();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -88,20 +90,21 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
   //this function is called at the begining of ecah event
   //
 
-  if ( fRandom ) {
-    // randomized direction
-    G4double dtheta = 2.*deg;
-    G4double dphi = 360*deg;
-    G4double theta = G4UniformRand()*dtheta;
-    G4double phi = G4UniformRand()*dphi;
-    fParticleGun->SetParticleMomentumDirection(
-      G4ThreeVector(sin(theta)*sin(phi), sin(theta)*cos(phi), cos(theta)));
-  }
-  else {
-    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0, 0, 1));
-  }
+  // if ( fRandom ) {
+  //   // randomized direction
+  //   G4double dtheta = 2.*deg;
+  //   G4double dphi = 360*deg;
+  //   G4double theta = G4UniformRand()*dtheta;
+  //   G4double phi = G4UniformRand()*dphi;
+  //   fParticleGun->SetParticleMomentumDirection(
+  //     G4ThreeVector(sin(theta)*sin(phi), sin(theta)*cos(phi), cos(theta)));
+  // }
+  // else {
+  //   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0, 0, 1));
+  // }
 
-  fParticleGun->GeneratePrimaryVertex(event);
+  // fParticleGun->GeneratePrimaryVertex(event);
+  fGPS->GeneratePrimaryVertex(event);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

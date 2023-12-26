@@ -65,6 +65,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 {
   // Get nist material manager
   G4NistManager* nistManager = G4NistManager::Instance();
+  G4double A, Z;
 
   // Build materials
   G4Material* air = nistManager->FindOrBuildMaterial("G4_AIR");
@@ -75,6 +76,38 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4Material* carbon = nistManager->FindOrBuildMaterial("G4_C");
   G4Material* alu = nistManager->FindOrBuildMaterial("G4_Al");
   G4Material* silicon = nistManager->FindOrBuildMaterial("G4_Si");
+
+  G4Element* elH  = new G4Element("Hydrogen","H",  Z=1.,  A=1.00794*g/mole);
+  G4Element* elC  = new G4Element("Carbon",  "C",  Z=6.,  A= 12.011 *g/mole);
+  G4Element* elN  = new G4Element("Nitrogen","N",  Z=7.,  A= 14.00674*g/mole);
+  G4Element* elO  = new G4Element("Oxygen",  "O",  Z=8.,  A= 15.9994*g/mole);
+  G4Element* elNa = new G4Element("Sodium",  "Na", Z=11., A= 22.989768*g/mole);
+  G4Element* elSi = new G4Element("Silicon", "Si", Z=14., A= 28.0855*g/mole);
+  G4Element* elAr = new G4Element("Argon",   "Ar", Z=18., A= 39.948*g/mole);
+  G4Element* elI  = new G4Element("Iodine",  "I",  Z=53., A= 126.90447*g/mole);
+  G4Element* elCs = new G4Element("Cesium",  "Cs", Z=55., A= 132.90543*g/mole);
+
+  G4double density, massfraction;
+  G4int natoms, nel;
+
+  // temperature of experimental hall is controlled at 20 degree.
+  const G4double expTemp = CLHEP::STP_Temperature+20.*kelvin;
+  
+  // vacuum
+  density = CLHEP::universe_mean_density;
+  G4Material* Vacuum = new G4Material("Vacuum", density, nel=2);
+  Vacuum-> AddElement(elN, .7);
+  Vacuum-> AddElement(elO, .3);
+
+   // air
+  density = 1.2929e-03 *g/cm3;  // at 20 degree
+  G4Material* Air = new G4Material("Air", density, nel=3,
+                                   kStateGas, expTemp);
+
+  G4double ttt = 75.47+23.20+1.28;
+  Air-> AddElement(elN,  massfraction= 75.47/ttt);
+  Air-> AddElement(elO,  massfraction= 23.20/ttt);
+  Air-> AddElement(elAr, massfraction=  1.28/ttt);
 
   // Print all materials
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
@@ -123,14 +156,14 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4RotationMatrix* rotTube = new G4RotationMatrix();
   rotTube->rotateX(0.*deg);
 
-  new G4PVPlacement(rotTube,
-                    G4ThreeVector(0, 0, -4*cm),       //at (0,0,0)
-                    tubeLV,                //its logical volume
-                    "beamPipe",                //its name
-                    worldLV,               //its mother  volume
-                    false,                 //no boolean operation
-                    0,                     //copy number
-                    checkOverlaps);        //overlaps checking
+  // new G4PVPlacement(rotTube,
+  //                   G4ThreeVector(0, 0, -4*cm),       //at (0,0,0)
+  //                   tubeLV,                //its logical volume
+  //                   "beamPipe",                //its name
+  //                   worldLV,               //its mother  volume
+  //                   false,                 //no boolean operation
+  //                   0,                     //copy number
+  //                   checkOverlaps);        //overlaps checking
 
   // First arm
   hx = 0.2*m;
@@ -170,12 +203,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                     checkOverlaps);        //overlaps checking
 
   // ladder FCB
-  G4double fcb_hz = 75.*um;
+  G4double fcb_hz = 50.*um;
   G4VSolid* fcbS = new G4Box("fcbS", hx, hy, fcb_hz/2.);
   G4LogicalVolume* fcbLV = new G4LogicalVolume(fcbS, kapton, "fcbLV");
 
   // ladder alu on the FCB
-  G4double alu_hz = 50.*um;
+  G4double alu_hz = 10.*um;
   G4VSolid* aluS = new G4Box("aluS", hx, hy, alu_hz/2.);
   G4LogicalVolume* aluLV = new G4LogicalVolume(aluS, alu, "aluLV");
 
@@ -190,23 +223,23 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4LogicalVolume* carbonLV = new G4LogicalVolume(carbonS, carbon, "carbonLV");
 
   // Window Mylar
-  G4double frame_hz = 0.5*mm;
+  G4double frame_hz = 50*um;
   G4VSolid* frameS = new G4Box("frameS", hx, hy, frame_hz/2.);
   G4LogicalVolume* frameLV = new G4LogicalVolume(frameS, mylar, "frameLV");
 
   new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz/2.), 
-                    frameLV, "frame1", bancoArmLV, false, 0, checkOverlaps/2.);
+                    frameLV, "frame1", bancoArmLV, false, 0, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz/2.), 
                     siLV, "sensor1", bancoArmLV, false, 0, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz/2.), 
                     fcbLV, "fcb1", bancoArmLV, false, 0, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz + alu_hz/2.), 
                     aluLV, "alu1", bancoArmLV, false, 0, checkOverlaps);
-  new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz + alu_hz + carbon_hz/2.), 
-                    carbonLV, "carbon1", bancoArmLV, false, 0, checkOverlaps);
-  // 10mm of air (Rohacel)
-  new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz + alu_hz + carbon_hz + 10*mm + carbon_hz/2.), 
-                    carbonLV, "carbon2", bancoArmLV, false, 1, checkOverlaps);
+  // new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz + alu_hz + carbon_hz/2.), 
+                    // carbonLV, "carbon1", bancoArmLV, false, 0, checkOverlaps);
+  // 10 mm of air (Rohacel)
+  // new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz + alu_hz + carbon_hz + 10*mm + carbon_hz/2.), 
+                    // carbonLV, "carbon2", bancoArmLV, false, 1, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz + alu_hz + carbon_hz + 10*mm + carbon_hz + alu_hz/2.), 
                     aluLV, "alu2", bancoArmLV, false, 1, checkOverlaps);
   new G4PVPlacement(0, G4ThreeVector(0, 0, -banco_hz + frame_hz + si_hz + fcb_hz + alu_hz + carbon_hz + 10*mm + carbon_hz + alu_hz + fcb_hz/2.), 

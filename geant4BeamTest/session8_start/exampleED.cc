@@ -38,6 +38,7 @@
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
+#include "TROOT.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -94,6 +95,7 @@ int main(int argc,char** argv)
   if ( nofThreads > 0 ) {
     runManager->SetNumberOfThreads(nofThreads);
   }
+  ROOT::EnableThreadSafety();
 
   // Set mandatory initialization classes
   //
@@ -101,7 +103,8 @@ int main(int argc,char** argv)
   runManager->SetUserInitialization(new ED::DetectorConstruction());
 
   // Physics list
-  if ( physicsListName.size() == 0 ) physicsListName = "FTFP_BERT";
+  if ( physicsListName.size() == 0 ) physicsListName = "FTFP_BERT_EMZ";
+  // if ( physicsListName.size() == 0 ) physicsListName = "G4EmStandardPhysics_option4";
   G4PhysListFactory physListFactory;
   if ( ! physListFactory.IsReferencePhysList(physicsListName)) {
     G4cerr << " Physics list " << physicsListName

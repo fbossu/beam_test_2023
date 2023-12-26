@@ -7,6 +7,8 @@
 #include "G4Step.hh"
 #include "G4ios.hh"
 #include "G4SystemOfUnits.hh"
+#include "Randomize.hh"
+
 
 namespace ED
 {
@@ -57,7 +59,16 @@ G4bool BancoSD::ProcessHits(G4Step* step,
   newHit->SetTime(time);
 
   // Position
+
+  G4double pixW = 0.018*mm;
+
+  G4double xsmear = -pixW/2. + pixW * G4UniformRand();
+  G4double ysmear = -pixW/2. + pixW * G4UniformRand();
+  // G4cout<<xsmear<<" "<<ysmear<<G4endl;
+  
   G4ThreeVector position = preStepPoint->GetPosition();
+  position.setX(position.x() + xsmear);
+  position.setY(position.y() + ysmear);
   newHit->SetPosition(position);
 
   // Layer number
@@ -85,13 +96,13 @@ G4bool BancoSD::ProcessHits(G4Step* step,
 
 void BancoSD::EndOfEvent(G4HCofThisEvent* /*hce*/)
 {
-  G4cout << "\n-------->" <<  fHitsCollection->GetName()
-         << ": in this event: " << G4endl;
+  // G4cout << "\n-------->" <<  fHitsCollection->GetName()
+  //        << ": in this event: " << G4endl;
 
-  G4int nofHits = fHitsCollection->entries();
-  for ( G4int i=0; i<nofHits; i++ ) {
-    (*fHitsCollection)[i]->Print();
-  }
+  // G4int nofHits = fHitsCollection->entries();
+  // for ( G4int i=0; i<nofHits; i++ ) {
+  //   (*fHitsCollection)[i]->Print();
+  // }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

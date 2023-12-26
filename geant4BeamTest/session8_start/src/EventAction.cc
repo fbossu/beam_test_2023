@@ -45,7 +45,7 @@
 #include "G4GenericMessenger.hh"
 
 #include "TGraphErrors.h"
-#include "TFitResult.h"
+#include "TF1.h"
 
 namespace ED
 {
@@ -75,9 +75,9 @@ EventAction::~EventAction()
 
 void EventAction::BeginOfEventAction(const G4Event* event)
 {
-  // if ( fVerbose ) {
+  if ( fVerbose ) {
     G4cout << ">>> Start event: " << event->GetEventID() << G4endl;
-  // }
+  }
   if (fBancoHCID == -1) {
     auto sdManager = G4SDManager::GetSDMpointer();
     auto analysisManager = G4AnalysisManager::Instance();
@@ -104,14 +104,14 @@ void EventAction::EndOfEventAction(const G4Event* event)
   if ( hcMM ){
     for( int i=0; i<hcMM->GetSize(); i++ ){
       auto hit = static_cast<MicromegasHit*>(hcMM->GetHit(i));
-      std::vector<double> hitPos= {hit->GetPosition().x(), hit->GetPosition().y(), hit->GetPosition().z()};
-      G4cout<<hitPos[0]<<" "<<hitPos[1]<<" "<<hitPos[2]<<G4endl;
+      std::vector<double> hitPos= {hit->GetPosition().x()/mm, hit->GetPosition().y()/mm, hit->GetPosition().z()/mm};
+      // G4cout<<hitPos[0]<<" "<<hitPos[1]<<" "<<hitPos[2]<<G4endl;
       fMMpos[hit->GetLayerNumber()].insert(fMMpos[hit->GetLayerNumber()].end(), hitPos.begin(), hitPos.end());
     }
   }
-  G4cout<<fx0/mm<<" "<<fy0/mm<<" "<<fmx/mm<<" "<<fmy/mm<<" "<<fchi2x<<" "<<fchi2y<<G4endl;
+  // G4cout<<fx0/mm<<" "<<fy0/mm<<" "<<fmx/mm<<" "<<fmy/mm<<" "<<fchi2x<<" "<<fchi2y<<G4endl;
   analysisManager->FillNtupleDColumn(0, 0, fx0/mm);
-  G4cout<<fx0/mm<<G4endl;
+  // G4cout<<fx0/mm<<G4endl;
   analysisManager->FillNtupleDColumn(0, 1, fy0/mm);
   analysisManager->FillNtupleDColumn(0, 2, fmx/mm);
   analysisManager->FillNtupleDColumn(0, 3, fmy/mm);
@@ -129,9 +129,10 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
 void EventAction::trackingBanco(G4VHitsCollection* hc)
 {
-  TGraphErrors grx;
   TGraphErrors gry;
+  TGraphErrors grx;
   bool l0 = false, l1 = false, l2 = false, l3 = false;
+
   for( int i=0; i<hc->GetSize(); i++ ){
     auto hit = static_cast<BancoHit*>(hc->GetHit(i));
     auto pos = hit->GetPosition();
@@ -149,7 +150,7 @@ void EventAction::trackingBanco(G4VHitsCollection* hc)
   auto ptrx = grx.Fit("pol1","Q0S");
   auto ptry = gry.Fit("pol1","Q0S");
 
-  if( l0 && l1 && l2 && l3 ){
+  if( l0 && l1 && l2 && l3 && (int)ptrx==0 && (int)ptry==0){
     fx0 = ptrx->Parameter(0);
     fmx = ptrx->Parameter(1);
     fchi2x = ptrx->Chi2()/ptrx->Ndf();

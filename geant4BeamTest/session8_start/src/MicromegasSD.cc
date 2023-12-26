@@ -115,13 +115,13 @@ G4bool MicromegasSD::ProcessHits(G4Step* step,
 
 void MicromegasSD::EndOfEvent(G4HCofThisEvent* /*hce*/)
 {
-  G4cout << "\n-------->" <<  fHitsCollection->GetName()
-         << ": in this event: " << G4endl;
+  // G4cout << "\n-------->" <<  fHitsCollection->GetName()
+  //        << ": in this event: " << G4endl;
 
-  G4int nofHits = fHitsCollection->entries();
-  for ( G4int i=0; i<nofHits; i++ ) {
-    (*fHitsCollection)[i]->Print();
-  }
+  // G4int nofHits = fHitsCollection->entries();
+  // for ( G4int i=0; i<nofHits; i++ ) {
+  //   (*fHitsCollection)[i]->Print();
+  // }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

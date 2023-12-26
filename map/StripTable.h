@@ -8,7 +8,7 @@
 #include <Math/Rotation3D.h>
 #include <Math/Vector3D.h>
 #include <Math/RotationZYX.h>
-#include <Math/PositionVector3D.h>
+
 #include <Math/Point3D.h>
 
 // can read DetectorTable from the strip number and axis

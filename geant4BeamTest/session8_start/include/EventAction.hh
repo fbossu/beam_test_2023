@@ -35,6 +35,8 @@
 #include "globals.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4VHitsCollection.hh"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
 
 class G4GenericMessenger;
 
@@ -64,7 +66,7 @@ class EventAction : public G4UserEventAction
 
   private:
     G4GenericMessenger*  fMessenger = nullptr;
-    G4bool fVerbose = true;
+    G4bool fVerbose = false;
     G4int fBancoHCID = -1;
     G4int fMicromegasHCID = -1;
 

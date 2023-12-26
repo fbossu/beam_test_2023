@@ -33,6 +33,7 @@
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "globals.hh"
+#include "G4GeneralParticleSource.hh"
 
 class G4Event;
 class G4ParticleGun;
@@ -56,6 +57,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4GenericMessenger*  fMessenger = nullptr;
     G4ParticleGun*  fParticleGun = nullptr;
     G4bool          fRandom = false;
+    G4GeneralParticleSource* fGPS = nullptr;
 };
 
 }

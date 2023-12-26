@@ -42,15 +42,17 @@ namespace ED
 
 RunAction::RunAction(EventAction* eventAction) : fEventAction(eventAction)
 {
+
+  G4String label = "eic";
+  G4String title = "Hits eic";
+  G4String fileName = "beamTestGeant4.root";
+
   // Create analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetNtupleMerging(true);
   analysisManager->SetDefaultFileType("root");
-
-  G4String label = "eic";
-  G4String title = "Hits eic";
-  G4String fileName = "beamTestGeant4.root";
+  analysisManager->SetFileName(fileName);
 
   // analysisManager->CreateNtuple(label, title);
   // analysisManager->CreateNtupleIColumn("Layer");   // column id = 0
@@ -59,7 +61,7 @@ RunAction::RunAction(EventAction* eventAction) : fEventAction(eventAction)
   // analysisManager->CreateNtupleDColumn("Zpos");    // column id = 3
   // analysisManager->FinishNtuple();
 
-  // if(fEventAction){
+  if(fEventAction){
     analysisManager->CreateNtuple(label, title);
     analysisManager->CreateNtupleDColumn("x0");
     analysisManager->CreateNtupleDColumn("y0");
@@ -68,11 +70,11 @@ RunAction::RunAction(EventAction* eventAction) : fEventAction(eventAction)
     analysisManager->CreateNtupleDColumn("chi2x");
     analysisManager->CreateNtupleDColumn("chi2y");
     for(int i=0; i<5; i++){
-      // analysisManager->CreateNtupleDColumn(Form("MMpos%d", i), fEventAction->getMMpos(i));
+      analysisManager->CreateNtupleDColumn(Form("MMpos%d", i), fEventAction->getMMpos(i));
     }
     analysisManager->FinishNtuple();
-    analysisManager->SetNtupleFileName(0, fileName);
-  // }
+    // analysisManager->SetNtupleFileName(0, fileName);
+  }
 
 }
 
@@ -87,7 +89,7 @@ void RunAction::BeginOfRunAction(const G4Run* /*run*/)
 {
   // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
-  // analysisManager->Reset();
+  analysisManager->Reset();
   analysisManager->OpenFile();
 }
 
