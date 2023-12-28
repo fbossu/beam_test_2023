@@ -38,6 +38,7 @@
 #include "G4Step.hh"
 #include "G4ios.hh"
 #include "G4SystemOfUnits.hh"
+#include "Randomize.hh"
 
 namespace ED
 {
@@ -88,8 +89,19 @@ G4bool MicromegasSD::ProcessHits(G4Step* step,
   newHit->SetTime(time);
 
   // Position
+  G4double pitch = 0.5*mm;
+  // G4double xsmear = -pitch/2. + pitch * G4UniformRand();
+  // G4double ysmear = -pitch/2. + pitch * G4UniformRand();
+  G4double xsmear = G4RandGauss::shoot(0., pitch/sqrt(12));
+  G4double ysmear = G4RandGauss::shoot(0., pitch/sqrt(12));
+
   G4ThreeVector position = preStepPoint->GetPosition();
+  position.setX(position.x()/mm + xsmear);
+  position.setY(position.y()/mm + ysmear);
   newHit->SetPosition(position);
+
+  // G4ThreeVector position = preStepPoint->GetPosition();
+  // newHit->SetPosition(position);
 
   // Layer number
   // = copy number of mother volume

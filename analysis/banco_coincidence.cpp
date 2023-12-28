@@ -55,6 +55,78 @@ void plotStripMap(StripTable det, std::string fname){
 }
 
 
+void plotTracks(std::string fnameBanco){
+
+    TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
+    TTreeReader banco("events", fbanco);
+    TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
+
+    TH2F* h2tr = new TH2F("h2tr", "banco", 200, 5, 10, 200, 4, 8);
+    h2tr->SetXTitle("x (mm)");
+    h2tr->SetYTitle("y (mm)");
+
+    TH1F* h1trx = new TH1F("h1trx", "x0", 200, 5, 10);
+    h1trx->SetXTitle("x (mm)");
+    TH1F* h1try = new TH1F("h1try", "y0", 200, 4, 8);
+    h1try->SetXTitle("y (mm)");
+
+    TH1F* h1trmx = new TH1F("h1trmx", "mx", 200, -0.005, 0.005);
+    h1trmx->SetXTitle("mx");
+    TH1F* h1trmy = new TH1F("h1trmy", "my", 200, -0.005, 0.005);
+    h1trmy->SetXTitle("my");
+
+    double z = 0;
+    // double z= 155.6;
+
+    while(banco.Next()){
+      for(auto tr : *tracks){
+        if(tr.chi2x>1. or tr.chi2y>1.) continue;
+        h2tr->Fill(tr.x0 + z*tr.mx, tr.y0 + z*tr.my);
+        h1trx->Fill(tr.x0 + z*tr.mx);
+        h1try->Fill(tr.y0 + z*tr.my);
+        h1trmx->Fill(tr.mx);
+        h1trmy->Fill(tr.my);
+      }
+    }
+  
+    TCanvas *c2 = new TCanvas("c2", "c2", 1000,1000);
+    h2tr->Draw("colz");
+    gPad->SetLogz();
+    c2->Print("tracks_ladder0.png", "png");
+
+    TLatex latex;
+    latex.SetTextSize(0.035);
+    std::string label;
+
+    TCanvas *c3 = new TCanvas("c3", "c3", 1600,1000);
+    c3->Divide(2,2);
+    c3->cd(1);
+    h1trx->Fit("gaus");
+    h1trx->Draw();
+    label = "#sigma_{x}: "+ std::to_string(h1trx->GetFunction("gaus")->GetParameter(2)).substr(0, 5)+"mm";
+    latex.DrawLatexNDC(0.14, 0.85, (label).c_str());
+
+    c3->cd(2);
+    h1try->Fit("gaus");
+    h1try->Draw();
+    label = "#sigma_{y}: "+ std::to_string(h1try->GetFunction("gaus")->GetParameter(2)).substr(0, 5)+"mm";
+    latex.DrawLatexNDC(0.14, 0.85, (label).c_str());
+
+    c3->cd(3);
+    h1trmx->Fit("gaus");
+    h1trmx->Draw();
+    label = "#sigma_{mx}: "+ std::to_string(h1trmx->GetFunction("gaus")->GetParameter(2)).substr(0, 7);
+    latex.DrawLatexNDC(0.14, 0.85, (label).c_str());
+
+    c3->cd(4);
+    h1trmy->Fit("gaus");
+    h1trmy->Draw();
+    label = "#sigma_{my}: "+ std::to_string(h1trmy->GetFunction("gaus")->GetParameter(2)).substr(0, 7);
+    latex.DrawLatexNDC(0.14, 0.85, (label).c_str());
+    c3->Print("tracksXY_ladder0.png", "png");
+}
+
+
 void efficiencyMap(std::string fnameBanco, std::string fnameMM){
   
     std::string run = fnameMM.substr(fnameMM.find("POS"), 5);
@@ -282,7 +354,8 @@ int main(int argc, char const *argv[])
 
   // plotStripMap(det, fnameMM);
   // efficiencyMap(fnameBanco, fnameMM);
-  coincidence(fnameBanco, fnameMM);
+  // coincidence(fnameBanco, fnameMM);
+  plotTracks(fnameBanco);
 
   return 0;
 }

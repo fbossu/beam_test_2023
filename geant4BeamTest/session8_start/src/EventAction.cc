@@ -141,8 +141,8 @@ void EventAction::trackingBanco(G4VHitsCollection* hc)
     l2 = (!l2 && (hit->GetLadderNumber()==2)) || (hit->GetLadderNumber()!=2 && l2);
     l3 = (!l3 && (hit->GetLadderNumber()==3)) || (hit->GetLadderNumber()!=3 && l3);
 
-    grx.SetPoint(i,pos.z(),pos.x());
-    gry.SetPoint(i,pos.z(),pos.y());
+    grx.SetPoint(i,pos.z()/mm,pos.x()/mm);
+    gry.SetPoint(i,pos.z()/mm,pos.y()/mm);
     grx.SetPointError(i,0,0.028/sqrt(12));
     gry.SetPointError(i,0,0.028/sqrt(12));
   }

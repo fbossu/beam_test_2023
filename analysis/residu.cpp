@@ -16,6 +16,7 @@
 #include "TLegend.h"
 #include "TGraphErrors.h"
 #include "TLatex.h"
+#include "TProfile.h"
 
 #include "../reco/definitions.h"
 #include "../banco/definition_banco.h"
@@ -336,33 +337,33 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
         continue;
       }
 
-      std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
-      double xdet = detPos[0];
-      double ydet = detPos[1];
-      // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
+      // std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+      // double xdet = detPos[0];
+      // double ydet = detPos[1];
+      // // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
 
-      double xtrack = tr.x0 + detPos[2]*tr.mx;
-      double ytrack = tr.y0 + detPos[2]*tr.my;
+      // double xtrack = tr.x0 + detPos[2]*tr.mx;
+      // double ytrack = tr.y0 + detPos[2]*tr.my;
 
-      // double Xth = 0, Yth = 0;
-      // double Xamp = 0, Yamp = 0;
-      // for(int i=0; i<hitsX.size(); i++){
-      //   Xth += pow( (hitsX[i].maxamp-256) ,2)*hitsX[i].strip;
-      //   Xamp += pow( hitsX[i].maxamp-256 ,2);
-      // }
+      double Xth = 0, Yth = 0;
+      double Xamp = 0, Yamp = 0;
+      for(int i=0; i<hitsX.size(); i++){
+        Xth  += (hitsX[i].maxamp-256)*hitsX[i].strip;
+        Xamp += (hitsX[i].maxamp-256);
+      }
 
-      // for(int i=0; i<hitsY.size(); i++){
-      //   Yth += pow( (hitsY[i].maxamp-256) ,2)*hitsY[i].strip;
-      //   Yamp += pow( hitsY[i].maxamp-256 ,2);
-      // }
+      for(int i=0; i<hitsY.size(); i++){
+        Yth  += (hitsY[i].maxamp-256)*hitsY[i].strip;
+        Yamp += (hitsY[i].maxamp-256);
+      }
 
-      // std::vector<double> detPosTh = det.pos3D(Xth/Xamp, Yth/Yamp);
-      // double xdet = detPosTh[0];
-      // double ydet = detPosTh[1];
+      std::vector<double> detPosTh = det.pos3D(Xth/Xamp, Yth/Yamp);
+      double xdet = detPosTh[0];
+      double ydet = detPosTh[1];
 
-      // double xtrack = tr.x0 + detPosTh[2]*tr.mx;
-      // double ytrack = tr.y0 + detPosTh[2]*tr.my;
-      // avgxdet += xdet;
+      double xtrack = tr.x0 + detPosTh[2]*tr.mx;
+      double ytrack = tr.y0 + detPosTh[2]*tr.my;
+      avgxdet += xdet;
 
       nt->Fill(xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, maxX->stripCentroid, maxY->stripCentroid, maxX->centroid, maxY->centroid);
     }
@@ -416,16 +417,20 @@ void plotResidue(TFile* res, std::string graphname){
   fitFuncY->SetParameters(0, stdx);
   hy->Fit(fitFuncY, "R");
 
-  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.*avg_std, meanresy+1.*avg_std);
+  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 300, meanydet-4, meanydet+4, 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   h2x->GetXaxis()->SetTitle("position y axis (mm)");
   h2x->GetYaxis()->SetTitle("residue (mm)");
 
-  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.*avg_std, meanresx+1.*avg_std);
+  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 300, meanxdet-4, meanxdet+4, 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
-
   nt->Draw("yres:ydet>>h2x");
   nt->Draw("xres:xdet>>h2y");
+
+  TProfile* prx = new TProfile("prx", "residu X strips vs y pos", 300, meanydet-4, meanydet+4, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  TProfile* pry = new TProfile("pry", "residu Y strips vs x pos", 300, meanxdet-4, meanxdet+4, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  nt->Draw("yres:ydet>>prx");
+  nt->Draw("xres:xdet>>pry");
 
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
@@ -469,12 +474,22 @@ void plotResidue(TFile* res, std::string graphname){
   latex.DrawLatexNDC(0.75, 0.68, (label).c_str());
   
   c->cd(3);
+  TF1 *fpol1 = new TF1("pol1", "pol1", meanydet-3, meanydet+3);
+  prx->Fit(fpol1, "R");
   h2x->Draw("colz");
+  fpol1->Draw("same");
   gPad->SetLogz();
+  label = "slope="+ std::to_string(fpol1->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
 
   c->cd(4);
+  TF1 *fpoly = new TF1("poly", "pol1", meanxdet-3, meanxdet+3);
+  pry->Fit(fpoly, "R");
   h2y->Draw("colz");
+  fpoly->Draw("same");
   gPad->SetLogz();
+  label = "slope="+ std::to_string(fpoly->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
 
   c->Print(graphname.c_str(), "png");
 }
