@@ -23,7 +23,7 @@ public:
 
 private:
 	std::vector<int> dreamConnect;
-	std::vector<<int> offChannel;
+	std::vector<int> offChannel;
 	std::vector<bool> inv = {false, false, false, false}; 
 };
 

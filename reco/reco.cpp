@@ -325,6 +325,7 @@ int main( int argc, char **argv ){
     det = DreamTable(basedir + "../map/asa_map.txt", -1, -1, 6, -1);
     // det.setInversion(true, true, false, false);
     det.setInversion(false, false, true, true);
+    det.killChannel(384);
   }
   else if(nbFeu == 3){
     det = DreamTable(basedir + "../map/strip_map.txt", 4, 5, 6, 7);
