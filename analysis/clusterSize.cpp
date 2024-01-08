@@ -533,8 +533,8 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
   hcentroidX->SetXTitle("strip centroid"); hcentroidY->SetXTitle("strip centroid");
   hclSizeX->SetXTitle("cluster size"); hclSizeY->SetXTitle("cluster size");
 
-  TH1F *hampCenterX = new TH1F("hampCenterX", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
-  TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,1200);
+  TH1F *hampCenterX = new TH1F("hampCenterX", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,800);
+  TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,800);
   hampCenterX->SetXTitle("amplitude (ADC counts)"); hampCenterY->SetXTitle("amplitude (ADC counts)");
 
   TH1F *hampSampleX = new TH1F("hampSampleX", ("timeofmax "+det.zoneLabel(zone)).c_str(), 100,0,8);

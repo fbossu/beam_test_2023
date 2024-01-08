@@ -6,13 +6,16 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 		zonePitch = { {2.f, 2.f}, {1.5f, 1.5f}, {1.f, 1.f}, {0.8f, 0.8f} };
 		zoneInter = { {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f} };
 	}
-	if(idetFile.find("inter") != std::string::npos){
+	else if(idetFile.find("inter") != std::string::npos){
 		zonePitch = { {1.f, 1.f}, {1.f, 1.f}, {1.f, 1.f}, {1.f, 1.f} };
 		zoneInter = { {0.1f, 0.75f}, {0.1f, 0.5f}, {0.1f, 0.9f}, {0.1f, 0.67f} };
 	}
-	if(idetFile.find("strip") != std::string::npos){
+	else if(idetFile.find("strip") != std::string::npos){
 		zonePitch = { {0.5f, 1.f}, {0.5f, 1.5f}, {0.5f, 0.5f}, {1.5f,1.f}, {1.5f, 1.5f}, {1.5f, 0.5f}, {1.f, 1.f}, {1.f, 1.5f}, {1.f, 0.5f} };
 		zoneInter = { {0.1f, 0.75f}, {0.1f, 1.12f}, {0.1f, 0.37f}, {0.1f,0.75f}, {0.1f, 1.12f}, {0.1f, 0.37f}, {0.1f, 0.75f}, {0.1f, 1.12f}, {0.1f, 0.37f} };
+	}
+	else{
+		throw std::runtime_error("Error: zones not recognized");
 	}
 }
 

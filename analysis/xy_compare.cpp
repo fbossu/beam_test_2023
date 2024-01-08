@@ -45,6 +45,7 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
 
     int nX=0, nY=0;
     while (reader.Next()) {
+
         std::shared_ptr<cluster> maxX = maxSizeClX(*cls);
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
         int ampX=0, ampY=0;
@@ -75,7 +76,7 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
         }
     }
     file->Close();
-
+    
     double eff = (double) nX/nY;
 
     TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
@@ -93,6 +94,8 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
         h2[i]->Draw("same");
     }
     c1->cd(0);
+    std::cout<<"cc"<<zone<<std::endl;
+    std::cout<<det.pitchXzone(zone)<<"cc"<<std::endl;
     TLegend* leg = new TLegend(0.8, 0.2, 0.95, 0.3);
     leg->AddEntry(h1[0], Form("x pitch: %.2f mm", det.pitchXzone(zone)), "");
     leg->AddEntry(h2[0], Form("y pitch: %.2f mm", det.pitchYzone(zone)), "");
@@ -140,7 +143,7 @@ int main(int argc, char* argv[]) {
         det = StripTable(basedir+"../map/strip_map.txt");
     }
     else if (detName.find("inter") != std::string::npos){
-        zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
+        zoneRuns = { {1,13} };
         det = StripTable(basedir+"../map/inter_map.txt");
     }
     else if (detName.find("asa") != std::string::npos){

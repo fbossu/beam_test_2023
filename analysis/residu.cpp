@@ -333,7 +333,7 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
 
     auto tr = *std::min_element(tracks->begin(), tracks->end(),
                        [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
-    // if(tr.chi2x>0.1 or tr.chi2y>0.1) continue;
+    if(tr.chi2x>1 or tr.chi2y>1) continue;
     auto maxX = maxSizeClX(*cls);
     auto maxY = maxSizeClY(*cls);
     
@@ -347,42 +347,42 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
         continue;
       }
 
-      // std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
-      // // detPos = rotation(detPos[0], detPos[1], detPos[2]);
-      // double xdet = detPos[0];
-      // double ydet = detPos[1];
-      // // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
+      std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+      // detPos = rotation(detPos[0], detPos[1], detPos[2]);
+      double xdet = detPos[0];
+      double ydet = detPos[1];
+      // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
 
-      // double xtrack = tr.x0 + detPos[2]*tr.mx;
-      // double ytrack = tr.y0 + detPos[2]*tr.my;
+      double xtrack = tr.x0 + detPos[2]*tr.mx;
+      double ytrack = tr.y0 + detPos[2]*tr.my;
       
-      // for(int i=0; i<hitsY.size(); i++){
-      //   if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
-      // }
+      for(int i=0; i<hitsY.size(); i++){
+        if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
+      }
 
       // if(hitsX[0].maxamp < 400 or hitsY[0].maxamp < 400) continue;
 
-      double Xth = 0, Yth = 0;
-      double Xamp = 0, Yamp = 0;
-      for(int i=0; i<hitsX.size(); i++){
-        if(hitsX[i].channel<392 || hitsX[i].channel>444) continue;
-        Xth  += (hitsX[i].maxamp-256)*hitsX[i].strip;
-        Xamp += (hitsX[i].maxamp-256);
-      }
+      // double Xth = 0, Yth = 0;
+      // double Xamp = 0, Yamp = 0;
+      // for(int i=0; i<hitsX.size(); i++){
+      //   if(hitsX[i].channel<392 || hitsX[i].channel>444) continue;
+      //   Xth  += (hitsX[i].maxamp-256)*hitsX[i].strip;
+      //   Xamp += (hitsX[i].maxamp-256);
+      // }
 
-      for(int i=0; i<hitsY.size(); i++){
-        if(hitsY[i].channel<392 || hitsX[i].channel>444) continue;
-        Yth  += (hitsY[i].maxamp-256)*hitsY[i].strip;
-        Yamp += (hitsY[i].maxamp-256);
-      }
+      // for(int i=0; i<hitsY.size(); i++){
+      //   if(hitsY[i].channel<392 || hitsX[i].channel>444) continue;
+      //   Yth  += (hitsY[i].maxamp-256)*hitsY[i].strip;
+      //   Yamp += (hitsY[i].maxamp-256);
+      // }
 
-      if(Xamp<1 || Yamp<1) continue;
-      std::vector<double> detPosTh = det.pos3D(Xth/Xamp, Yth/Yamp);
-      double xdet = detPosTh[0];
-      double ydet = detPosTh[1];
+      // if(Xamp<1 || Yamp<1) continue;
+      // std::vector<double> detPosTh = det.pos3D(Xth/Xamp, Yth/Yamp);
+      // double xdet = detPosTh[0];
+      // double ydet = detPosTh[1];
 
-      double xtrack = tr.x0 + detPosTh[2]*tr.mx;
-      double ytrack = tr.y0 + detPosTh[2]*tr.my;
+      // double xtrack = tr.x0 + detPosTh[2]*tr.mx;
+      // double ytrack = tr.y0 + detPosTh[2]*tr.my;
       avgxdet += xdet;
 
       double data[18] = {xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, 
@@ -707,14 +707,14 @@ void plotResidueClsize(TFile* res, std::string graphname){
   h2x[1]->Draw("");
   h2x[2]->Draw("same");
   h2x[0]->Draw("same");
-  // h2x[3]->Draw("same");
+  h2x[3]->Draw("same");
   gPad->SetLogz();
 
   c->cd(4);
   h2y[1]->Draw("");
   h2y[2]->Draw("same");
   h2y[0]->Draw("same");
-  // h2y[3]->Draw("same");
+  h2y[3]->Draw("same");
   gPad->SetLogz();
 
   c->Print(graphname.c_str(), "png");

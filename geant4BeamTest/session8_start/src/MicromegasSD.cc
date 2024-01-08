@@ -126,26 +126,26 @@ G4bool MicromegasSD::ProcessHits(G4Step* step,
 
   G4ThreeVector position = preStepPoint->GetPosition();
   // position.setY(position.y()/mm+1*mm);
-  double xStmin = std::floor(position.x()/mm);
-  double yStmin = std::floor(position.y()/mm);
+  // double xStmin = std::floor(position.x()/mm);
+  // double yStmin = std::floor(position.y()/mm);
 
-  // std::cout<<abs(position.x()/mm - (xStmin+xStW/2.))<< " " << abs(position.x()/mm - (xStmin+1 - xStW/2.)) << std::endl;
-  if( position.x()/mm - (xStmin+xStW/2.) < xtol ) xminOn = true;
-  if( position.y()/mm - (yStmin+yStW/2.) < ytol ) yminOn = true;
-  if( position.x()/mm - (xStmin+1 - xStW/2.) > -xtol ) xmaxOn = true;
-  if( position.y()/mm - (yStmin+1 - yStW/2.) > -ytol ) ymaxOn = true;
+  // // std::cout<<abs(position.x()/mm - (xStmin+xStW/2.))<< " " << abs(position.x()/mm - (xStmin+1 - xStW/2.)) << std::endl;
+  // if( position.x()/mm - (xStmin+xStW/2.) < xtol ) xminOn = true;
+  // if( position.y()/mm - (yStmin+yStW/2.) < ytol ) yminOn = true;
+  // if( position.x()/mm - (xStmin+1 - xStW/2.) > -xtol ) xmaxOn = true;
+  // if( position.y()/mm - (yStmin+1 - yStW/2.) > -ytol ) ymaxOn = true;
 
-  // if(xminOn && xmaxOn) position.setX(position.x()/mm);
-  if(xminOn && xmaxOn) position.setX(G4RandGauss::shoot(position.x()/mm, smearSigma));
-  else if(xminOn) position.setX(xStmin*mm);
-  else if(xmaxOn) position.setX((xStmin+1)*mm);
-  else position.setX(-999);
+  // // if(xminOn && xmaxOn) position.setX(position.x()/mm);
+  // if(xminOn && xmaxOn) position.setX(G4RandGauss::shoot(position.x()/mm, smearSigma));
+  // else if(xminOn) position.setX(xStmin*mm);
+  // else if(xmaxOn) position.setX((xStmin+1)*mm);
+  // else position.setX(-999);
 
-  // if(yminOn && ymaxOn) position.setY(position.y()/mm);
-  if(yminOn && ymaxOn) position.setY(G4RandGauss::shoot(position.y()/mm, smearSigma));
-  else if(yminOn) position.setY(yStmin*mm);
-  else if(ymaxOn) position.setY((yStmin+1)*mm);
-  else position.setY(-999);
+  // // if(yminOn && ymaxOn) position.setY(position.y()/mm);
+  // if(yminOn && ymaxOn) position.setY(G4RandGauss::shoot(position.y()/mm, smearSigma));
+  // else if(yminOn) position.setY(yStmin*mm);
+  // else if(ymaxOn) position.setY((yStmin+1)*mm);
+  // else position.setY(-999);
 
   // if(xminOn && xmaxOn) position.setX(-999);
   // else position.setX(std::round(position.x()/mm)*mm);

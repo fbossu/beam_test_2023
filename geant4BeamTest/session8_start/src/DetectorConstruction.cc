@@ -203,12 +203,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                     checkOverlaps);        //overlaps checking
 
   // ladder FCB
-  G4double fcb_hz = 50.*um;
+  G4double fcb_hz = 75.*um;
   G4VSolid* fcbS = new G4Box("fcbS", hx, hy, fcb_hz/2.);
   G4LogicalVolume* fcbLV = new G4LogicalVolume(fcbS, kapton, "fcbLV");
 
   // ladder alu on the FCB
-  G4double alu_hz = 50.*um;
+  G4double alu_hz = 25.*um;
   G4VSolid* aluS = new G4Box("aluS", hx, hy, alu_hz/2.);
   G4LogicalVolume* aluLV = new G4LogicalVolume(aluS, alu, "aluLV");
 

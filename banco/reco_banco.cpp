@@ -362,7 +362,8 @@ void recoBanco(std::vector<std::string> fnamesIn){
 int main(int argc, char *argv[])
 {
   basedir = argv[0];
-  basedir = basedir.substr(0, basedir.size()-10);
+  // basedir = basedir.substr(0, basedir.size()-10);
+  basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << " basedir " <<  basedir << std::endl;
 
   // reading some options
