@@ -351,27 +351,32 @@ void residue(TFile* res, std::string fnameBanco, std::string fnameMM, StripTable
       // // detPos = rotation(detPos[0], detPos[1], detPos[2]);
       // double xdet = detPos[0];
       // double ydet = detPos[1];
-      // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
+      // // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
 
       // double xtrack = tr.x0 + detPos[2]*tr.mx;
       // double ytrack = tr.y0 + detPos[2]*tr.my;
+      
+      // for(int i=0; i<hitsY.size(); i++){
+      //   if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
+      // }
 
       // if(hitsX[0].maxamp < 400 or hitsY[0].maxamp < 400) continue;
 
       double Xth = 0, Yth = 0;
       double Xamp = 0, Yamp = 0;
       for(int i=0; i<hitsX.size(); i++){
-        if(hitsX[i].channel<384 || hitsX[i].channel>444) continue;
+        if(hitsX[i].channel<392 || hitsX[i].channel>444) continue;
         Xth  += (hitsX[i].maxamp-256)*hitsX[i].strip;
         Xamp += (hitsX[i].maxamp-256);
       }
 
       for(int i=0; i<hitsY.size(); i++){
-        if(hitsY[i].channel<391 || hitsX[i].channel>444) continue;
+        if(hitsY[i].channel<392 || hitsX[i].channel>444) continue;
         Yth  += (hitsY[i].maxamp-256)*hitsY[i].strip;
         Yamp += (hitsY[i].maxamp-256);
       }
 
+      if(Xamp<1 || Yamp<1) continue;
       std::vector<double> detPosTh = det.pos3D(Xth/Xamp, Yth/Yamp);
       double xdet = detPosTh[0];
       double ydet = detPosTh[1];
