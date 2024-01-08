@@ -1,4 +1,4 @@
-all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence xy_compare deltaT_samplemax waveform
+all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence xy_compare deltaT_samplemax waveform amplitude
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs ) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -40,3 +40,7 @@ deltaT_samplemax: deltaT_samplemax.cpp clusterSize.cpp
 
 waveform: waveform.cpp clusterSize.cpp
 	g++ waveform.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o waveform $(DT) $(ROOT)
+
+amplitude: amplitude.cpp ../map/DetectorTable.o ../map/StripTable.o
+# 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
+	g++ amplitude.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o amplitude $(DT) $(ROOT)

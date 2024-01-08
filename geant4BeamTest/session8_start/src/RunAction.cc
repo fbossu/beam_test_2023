@@ -74,6 +74,7 @@ RunAction::RunAction(EventAction* eventAction) : fEventAction(eventAction)
     }
     analysisManager->FinishNtuple();
     // analysisManager->SetNtupleFileName(0, fileName);
+    analysisManager->CreateH1("testGauss","smearing", 100, 0., 1.);
   }
 
 }

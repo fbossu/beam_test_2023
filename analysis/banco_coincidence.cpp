@@ -19,16 +19,27 @@
 #include "../analysis/clusterSize.h"
 
 
-void plotStripMap(StripTable det, std::string fname){
+void plotStripMap(std::string fbanconame, std::string fname){
 
   TFile *fMM = TFile::Open(fname.c_str(), "read");
+  TFile *fbanco = TFile::Open(fbanconame.c_str(), "read");
+  
+  std::string run = fname.substr(fname.find("POS"), 5);
+  std::string alignName = "../map/alignFiles/stripFEU1_" + run + ".txt";
+  StripTable det("../map/strip_map.txt", alignName);
 
   TTreeReader MM("events", fMM);
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
 
-  TH2F *h2test = new TH2F("h2test", "strip number test", 128, -0.5, 127.5, 128, -0.5, 127.5);
+  TTreeReader banco("events", fbanco);
+  TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
+
+  TH2F *h2test = new TH2F("h2test", "strip number test", 150, 5, 10, 150, 3, 9);
 
   while( MM.Next()){
+    banco.Next();
+    if(tracks->size() == 0) continue;
+    if(tracks->at(0).chi2x>1. or tracks->at(0).chi2y>1.) continue;
     if(cls->size() == 0) continue;
 
     std::vector<cluster> Xcls, Ycls;
@@ -44,7 +55,8 @@ void plotStripMap(StripTable det, std::string fname){
     auto maxY = *std::max_element(Ycls.begin(), Ycls.end(),
                        [](const cluster& a,const cluster& b) { return a.size < b.size; });
 
-    h2test->Fill(maxY.stripCentroid, maxX.stripCentroid);
+    std::vector<double> detPos = det.pos3D(maxX.stripCentroid, maxY.stripCentroid);
+    h2test->Fill(detPos[0], detPos[1]);
   }
 
   TCanvas *c = new TCanvas("c", "c", 1000,1000);
@@ -75,8 +87,8 @@ void plotTracks(std::string fnameBanco){
     TH1F* h1trmy = new TH1F("h1trmy", "my", 200, -0.005, 0.005);
     h1trmy->SetXTitle("my");
 
-    double z = 0;
-    // double z= 155.6;
+    // double z = 0;
+    double z= 785.6;
 
     while(banco.Next()){
       for(auto tr : *tracks){
@@ -91,8 +103,8 @@ void plotTracks(std::string fnameBanco){
   
     TCanvas *c2 = new TCanvas("c2", "c2", 1000,1000);
     h2tr->Draw("colz");
-    gPad->SetLogz();
-    c2->Print("tracks_ladder0.png", "png");
+    // gPad->SetLogz();
+    c2->Print("tracks_asaFEU4.png", "png");
 
     TLatex latex;
     latex.SetTextSize(0.035);
@@ -123,7 +135,7 @@ void plotTracks(std::string fnameBanco){
     h1trmy->Draw();
     label = "#sigma_{my}: "+ std::to_string(h1trmy->GetFunction("gaus")->GetParameter(2)).substr(0, 7);
     latex.DrawLatexNDC(0.14, 0.85, (label).c_str());
-    c3->Print("tracksXY_ladder0.png", "png");
+    c3->Print("tracksXY_asaFEU4.png", "png");
 }
 
 
@@ -352,7 +364,7 @@ int main(int argc, char const *argv[])
   std::string fnameBanco =  argv[1];
   std::string fnameMM =  argv[2];
 
-  // plotStripMap(det, fnameMM);
+  // plotStripMap(fnameBanco, fnameMM);
   // efficiencyMap(fnameBanco, fnameMM);
   // coincidence(fnameBanco, fnameMM);
   plotTracks(fnameBanco);

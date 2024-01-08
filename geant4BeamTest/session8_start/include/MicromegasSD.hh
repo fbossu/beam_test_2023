@@ -34,6 +34,8 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "MicromegasHit.hh"
+#include "TF1.h"
+#include "TRandom3.h"
 
 class G4Step;
 class G4HCofThisEvent;
@@ -54,6 +56,7 @@ class MicromegasSD : public G4VSensitiveDetector
 
   private:
     MicromegasHitsCollection* fHitsCollection = nullptr;
+    TF1 *landauFunc = nullptr;
 };
 
 }
