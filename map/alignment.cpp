@@ -844,7 +844,7 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	if(tracksFit.size() < 10000) {
+	if(tracksFit.size() < 1000) {
 		std::cerr << "Error: Not enough events: " << tracksFit.size() << std::endl;
 		return 1;
 	}

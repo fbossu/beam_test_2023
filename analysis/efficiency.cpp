@@ -15,6 +15,7 @@
 #include "TROOT.h"
 #include "TLegend.h"
 #include "TGraphErrors.h"
+#include "TMultiGraph.h"
 #include "TLatex.h"
 #include "TProfile.h"
 
@@ -22,6 +23,56 @@
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
 #include "clusterSize.h"
+
+
+void plot_efficiency(std::string fname, std::string detName){
+
+    std::ifstream infile(fname);
+    std::string line;
+    std::string run, numstr, denstr;
+    double num, den;
+    std::vector<std::string> names = {"X", "Y", "XY"};
+    int colors[3] = {kBlue, kRed, kBlack};
+
+    TGraphErrors* gr[3];
+    for(int i=0; i<3; i++){
+        gr[i] = new TGraphErrors();
+        gr[i]->SetMarkerStyle(20+i);
+        gr[i]->SetMarkerSize(1.5);
+        gr[i]->SetMarkerColor(colors[i]);
+        gr[i]->SetName(names[i].c_str());
+    }
+
+    while (std::getline(infile, line)) {
+        if (line[0] == '#') continue;
+        std::istringstream iss(line);
+        std::getline(iss, run, ',');
+        for(int i=0; i<3; i++){
+            std::getline(iss, numstr, ',');    num = std::stod(numstr);
+            std::getline(iss, denstr, ',');    den = std::stod(denstr);
+            gr[i]->SetPoint(gr[i]->GetN(), std::stoi(run.substr(3,2)), num/den);
+            std::cout<<num/den<<" ";
+        }
+        std::cout<<std::endl;
+    }
+
+    TCanvas* c1 = new TCanvas("c1", "c1", 1600, 1200);
+    TMultiGraph* mg = new TMultiGraph();
+    mg->SetTitle(Form("HVS Efficiency %s", detName.c_str()));
+    for(int i=0; i<3; i++){
+        mg->Add(gr[i], "p");
+    }
+    mg->Draw("a");
+    mg->GetXaxis()->SetTitle("Run");
+    mg->GetYaxis()->SetTitle("Efficiency");
+    // mg->GetYaxis()->SetRangeUser(0.5, 1.1);
+    c1->BuildLegend();
+    c1->SetGrid();
+    c1->Modified();
+    c1->Update();
+    c1->SaveAs(Form("efficiency_%s.png", detName.c_str()));
+}
+
 
 // Return { {x,y}, {sigmax,sigmay} } of the banco tracks at the detector zpos
 std::vector<std::vector<double>> beamPosition(std::string fname, double zpos, bool plot=false){
@@ -73,9 +124,17 @@ int main(int argc, char* argv[]){
     std::string basedir = argv[0];
     basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
 
-    if(argc != 4){
-    std::cerr << "Usage: " << argv[0] << " <detName> <banco.root> <mm.root>" << std::endl;
+    if(argc != 4 and argc != 3){
+    std::cerr << "compute efficiency " << argv[0] << " <detName> <banco.root> <mm.root>" << std::endl;
+    std::cerr << "plot " << argv[0] << " <detName> <efficiency.txt>" << std::endl;
     return 1;
+    }
+
+    if(argc == 3){
+        std::string detName = argv[1];
+        std::string fname = argv[2];
+        plot_efficiency(fname, detName);
+        return 0;
     }
 
     std::string detName = argv[1];
