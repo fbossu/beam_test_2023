@@ -153,18 +153,19 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    std::string run;
+    std::string run, alignName;
     if(fnameMM.find("POS") != std::string::npos){
         run = fnameMM.substr(fnameMM.find("POS"), 5);
+        alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
     }else if(fnameMM.find("HVS") != std::string::npos){
         run = fnameMM.substr(fnameMM.find("HVS"), 5);
+        alignName = basedir + "../map/alignFiles/" + detName + "_" + "HVS10" + ".txt";
     }
     else{
         std::cerr << "Invalid run name" << std::endl;
         return 1;
     }
 
-    std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
     StripTable det(mapName, alignName);
     
     auto posBeam = beamPosition(fnameBanco, det.getZpos(), true);
