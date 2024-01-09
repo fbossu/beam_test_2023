@@ -36,6 +36,7 @@ public:
 	std::vector<double> posX(double sn){return this->pos(sn, 'x');};
 	std::vector<double> posY(double sn){return this->pos(sn, 'y');};
 	std::vector<double> pos3D(double snx, double sny);
+	double getZpos(); // z on the center of the active area of the detector
 
 	int zone(int snx, int sny);
 	int nbZone(){return zonePitch.size();};

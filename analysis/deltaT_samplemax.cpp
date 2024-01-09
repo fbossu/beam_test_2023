@@ -58,34 +58,20 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
         std::shared_ptr<cluster> clX = maxSizeClX(*cls);
         std::shared_ptr<cluster> clY = maxSizeClY(*cls);
         if(clX){
-            if(clX->size!=1) clsizeX->Fill(clX->size);
+            clsizeX->Fill(clX->size);
+            if(clX->size > 6) continue;
+            auto hX = getHits(*hits, clX->id);
+            avgX += clX->stripCentroid; nX++;
+            hclcenterX[clX->size-1]->Fill(hX[0].timeofmax);
+            for(auto h : hX) hclX[clX->size-1]->Fill(h.timeofmax);   
         }
         if(clY){
-            if(clY->size!=1) clsizeY->Fill(clY->size);
-        }
-        
-        for(auto cl : *cls){
-            std::vector<hit> hitsInCluster = getHits(*hits, cl.id);
-            if(cl.size == 1){
-                h2->Fill(*delta_timestamp, hitsInCluster[0].timeofmax);
-            }
-            // if(cl.size != 1){
-            //     if(cl.axis == 'x') clsizeX->Fill(cl.size);
-            //     else clsizeY->Fill(cl.size);
-            // }
-                
-            if(cl.size<7){
-                if(cl.axis=='x'){
-                    avgX += cl.stripCentroid; nX++;
-                    hclcenterX[cl.size-1]->Fill(hitsInCluster[0].timeofmax);
-                    for(auto h : hitsInCluster) hclX[cl.size-1]->Fill(h.timeofmax);                    
-                }
-                else if (cl.axis =='y'){
-                    avgY += cl.stripCentroid; nY++;
-                    hclcenterY[cl.size-1]->Fill(hitsInCluster[0].timeofmax);
-                    for(auto h : hitsInCluster) hclY[cl.size-1]->Fill(h.timeofmax);
-                }
-            }
+            clsizeY->Fill(clY->size);
+            if(clY->size > 6) continue;
+            auto hY = getHits(*hits, clY->id);
+            avgY += clY->stripCentroid; nY++;
+            hclcenterY[clY->size-1]->Fill(hY[0].timeofmax);
+            for(auto h : hY) hclY[clY->size-1]->Fill(h.timeofmax);   
         }
     }
 
@@ -182,6 +168,10 @@ int main(int argc, char* argv[]) {
     else if (detName.find("asa") != std::string::npos){
         zoneRuns = { {0,16}, {1,14}, {2,2}, {3,5}};
         det = StripTable(basedir+"../map/asa_map.txt");
+    }
+    else if (detName.find("inter") != std::string::npos){
+        zoneRuns = { {1,13} };
+        det = StripTable(basedir+"../map/inter_map.txt");
     }
     else {
         std::cerr << "Error: detector name not recognized" << std::endl;

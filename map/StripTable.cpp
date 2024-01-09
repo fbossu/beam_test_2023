@@ -109,7 +109,13 @@ std::vector<double> StripTable::pos(double sn, char axis){
 }
 
 std::vector<double> StripTable::pos3D(double snx, double sny){
-	ROOT::Math::XYZPoint pdet(this->pos(sny, 'y')[0], this->pos(snx, 'x')[1], 0.);
+	double xpos, ypos;
+	if(sny<0) xpos = -50.;
+	else xpos = this->pos(sny, 'y')[0];
+	if(snx<0) ypos = 50.;
+	else ypos = this->pos(snx, 'x')[1];
+
+	ROOT::Math::XYZPoint pdet(xpos, ypos, 0.);
 	ROOT::Math::XYZPoint pr = trans(pdet);
 	return {pr.x(), pr.y(), pr.z()};
 }
@@ -150,3 +156,8 @@ float StripTable::pitchYzone(int zone) {
     return zonePitch[zone][1];
 }
 
+double StripTable::getZpos(){
+	ROOT::Math::XYZPoint pdet(-50., 50., 0);
+	ROOT::Math::XYZPoint pr = trans(pdet);
+	return pr.z();
+}

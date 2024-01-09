@@ -49,20 +49,21 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
         std::shared_ptr<cluster> maxX = maxSizeClX(*cls);
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
         int ampX=0, ampY=0;
-        if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
-        if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
-        // if(maxX) {
-        //     nX++;
-        //     std::vector<hit> clHits = getHits(*hits, maxX->id);
-        //     ampX = std::accumulate(clHits.begin(), clHits.end(), 0,
-        //         [](int sum, const hit& h){return sum+h.maxamp;});
-        // }
-        // if(maxY) {
-        //     nY++;
-        //     std::vector<hit> clHits = getHits(*hits, maxY->id);
-        //     ampY = std::accumulate(clHits.begin(), clHits.end(), 0,
-        //         [](int sum, const hit& h){return sum+h.maxamp;});
-        // }
+        // if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
+        // if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
+        
+        if(maxX) {
+            nX++;
+            std::vector<hit> clHits = getHits(*hits, maxX->id);
+            ampX = std::accumulate(clHits.begin(), clHits.end(), 0,
+                [](int sum, const hit& h){return sum+h.maxamp-256;});
+        }
+        if(maxY) {
+            nY++;
+            std::vector<hit> clHits = getHits(*hits, maxY->id);
+            ampY = std::accumulate(clHits.begin(), clHits.end(), 0,
+                [](int sum, const hit& h){return sum+h.maxamp-256;});
+        }
 
         if(maxX && maxY){
             if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
@@ -97,8 +98,8 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
     std::cout<<"cc"<<zone<<std::endl;
     std::cout<<det.pitchXzone(zone)<<"cc"<<std::endl;
     TLegend* leg = new TLegend(0.8, 0.2, 0.95, 0.3);
-    leg->AddEntry(h1[0], Form("x pitch: %.2f mm", det.pitchXzone(zone)), "");
-    leg->AddEntry(h2[0], Form("y pitch: %.2f mm", det.pitchYzone(zone)), "");
+    leg->AddEntry(h1[0], Form("x pitch: %.2f mm", det.pitchXzone(zone)), "l");
+    leg->AddEntry(h2[0], Form("y pitch: %.2f mm", det.pitchYzone(zone)), "l");
     leg->AddEntry("", Form("efficiency nX/nY: %.2f", eff), "");
     leg->Draw();
     c1->SaveAs(graphName.c_str());

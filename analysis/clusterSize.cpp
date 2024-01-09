@@ -44,7 +44,6 @@ int totAmp (std::vector<hit> hits, int clId){
   return tot;
 }
 
-
 void clusterSizeRegion(TChain* chain, std::string detname, StripTable det) {
 
   std::string graphMap = detname+"_Map.png";
@@ -533,8 +532,8 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
   hcentroidX->SetXTitle("strip centroid"); hcentroidY->SetXTitle("strip centroid");
   hclSizeX->SetXTitle("cluster size"); hclSizeY->SetXTitle("cluster size");
 
-  TH1F *hampCenterX = new TH1F("hampCenterX", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,800);
-  TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 400,0,800);
+  TH1F *hampCenterX = new TH1F("hampCenterX", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 200,0,800);
+  TH1F *hampCenterY = new TH1F("hampCenterY", ("MaxAmp on the center strip "+det.zoneLabel(zone)).c_str(), 200,0,800);
   hampCenterX->SetXTitle("amplitude (ADC counts)"); hampCenterY->SetXTitle("amplitude (ADC counts)");
 
   TH1F *hampSampleX = new TH1F("hampSampleX", ("timeofmax "+det.zoneLabel(zone)).c_str(), 100,0,8);
@@ -586,9 +585,11 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
       hcentroidX->Fill(clX->stripCentroid);
       hclSizeX->Fill(clX->size);
       auto maxHit = hX[0];
+      hampCenterX->Fill(maxHit.maxamp-256);
+      hampSampleX->Fill(maxHit.timeofmax);
       if(clX->size == 1){
-        hampCenterX->Fill(maxHit.maxamp-256);
-        hampSampleX->Fill(maxHit.timeofmax);
+        // hampCenterX->Fill(maxHit.maxamp-256);
+        // hampSampleX->Fill(maxHit.timeofmax);
       }
       else if(clX->size<7){
         for( auto hitx = hX.begin(); hitx < hX.end(); hitx++){
@@ -604,9 +605,11 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
       hcentroidY->Fill(clY->stripCentroid);
       hclSizeY->Fill(clY->size);
       auto maxHit = hY[0];
+      hampCenterY->Fill(maxHit.maxamp-256);
+      hampSampleY->Fill(maxHit.timeofmax);
       if(clY->size == 1){
-        hampCenterY->Fill(maxHit.maxamp-256);
-        hampSampleY->Fill(maxHit.timeofmax);
+        // hampCenterY->Fill(maxHit.maxamp-256);
+        // hampSampleY->Fill(maxHit.timeofmax);
       }
       else if(clY->size<7){
         for( auto hity = hY.begin(); hity < hY.end(); hity++){
@@ -656,15 +659,26 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
 
   TCanvas *campCenter = new TCanvas("camp", "camp", 1600, 1000);
   campCenter->Divide(2, 1);
+  
   campCenter->cd(1);
+  THStack *stackAmp = new THStack("stackAmp", hampCenterX->GetTitle());
+  hampSampleX->Draw("same");
+  stackAmp->Add(hampCenterX);
   hampCenterY->SetLineColor(kRed);
-  hampCenterY->Draw();
-  hampCenterX->Draw("same");
+  stackAmp->Add(hampCenterY);
+  stackAmp->Draw("nostack");
+  stackAmp->GetXaxis()->SetTitle("amplitude (ADC)");
+  stackAmp->GetYaxis()->SetTitle("Counts");
 
   campCenter->cd(2);
-  hampSampleY->SetLineColor(kRed);
-  hampSampleY->Draw();
+  THStack *stackSpl = new THStack("stackSpl", hampSampleX->GetTitle());
   hampSampleX->Draw("same");
+  stackSpl->Add(hampSampleX);
+  hampSampleY->SetLineColor(kRed);
+  stackSpl->Add(hampSampleY);
+  stackSpl->Draw("nostack");
+  stackSpl->GetXaxis()->SetTitle("amplitude (ADC)");
+  stackSpl->GetYaxis()->SetTitle("Counts");
 
   campCenter->cd(0);
   TLegend *legA = new TLegend(0.89,0.69,0.99,0.75);

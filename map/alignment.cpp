@@ -772,9 +772,17 @@ int main(int argc, char const *argv[])
 	}
 	StripTable det(basedir+"../map/"+mapName);
 	
-	std::string run = fnameMM.substr(fnameMM.find("POS"), 5);
-	int pos = std::stoi( fnameMM.substr(fnameMM.find("POS")+3, 2) );
-	std::cout << "Position: " << pos << std::endl;
+	std::string run;
+    if(fnameMM.find("POS") != std::string::npos){
+        run = fnameMM.substr(fnameMM.find("POS"), 5);
+    }else if(fnameMM.find("HVS") != std::string::npos){
+        run = fnameMM.substr(fnameMM.find("HVS"), 5);
+    }
+    else{
+        std::cerr << "Invalid run name" << std::endl;
+        return 1;
+    }
+	std::cout << "Run: " << run << std::endl;
 
 	TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
 	TFile *fMM = TFile::Open(fnameMM.c_str(), "read");
