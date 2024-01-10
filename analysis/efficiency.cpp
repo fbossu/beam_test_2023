@@ -161,7 +161,7 @@ int main(int argc, char* argv[]){
         run = fnameMM.substr(fnameMM.find("HVS"), 5);
         int nb = std::stoi(run.substr(3,2));
         if(nb<13) alignName = basedir + "../map/alignFiles/" + detName + "_" + "HVS" + ".txt";
-        else alignName = basedir + "../map/alignFiles/"+ detName + "_" + "HVS" + ".txt";
+        else alignName = basedir + "../map/alignFiles/"+ detName + "_" + "HVS2" + ".txt";
     }
     else{
         std::cerr << "Invalid run name" << std::endl;
