@@ -188,7 +188,8 @@ int main(int argc, char* argv[]){
     double numY = 0, denY = 0;
     double numXY = 0, denXY = 0;
 
-    double dtol = 4;
+    double dtol = 6;
+    double sigma = 2;
 
     while( MM.Next() ){
         bool isBanco = banco.Next();
@@ -207,7 +208,7 @@ int main(int argc, char* argv[]){
         
         double xreftr = tr.x0 + tr.mx*det.getZpos();
         double yreftr = tr.y0 + tr.my*det.getZpos();
-        if(abs(yreftr - posBeam[0][1]) < 1*posBeam[1][1] and abs(xreftr - posBeam[0][0]) < 1*posBeam[1][0]){
+        if(abs(yreftr - posBeam[0][1]) < sigma*posBeam[1][1] and abs(xreftr - posBeam[0][0]) < sigma*posBeam[1][0]){
             denX++;
             denY++;
             denXY++;
