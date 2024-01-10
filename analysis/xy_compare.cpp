@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
         det = StripTable(basedir+"../map/inter_map.txt");
     }
     else if (detName.find("asa") != std::string::npos){
-        zoneRuns = { {0,16}, {1,14}, {2,2}, {3,5}};
+        zoneRuns = { {0,8}, {0,11}, {1,14}, {2,2}, {3,5}};
         det = StripTable(basedir+"../map/asa_map.txt");
     }
     else {
@@ -163,7 +163,13 @@ int main(int argc, char* argv[]) {
             std::cout<<arg<<" is invalid"<<std::endl;
         } else {
             std::string fname = arg;
-            int pos = std::stoi( fname.substr(fname.find("POS")+3, 2) );
+            int pos;
+            if(fname.find("POS")!=std::string::npos) pos = std::stoi( fname.substr(fname.find("POS")+3, 2) );
+            else if(fname.find("HVS")!=std::string::npos) pos = std::stoi( fname.substr(fname.find("HVS")+3, 2) );
+            else{
+                std::cout<<fname<<" is invalid"<<std::endl;
+                continue;
+            }
             auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
             if(it != zoneRuns.end()){
                 xy_compare(fname, det, it->first, Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));

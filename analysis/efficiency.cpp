@@ -159,7 +159,9 @@ int main(int argc, char* argv[]){
         alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
     }else if(fnameMM.find("HVS") != std::string::npos){
         run = fnameMM.substr(fnameMM.find("HVS"), 5);
-        alignName = basedir + "../map/alignFiles/" + detName + "_" + "HVS10" + ".txt";
+        int nb = std::stoi(run.substr(3,2));
+        if(nb<13) alignName = basedir + "../map/alignFiles/" + detName + "_" + "HVS10" + ".txt";
+        else alignName = basedir + "../map/alignFiles/" + detName + "_" + "HVS13" + ".txt";
     }
     else{
         std::cerr << "Invalid run name" << std::endl;
@@ -185,6 +187,8 @@ int main(int argc, char* argv[]){
     double numX = 0, denX = 0;
     double numY = 0, denY = 0;
     double numXY = 0, denXY = 0;
+
+    double dtol = 4;
 
     while( MM.Next() ){
         bool isBanco = banco.Next();
@@ -212,22 +216,22 @@ int main(int argc, char* argv[]){
         if(maxX){
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, -1);
             double ytr = tr.y0 + tr.my*detPos[2];
-            if(abs(detPos[1]-ytr) < 2) numX++;
+            if(abs(detPos[1]-ytr) < dtol) numX++;
         }
         if(maxY){
             std::vector<double> detPos = det.pos3D(-1, maxY->stripCentroid);
             double xtr = tr.x0 + tr.mx*detPos[2];
-            if(abs(detPos[0]-xtr) < 2) numY++;
+            if(abs(detPos[0]-xtr) < dtol) numY++;
         }
         if(maxX && maxY){
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
             double xtr = tr.x0 + tr.mx*detPos[2];
             double ytr = tr.y0 + tr.my*detPos[2];
-            if(abs(detPos[0]-xtr) < 2 and abs(detPos[1]-ytr) < 2) numXY++;
+            if(abs(detPos[0]-xtr) < dtol and abs(detPos[1]-ytr) < dtol) numXY++;
         }
     }
 
-    std::cout<<"Efficiency X: "<<numX/denX<<std::endl;
+    std::cout<<"\nEfficiency X: "<<numX/denX<<std::endl;
     std::cout<<"Efficiency Y: "<<numY/denY<<std::endl;
     std::cout<<"Efficiency XY: "<<numXY/denXY<<std::endl;
 

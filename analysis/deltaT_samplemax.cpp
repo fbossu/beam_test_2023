@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
         det = StripTable(basedir+"../map/strip_map.txt");
     }
     else if (detName.find("asa") != std::string::npos){
-        zoneRuns = { {0,16}, {1,14}, {2,2}, {3,5}};
+        zoneRuns = { {0,11}, {1,14}, {2,2}, {3,5}};
         det = StripTable(basedir+"../map/asa_map.txt");
     }
     else if (detName.find("inter") != std::string::npos){
