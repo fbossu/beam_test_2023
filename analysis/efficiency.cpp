@@ -160,8 +160,8 @@ int main(int argc, char* argv[]){
     }else if(fnameMM.find("HVS") != std::string::npos){
         run = fnameMM.substr(fnameMM.find("HVS"), 5);
         int nb = std::stoi(run.substr(3,2));
-        if(nb<13) alignName = basedir + "../map/alignFiles/stripFEU1" + "_" + "HVS10" + ".txt";
-        else alignName = basedir + "../map/alignFiles/stripFEU1"+ "_" + "HVS13" + ".txt";
+        if(nb<13) alignName = basedir + "../map/alignFiles/" + detName + "_" + "HVS" + ".txt";
+        else alignName = basedir + "../map/alignFiles/"+ detName + "_" + "HVS" + ".txt";
     }
     else{
         std::cerr << "Invalid run name" << std::endl;
