@@ -125,9 +125,9 @@ int main(int argc, char* argv[]){
     basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
 
     if(argc != 4 and argc != 3){
-    std::cerr << "compute efficiency " << argv[0] << " <detName> <banco.root> <mm.root>" << std::endl;
-    std::cerr << "plot " << argv[0] << " <detName> <efficiency.txt>" << std::endl;
-    return 1;
+        std::cerr << "compute efficiency " << argv[0] << " <detName> <banco.root> <mm.root>" << std::endl;
+        std::cerr << "plot " << argv[0] << " <detName> <efficiency.txt>" << std::endl;
+        return 1;
     }
 
     if(argc == 3){
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]){
     }
 
     StripTable det(mapName, alignName);
-    
+    std::cout<<"Detector "<<detName<<" at "<<det.getZpos()<<std::endl;
     auto posBeam = beamPosition(fnameBanco, det.getZpos(), true);
     std::cout<<det.getZpos()<<" x: "<<posBeam[0][0]<<" +- "<<posBeam[1][0]<<std::endl;
     std::cout<<det.getZpos()<<" y: "<<posBeam[0][1]<<" +- "<<posBeam[1][1]<<std::endl;
@@ -194,8 +194,8 @@ int main(int argc, char* argv[]){
     while( MM.Next() ){
         bool isBanco = banco.Next();
         if(!isBanco){
-        std::cout<<"WARNING: Missing banco event"<<std::endl;
-        continue;
+            std::cout<<"WARNING: Missing banco event"<<std::endl;
+            continue;
         }
         if(tracks->size() == 0 or cls->size() == 0) continue;
 
@@ -208,7 +208,8 @@ int main(int argc, char* argv[]){
         
         double xreftr = tr.x0 + tr.mx*det.getZpos();
         double yreftr = tr.y0 + tr.my*det.getZpos();
-        if(abs(yreftr - posBeam[0][1]) < sigma*posBeam[1][1] and abs(xreftr - posBeam[0][0]) < sigma*posBeam[1][0]){
+        // if(abs(yreftr - posBeam[0][1]) < sigma*posBeam[1][1] and abs(xreftr - posBeam[0][0]) < sigma*posBeam[1][0]){
+        if(true){
             denX++;
             denY++;
             denXY++;
@@ -232,9 +233,9 @@ int main(int argc, char* argv[]){
         }
     }
 
-    std::cout<<"\nEfficiency X: "<<numX/denX<<std::endl;
-    std::cout<<"Efficiency Y: "<<numY/denY<<std::endl;
-    std::cout<<"Efficiency XY: "<<numXY/denXY<<std::endl;
+    std::cout<<"\nEfficiency X: "<<numX/denX<<" den:"<<denXY<<std::endl;
+    std::cout<<"Efficiency Y: "<<numY/denY<<" den:"<<denXY<<std::endl;
+    std::cout<<"Efficiency XY: "<<numXY/denXY<<" den:"<<denXY<<std::endl;
 
     // in efficiency.txt file write run,numX,denX,numY,denY,numXY,denXY
     std::ofstream outfile;
