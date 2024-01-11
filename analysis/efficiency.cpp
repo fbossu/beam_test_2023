@@ -27,6 +27,11 @@
 
 void plot_efficiency(std::string fname, std::string detName){
 
+    std::map<std::string, std::vector<double>> HVS;
+    HVS["asaFEU4"] = { 300., 350., 360., 370., 380., 390., 400., 410., 430., 440., 450, 460., 410, 410, 390.};
+    HVS["stripFEU1"] = { 300., 350., 360., 370., 380., 390., 400., 410., 410., 410., 410, 410, 380, 360, 340.};
+
+
     std::ifstream infile(fname);
     std::string line;
     std::string run, numstr, denstr;
@@ -50,7 +55,7 @@ void plot_efficiency(std::string fname, std::string detName){
         for(int i=0; i<3; i++){
             std::getline(iss, numstr, ',');    num = std::stod(numstr);
             std::getline(iss, denstr, ',');    den = std::stod(denstr);
-            gr[i]->SetPoint(gr[i]->GetN(), std::stoi(run.substr(3,2)), num/den);
+            gr[i]->SetPoint(gr[i]->GetN(), HVS[detName][std::stoi(run.substr(3,2))-1], num/den);
             std::cout<<num/den<<" ";
         }
         std::cout<<std::endl;
@@ -63,7 +68,7 @@ void plot_efficiency(std::string fname, std::string detName){
         mg->Add(gr[i], "p");
     }
     mg->Draw("a");
-    mg->GetXaxis()->SetTitle("Run");
+    mg->GetXaxis()->SetTitle("R tension [V]");
     mg->GetYaxis()->SetTitle("Efficiency");
     // mg->GetYaxis()->SetRangeUser(0.5, 1.1);
     c1->BuildLegend();
@@ -188,7 +193,7 @@ int main(int argc, char* argv[]){
     double numY = 0, denY = 0;
     double numXY = 0, denXY = 0;
 
-    double dtol = 6;
+    double dtol = 4.;
     double sigma = 2;
 
     while( MM.Next() ){
@@ -208,8 +213,7 @@ int main(int argc, char* argv[]){
         
         double xreftr = tr.x0 + tr.mx*det.getZpos();
         double yreftr = tr.y0 + tr.my*det.getZpos();
-        // if(abs(yreftr - posBeam[0][1]) < sigma*posBeam[1][1] and abs(xreftr - posBeam[0][0]) < sigma*posBeam[1][0]){
-        if(true){
+        if(abs(yreftr - posBeam[0][1]) < sigma*posBeam[1][1] and abs(xreftr - posBeam[0][0]) < sigma*posBeam[1][0]){
             denX++;
             denY++;
             denXY++;
