@@ -43,6 +43,8 @@ public:
 	std::string zoneLabel(int z);
 	float pitchXzone(int z);
 	float pitchYzone(int z);
+	float interXzone(int z);
+	float interYzone(int z);
 
 	std::string getRun(){return run;};
 

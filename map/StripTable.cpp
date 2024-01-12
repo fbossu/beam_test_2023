@@ -156,6 +156,14 @@ float StripTable::pitchYzone(int zone) {
     return zonePitch[zone][1];
 }
 
+float StripTable::interXzone(int zone) {
+    return zoneInter[zone][0];
+}
+
+float StripTable::interYzone(int zone) {
+    return zoneInter[zone][1];
+}
+
 double StripTable::getZpos(){
 	ROOT::Math::XYZPoint pdet(-50., 50., 0);
 	ROOT::Math::XYZPoint pr = trans(pdet);

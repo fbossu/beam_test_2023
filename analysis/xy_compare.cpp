@@ -10,8 +10,18 @@
 #include "TLatex.h"
 #include "TLine.h"
 
+double median(std::vector<double> &v, double q=0.5){
+    int n = v.size()*q;
+    std::nth_element(v.begin(), v.begin()+n, v.end());
+    double med = v[n];
+    if(!(v.size() & 1)) { //If the set size is even
+        auto max_it = std::max_element(v.begin(), v.begin()+n);
+        med = (*max_it + med) / 2.0;
+    }
+    return med;    
+}
 
-void xy_compare(std::string fname, StripTable det, int zone, std::string graphName){
+std::vector<double> xy_compare(std::string fname, StripTable det, int zone, std::string graphName){
 
     TH1F* h1[5];
     TH1F* h2[5];
@@ -36,7 +46,7 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
     TFile* file = TFile::Open(fname.c_str(), "read");
     if (!file) {
         std::cerr << "Error: could not open input file " << fname << std::endl;
-        return;
+        return {0,0,0,0,0};
     }
 
     TTreeReader reader("events", file);
@@ -44,36 +54,41 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
 
     int nX=0, nY=0;
+    double gainNum=0, gainDen=0;
+    std::vector<double> Xclsize, Yclsize;
+    std::vector<double> XampF, YampF;
     while (reader.Next()) {
 
         std::shared_ptr<cluster> maxX = maxSizeClX(*cls);
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
         int ampX=0, ampY=0;
-        // if(maxX) {nX++; ampX = totAmp(*hits, maxX->id);}
-        // if(maxY) {nY++; ampY = totAmp(*hits, maxY->id);}
-        
         if(maxX) {
-            nX++;
-            std::vector<hit> clHits = getHits(*hits, maxX->id);
-            ampX = std::accumulate(clHits.begin(), clHits.end(), 0,
-                [](int sum, const hit& h){return sum+h.maxamp-256;});
+            nX++; 
+            ampX = totMaxAmp(*hits, maxX->id);
+            Xclsize.push_back(maxX->size);
         }
         if(maxY) {
             nY++;
-            std::vector<hit> clHits = getHits(*hits, maxY->id);
-            ampY = std::accumulate(clHits.begin(), clHits.end(), 0,
-                [](int sum, const hit& h){return sum+h.maxamp-256;});
+            ampY = totMaxAmp(*hits, maxY->id);
+            Yclsize.push_back(maxY->size);
         }
 
         if(maxX && maxY){
-            if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
+            // if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
+            gainNum += ampX;
+            gainNum += ampY;
+            gainDen ++;
+            double Xfrac = (double) ampX/(ampX+ampY);
+            double Yfrac = (double) ampY/(ampX+ampY);
+            XampF.push_back(Xfrac);
+            YampF.push_back(Yfrac);
             h2clsize->Fill(maxY->size, maxX->size);
             ampXY->Fill(ampY, ampX);
-            if (maxX->size == 1 && maxY->size == 1)      {h1[0]->Fill((float) ampX/(ampY+ampX)); h2[0]->Fill((float)ampY/(ampY+ampX));}
-            else if (maxX->size == 1 && maxY->size == 2) {h1[1]->Fill((float) ampX/(ampY+ampX)); h2[1]->Fill((float)ampY/(ampY+ampX));}
-            else if (maxX->size == 2 && maxY->size == 1) {h1[2]->Fill((float) ampX/(ampY+ampX)); h2[2]->Fill((float)ampY/(ampY+ampX));}
-            else if (maxX->size == 2 && maxY->size == 2) {h1[3]->Fill((float) ampX/(ampY+ampX)); h2[3]->Fill((float)ampY/(ampY+ampX));}
-            else {h1[4]->Fill((float) ampX/(ampX+ampY)); h2[4]->Fill((float)ampY/(ampX+ampY));}
+            if (maxX->size == 1 && maxY->size == 1)      {h1[0]->Fill(Xfrac); h2[0]->Fill(Yfrac);}
+            else if (maxX->size == 1 && maxY->size == 2) {h1[1]->Fill(Xfrac); h2[1]->Fill(Yfrac);}
+            else if (maxX->size == 2 && maxY->size == 1) {h1[2]->Fill(Xfrac); h2[2]->Fill(Yfrac);}
+            else if (maxX->size == 2 && maxY->size == 2) {h1[3]->Fill(Xfrac); h2[3]->Fill(Yfrac);}
+            else {h1[4]->Fill(Xfrac); h2[4]->Fill(Yfrac);}
         }
     }
     file->Close();
@@ -121,6 +136,8 @@ void xy_compare(std::string fname, StripTable det, int zone, std::string graphNa
     tex2->DrawLatexNDC(0.8, 0.25, Form("x pitch: %.2f mm", det.pitchXzone(zone)));
     tex2->DrawLatexNDC(0.8, 0.2, Form("y pitch: %.2f mm", det.pitchYzone(zone)));
     c2->SaveAs(Form("%s_ampXY.png", graphName.substr(0,graphName.size()-5).c_str()));
+
+    return {gainNum/gainDen, median(Xclsize), median(Yclsize), median(XampF), median(YampF)};
 }
 
 int main(int argc, char* argv[]) {
@@ -156,6 +173,12 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    std::ofstream outfile;
+    outfile.open(Form("%s_xycompare.txt", detName.c_str()));
+    outfile<<"#run\tzone\tgain"<<std::endl;
+    outfile<<"#\t\tXpitch\tYinter\tXclsize\tXampF"<<std::endl;
+    outfile<<"#\t\tXpitch\tYinter\tYclsize\tYampF"<<std::endl;
+
     for (int i = 2; i < argc; i++) {
         std::string arg = argv[i];
         std::cout<<arg<<std::endl;
@@ -172,11 +195,14 @@ int main(int argc, char* argv[]) {
             }
             auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
             if(it != zoneRuns.end()){
-                xy_compare(fname, det, it->first, Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
+                std::vector<double> xyout = xy_compare(fname, det, it->first, Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
                 clusterSizeFile(fname, detName, det, it->first);
+                outfile<<"POS"<<it->second<<"\t"<<it->first<<"\t"<<xyout[0]<<std::endl;
+                outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<xyout[1]<<"\t"<<xyout[3]<<std::endl;
+                outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<xyout[2]<<"\t"<<xyout[4]<<std::endl;   
             }
         }
     }
-
+    outfile.close();
     return 0;
 }
