@@ -3,12 +3,13 @@
 #include "TFile.h"
 #include "TTreeReader.h"
 #include "TTreeReaderValue.h"
+#include "TLatex.h"
+#include "TLine.h"
+
 #include "../reco/definitions.h"
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
-#include "clusterSize.h"
-#include "TLatex.h"
-#include "TLine.h"
+#include "analysis.h"
 
 double median(std::vector<double> &v, double q=0.5){
     int n = v.size()*q;
@@ -19,6 +20,12 @@ double median(std::vector<double> &v, double q=0.5){
         med = (*max_it + med) / 2.0;
     }
     return med;    
+}
+
+double mean(std::vector<double> &v){
+    double sum = std::accumulate(v.begin(), v.end(), 0.0);
+    double mean = sum / v.size();
+    return mean;
 }
 
 std::vector<double> xy_compare(std::string fname, StripTable det, int zone, std::string graphName){
@@ -140,69 +147,69 @@ std::vector<double> xy_compare(std::string fname, StripTable det, int zone, std:
     return {gainNum/gainDen, median(Xclsize), median(Yclsize), median(XampF), median(YampF)};
 }
 
-int main(int argc, char* argv[]) {
-    if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << "<detname> <input_file.root>" << std::endl;
-        return 1;
-    }
+// int main(int argc, char* argv[]) {
+//     if (argc < 3) {
+//         std::cerr << "Usage: " << argv[0] << "<detname> <input_file.root>" << std::endl;
+//         return 1;
+//     }
 
-    std::string basedir = argv[0];
-    basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
-    std::cout << basedir << std::endl;
+//     std::string basedir = argv[0];
+//     basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
+//     std::cout << basedir << std::endl;
 
 
-    std::map<int, int> zoneRuns;
-    StripTable det;
+//     std::map<int, int> zoneRuns;
+//     StripTable det;
     
-    std::string detName = argv[1];
+//     std::string detName = argv[1];
 
-    if (detName.find("strip") != std::string::npos){
-        zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
-        det = StripTable(basedir+"../map/strip_map.txt");
-    }
-    else if (detName.find("inter") != std::string::npos){
-        zoneRuns = { {1,13} };
-        det = StripTable(basedir+"../map/inter_map.txt");
-    }
-    else if (detName.find("asa") != std::string::npos){
-        zoneRuns = { {0,8}, {0,11}, {1,14}, {2,2}, {3,5}};
-        det = StripTable(basedir+"../map/asa_map.txt");
-    }
-    else {
-        std::cerr << "Error: detector name not recognized" << std::endl;
-        return 1;
-    }
+//     if (detName.find("strip") != std::string::npos){
+//         zoneRuns = { {0,16}, {1,14}, {3,11}, {4,13}, {6,8}, {7,6}};
+//         det = StripTable(basedir+"../map/strip_map.txt");
+//     }
+//     else if (detName.find("inter") != std::string::npos){
+//         zoneRuns = { {1,13} };
+//         det = StripTable(basedir+"../map/inter_map.txt");
+//     }
+//     else if (detName.find("asa") != std::string::npos){
+//         zoneRuns = { {0,8}, {0,11}, {1,14}, {2,2}, {3,5}};
+//         det = StripTable(basedir+"../map/asa_map.txt");
+//     }
+//     else {
+//         std::cerr << "Error: detector name not recognized" << std::endl;
+//         return 1;
+//     }
 
-    std::ofstream outfile;
-    outfile.open(Form("%s_xycompare.txt", detName.c_str()));
-    outfile<<"#run\tzone\tgain"<<std::endl;
-    outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF"<<std::endl;
-    outfile<<"#\t\tpitch\tYinter\tYclsize\tYampF"<<std::endl;
+//     std::ofstream outfile;
+//     outfile.open(Form("%s_xycompare.txt", detName.c_str()));
+//     outfile<<"#run\tzone\tgain"<<std::endl;
+//     outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF"<<std::endl;
+//     outfile<<"#\t\tpitch\tYinter\tYclsize\tYampF"<<std::endl;
 
-    for (int i = 2; i < argc; i++) {
-        std::string arg = argv[i];
-        std::cout<<arg<<std::endl;
-        if (arg.substr(arg.size() - 5) != ".root") {
-            std::cout<<arg<<" is invalid"<<std::endl;
-        } else {
-            std::string fname = arg;
-            int pos;
-            if(fname.find("POS")!=std::string::npos) pos = std::stoi( fname.substr(fname.find("POS")+3, 2) );
-            else if(fname.find("HVS")!=std::string::npos) pos = std::stoi( fname.substr(fname.find("HVS")+3, 2) );
-            else{
-                std::cout<<fname<<" is invalid"<<std::endl;
-                continue;
-            }
-            auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
-            if(it != zoneRuns.end()){
-                std::vector<double> xyout = xy_compare(fname, det, it->first, Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
-                clusterSizeFile(fname, detName, det, it->first);
-                outfile<<"POS"<<it->second<<"\t"<<it->first<<"\t"<<xyout[0]<<std::endl;
-                outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<xyout[1]<<"\t"<<xyout[3]<<std::endl;
-                outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<xyout[2]<<"\t"<<xyout[4]<<std::endl;   
-            }
-        }
-    }
-    outfile.close();
-    return 0;
-}
+//     for (int i = 2; i < argc; i++) {
+//         std::string arg = argv[i];
+//         std::cout<<arg<<std::endl;
+//         if (arg.substr(arg.size() - 5) != ".root") {
+//             std::cout<<arg<<" is invalid"<<std::endl;
+//         } else {
+//             std::string fname = arg;
+//             int pos;
+//             if(fname.find("POS")!=std::string::npos) pos = std::stoi( fname.substr(fname.find("POS")+3, 2) );
+//             else if(fname.find("HVS")!=std::string::npos) pos = std::stoi( fname.substr(fname.find("HVS")+3, 2) );
+//             else{
+//                 std::cout<<fname<<" is invalid"<<std::endl;
+//                 continue;
+//             }
+//             auto it = std::find_if(zoneRuns.begin(), zoneRuns.end(), [pos](const auto& it) {return it.second == pos; });
+//             if(it != zoneRuns.end()){
+//                 std::vector<double> xyout = xy_compare(fname, det, it->first, Form("%s_POS%d_z%d_xy_maxamp.png", detName.c_str(), pos, it->first));
+//                 clusterSizeFile(fname, detName, det, it->first);
+//                 outfile<<"POS"<<it->second<<"\t"<<it->first<<"\t"<<xyout[0]<<std::endl;
+//                 outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<xyout[1]<<"\t"<<xyout[3]<<std::endl;
+//                 outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<xyout[2]<<"\t"<<xyout[4]<<std::endl;   
+//             }
+//         }
+//     }
+//     outfile.close();
+//     return 0;
+// }
