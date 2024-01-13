@@ -120,9 +120,11 @@ int main(int argc, char* argv[]) {
     outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
 
+    StripTable det(detMap);
+
     for(auto it = files.begin(); it != files.end(); it++){
         std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + zoneRuns[it->first] + ".txt";
-        StripTable det(detMap, alignName);
+        if(!det.SetAlignFile(alignName)) continue;
         std::cout<<"Zone "<<it->first<<" fMM "<<it->second[1]<<" fBanco "<<it->second[0]<<std::endl;
         std::vector<double> xyout = xy_compare(it->second[1], det, it->first, Form("%s_%s_z%d_xy_maxamp.png", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
         std::vector<double> resXY = ResiduePlotAll(det, it->second[0], it->second[1], Form("%s_%s_z%d_residues", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));

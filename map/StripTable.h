@@ -22,6 +22,7 @@ public:
 	StripTable(std::string idetFile);
 	StripTable(std::string idetFile, std::string alignFile);
 
+	bool SetAlignFile(std::string alignFile);
 	void setTransform(double zpos, double Tx, double Ty, double rotZ, double rotY, double rotX);
 	int toGB(int sn, char axis);  		// convert strip to gerber channnel
 
