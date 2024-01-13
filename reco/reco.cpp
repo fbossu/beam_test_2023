@@ -315,7 +315,7 @@ int main( int argc, char **argv ){
       // det.setInversion(false, true, true, false);
     }
     else if(nbDet == 2){
-      det = DreamTable(basedir + "../map/inter_map.txt", 4, 5, 6, 7);
+      det = DreamTable(basedir + "../map/inter_map.txt", -1, 5, -1, 7);
       det.setInversion(true, true, false, false);
     }
     else {cerr << "detector number invalid \n"; return 1; }

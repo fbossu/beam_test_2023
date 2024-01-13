@@ -728,9 +728,9 @@ std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::
   std::string resName = prefix+"_residueFile.root";
 
   residue(resName, fnameBanco, fnameMM, det);
+  std::vector<double> vect = plotResidue(resName, graphname);
   plotResidueSt(resName, graphnamest);
   plotResidueChannel(resName, graphnamech);
-  std::vector<double> vect = plotResidue(resName, graphname);
   plotResidueClsize(resName, graphnameCl);
   res3Dplot(resName, graphname3D);
   return vect;
