@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
         detMap = "../map/inter_map.txt";
     }
     else if (detName.find("asa") != std::string::npos){
-        zoneRuns = { {0,"POS11"}, {1,"POS14"}, {2,"POS02"}, {3,"POS05"}};
+        zoneRuns = { {0,"POS11"}, {1,"POS13"}, {2,"POS02"}, {3,"POS05"}};
         detMap = "../map/asa_map.txt";
     }
     else {
