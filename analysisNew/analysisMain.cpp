@@ -38,6 +38,12 @@ void defStyle(){
     gStyle->SetPadBottomMargin(0.12);
     gStyle->SetPadLeftMargin(0.12);
     gStyle->SetPadRightMargin(0.12);
+
+    gStyle->SetLineWidth(2);
+    gStyle->SetFrameLineWidth(2);
+    // gStyle->SetFuncWidth(2);
+    gStyle->SetHistLineWidth(1);
+
 }
 
 std::map<int, std::vector<std::string>> parseFiles(std::map<int, std::string> zoneRuns, int argc, char* argv[]){
