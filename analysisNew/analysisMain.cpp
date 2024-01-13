@@ -14,23 +14,30 @@ void defStyle(){
   // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
   // myStyle = gROOT->GetStyle("Default");
   // TStyle* myStyle = new TStyle("Plain","Default Style");
-  gStyle->SetName("myStyle");
-  gStyle->SetTextFont(43);
-  gStyle->SetTextSize(22);
+    gStyle->SetName("myStyle");
+    gStyle->SetTextFont(43);
+    gStyle->SetTextSize(25);
 
-  // Set the font and size for all axis labels
-  gStyle->SetLabelFont(43, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
-  gStyle->SetLabelSize(22, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
+    // Set the font and size for all axis labels
+    gStyle->SetLabelFont(43, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
+    gStyle->SetLabelSize(25, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
 
-  // Set the font and size for all axis titles
-  gStyle->SetTitleFont(43, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
-  gStyle->SetTitleSize(22, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+    // Set the font and size for all axis titles
+    gStyle->SetTitleFont(43, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleSize(25, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
 
-  gStyle->SetTitleFont(43,"T"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
-  gStyle->SetTitleSize(22,"T"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleFont(43,"T"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleSize(25,"T"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
 
   // gROOT->SetStyle("myStyle");
   // gROOT->ForceStyle();
+    // gStyle->SetPalette(kTemperatureMap);
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit(0);
+    gStyle->SetPadTopMargin(0.07);
+    gStyle->SetPadBottomMargin(0.12);
+    gStyle->SetPadLeftMargin(0.12);
+    gStyle->SetPadRightMargin(0.12);
 }
 
 std::map<int, std::vector<std::string>> parseFiles(std::map<int, std::string> zoneRuns, int argc, char* argv[]){

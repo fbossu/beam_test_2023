@@ -183,9 +183,9 @@ std::vector<double> plotResidue(std::string resName, std::string graphname){
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
-  TH1F* hx = new TH1F("hx", "residu X strips (track - centroid)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "residu Y strips (track - centroid)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
   nt->Draw("yres>>hx");
   nt->Draw("xres>>hy");
@@ -200,11 +200,11 @@ std::vector<double> plotResidue(std::string resName, std::string graphname){
   fitFuncY->SetParameters(0, stdx);
   hy->Fit(fitFuncY, "R");
 
-  TH2F* h2x = new TH2F("h2x", "residu X strips vs y pos", 300, meanydet-4, meanydet+4, 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  TH2F* h2x = new TH2F("h2x", "Residue X strips vs y pos", 300, meanydet-4, meanydet+4, 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   h2x->GetXaxis()->SetTitle("position y axis (mm)");
   h2x->GetYaxis()->SetTitle("residue (mm)");
 
-  TH2F* h2y = new TH2F("h2y", "residu Y strips vs x pos", 300, meanxdet-4, meanxdet+4, 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  TH2F* h2y = new TH2F("h2y", "Residue Y strips vs x pos", 300, meanxdet-4, meanxdet+4, 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
   nt->Draw("yres:ydet>>h2x");
@@ -219,7 +219,7 @@ std::vector<double> plotResidue(std::string resName, std::string graphname){
   // gStyle->SetTextSize(20); // Set the font size to 0.05
 
   TCanvas *c = new TCanvas("c", "c", 1600,1000);
-  gStyle->SetOptStat(0);
+  // gStyle->SetOptStat(0);
   TLatex latex;
   // latex.SetTextFont(43);
   // latex.SetTextSize(18);
@@ -230,31 +230,30 @@ std::vector<double> plotResidue(std::string resName, std::string graphname){
   hx->Draw();
   // gPad->SetLogy();
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.8, (label).c_str());
 
   label = "inter: " + std::to_string(Xinter).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.76, (label).c_str());
-
+  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
   label = "#mu_{X}: " + std::to_string(fitFuncX->GetParameter(1)).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.72, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
 
   label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.68, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
 
   c->cd(2);
   hy->Draw();
   // gPad->SetLogy();
   label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.8, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.8, (label).c_str());
 
   label = "inter: " + std::to_string(Yinter).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.76, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
 
   label = "#mu_{Y}: " + std::to_string(fitFuncY->GetParameter(1)).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.72, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
 
   label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5);
-  latex.DrawLatexNDC(0.75, 0.68, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
   
   c->cd(3);
   TF1 *fpol1 = new TF1("pol1", "pol1", meanydet-1.5, meanydet+1.5);
@@ -323,9 +322,9 @@ void res3Dplot(std::string resName, std::string graphname){
     h2yres->SetBinContent(h2yres->FindBin(xdet, ydet), yres);
   }
 
-  TCanvas *c = new TCanvas("c", "c", 1600,1000);
-  gStyle->SetOptStat(0);
-  gStyle->SetPalette(kTemperatureMap);
+  TCanvas *c = new TCanvas("c", "c", 1600,1200);
+  // gStyle->SetOptStat(0);
+  // gStyle->SetPalette(kTemperatureMap);
   c->Divide(2,1);
   c->cd(1);
   h2yres->Draw("colz");
@@ -429,8 +428,8 @@ void plotResidueClsize(std::string resName, std::string graphname){
     // nt->Draw(Form("xres:chY>>h2y_%d", i),Form("Yclsize==%d",i+1));
   }
 
-  TCanvas *c = new TCanvas("c", "c", 1600,1000);
-  gStyle->SetOptStat(0);
+  TCanvas *c = new TCanvas("c", "c", 1600,1200);
+  // gStyle->SetOptStat(0);
   TLatex latex;
   // latex.SetTextFont(43);
   // latex.SetTextSize(18);
@@ -541,8 +540,8 @@ void plotResidueChannel(std::string resName, std::string graphname){
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
 
-  TCanvas *c = new TCanvas("c", "c", 1600,1000);
-  gStyle->SetOptStat(0);
+  TCanvas *c = new TCanvas("c", "c", 1600,1200);
+  // gStyle->SetOptStat(0);
   TLatex latex;
   // latex.SetTextFont(43);
   // latex.SetTextSize(18);
@@ -657,8 +656,8 @@ void plotResidueSt(std::string resName, std::string graphname){
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
 
-  TCanvas *c = new TCanvas("c", "c", 1600,1000);
-  gStyle->SetOptStat(0);
+  TCanvas *c = new TCanvas("c", "c", 1600,1200);
+  // gStyle->SetOptStat(0);
   TLatex latex;
   // latex.SetTextFont(43);
   // latex.SetTextSize(18);

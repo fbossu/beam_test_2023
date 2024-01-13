@@ -138,8 +138,8 @@ std::vector<double> xy_compare(std::string fname, StripTable det, int zone, std:
     line->Draw("same");
 
     TLatex* tex2 = new TLatex();
-    tex2->SetTextFont(43);
-    tex2->SetTextSize(22);
+    // tex2->SetTextFont(43);
+    // tex2->SetTextSize(22);
     tex2->DrawLatexNDC(0.8, 0.25, Form("x pitch: %.2f mm", det.pitchXzone(zone)));
     tex2->DrawLatexNDC(0.8, 0.2, Form("y pitch: %.2f mm", det.pitchYzone(zone)));
     c2->SaveAs(Form("%s_ampXY.png", graphName.substr(0,graphName.size()-5).c_str()));
