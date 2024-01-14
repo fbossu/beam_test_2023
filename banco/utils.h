@@ -19,6 +19,7 @@ axis* createAxis( const char *title, int nbins, float binl, float binh ){
 
 
 TH1F* createHisto( const char *name, const char *title, axis *x ){
+  std::cout<<"createHisto "<<name<<" "<<title<<" "<<x->nbins<<" "<<x->binl<<" "<<x->binh<<std::endl;
   TH1F *h = new TH1F(name,title,x->nbins,x->binl,x->binh);
   h->SetXTitle(x->title);
   return h;
