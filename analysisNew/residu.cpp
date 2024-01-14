@@ -181,7 +181,7 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
 
   double avg_std = (stdx+stdy)/2.;
 
-  if(angleX != 0) avg_std = avg_std*1.5;
+  if(angleX != 0) avg_std = avg_std*2.;
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
