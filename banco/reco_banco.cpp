@@ -136,7 +136,7 @@ std::string geofname = "geometries.txt";
 std::string rotfname = "global_rotation.txt";
 int NEVENTS = -1;
 bool DoRES = false;
-float MaxR = 10.;
+float MaxR = 1.;
 
 // =================================================================
 
