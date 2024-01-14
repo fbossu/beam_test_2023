@@ -144,7 +144,7 @@ std::vector<double> xy_compare(std::string fname, StripTable det, int zone, std:
     tex2->DrawLatexNDC(0.8, 0.2, Form("y pitch: %.2f mm", det.pitchYzone(zone)));
     c2->SaveAs(Form("%s_ampXY.png", graphName.substr(0,graphName.size()-5).c_str()));
 
-    return {gainNum/gainDen, median(Xclsize), median(Yclsize), median(XampF), median(YampF)};
+    return {gainNum/gainDen, mean(Xclsize), mean(Yclsize), mean(XampF), mean(YampF)};
 }
 
 // int main(int argc, char* argv[]) {
