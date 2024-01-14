@@ -117,8 +117,8 @@ std::vector<double> xy_compare(std::string fname, StripTable det, int zone, std:
         h2[i]->Draw("same");
     }
     c1->cd(0);
-    std::cout<<"cc"<<zone<<std::endl;
-    std::cout<<det.pitchXzone(zone)<<"cc"<<std::endl;
+    // std::cout<<"cc"<<zone<<std::endl;
+    // std::cout<<det.pitchXzone(zone)<<"cc"<<std::endl;
     TLegend* leg = new TLegend(0.8, 0.2, 0.95, 0.3);
     leg->AddEntry(h1[0], Form("x pitch: %.2f mm", det.pitchXzone(zone)), "l");
     leg->AddEntry(h2[0], Form("y pitch: %.2f mm", det.pitchYzone(zone)), "l");

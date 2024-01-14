@@ -31,6 +31,7 @@ bool StripTable::SetAlignFile(std::string alignFile) {
 	std::ifstream file(alignFile);
 	
 	if (!file.is_open()) {
+		std::cout<<"Error: alignment file not found"<<std::endl;
 		return false;
 	}
 

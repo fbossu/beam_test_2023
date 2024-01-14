@@ -11,8 +11,8 @@ namespace banco {
   class Ladder {
     public:
       Ladder() { 
-        pitchx = 0.02688; // mm ; 28 µm
-        pitchy = 0.02924; // mm ; 28 µm
+        pitchy = 0.02688; // mm ; 28 µm
+        pitchx = 0.02924; // mm ; 28 µm
         flipx = false;
         flipy = false;
       } 

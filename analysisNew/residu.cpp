@@ -139,9 +139,9 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
       double xtrack = tr.x0 + detPos[2]*tr.mx;
       double ytrack = tr.y0 + detPos[2]*tr.my;
       
-      for(int i=0; i<hitsY.size(); i++){
-        if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
-      }
+      // for(int i=0; i<hitsY.size(); i++){
+      //   // if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
+      // }
       avgxdet += xdet;
 
       double data[18] = {xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, 
