@@ -162,7 +162,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
 }
 
 
-std::vector<double> plotResidue(std::string resName, std::string graphname){
+std::vector<double> plotResidue(std::string resName, std::string graphname, double angleX, double angleY){
   
   // defStyle();
   
@@ -181,14 +181,18 @@ std::vector<double> plotResidue(std::string resName, std::string graphname){
 
   double avg_std = (stdx+stdy)/2.;
 
+  if(angleX != 0) avg_std = avg_std*1.5;
+
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
   TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
   TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
-  nt->Draw("yres>>hx");
-  nt->Draw("xres>>hy");
+  // nt->Draw("yres>>hx");
+  // nt->Draw("xres>>hy");
+  nt->Draw(Form("cos(%f)*yres+sin(%f)*ydet>>hx", angleX, angleX));
+  nt->Draw(Form("cos(%f)*xres+sin(%f)*xdet>>hy", angleY, angleY));
 
   // Fit hx with a Gaussian function
   TF1* fitFuncX = new TF1("fitFuncX", "gaus", meanresy-2.*avg_std, meanresy+2.*avg_std);
@@ -207,13 +211,17 @@ std::vector<double> plotResidue(std::string resName, std::string graphname){
   TH2F* h2y = new TH2F("h2y", "Residue Y strips vs x pos", 300, meanxdet-4, meanxdet+4, 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
   h2y->GetXaxis()->SetTitle("position x axis (mm)");
   h2y->GetYaxis()->SetTitle("residue (mm)");
-  nt->Draw("yres:ydet>>h2x");
-  nt->Draw("xres:xdet>>h2y");
+  // nt->Draw("yres:ydet>>h2x");
+  // nt->Draw("xres:xdet>>h2y");
+  nt->Draw(Form("cos(%f)*yres+sin(%f)*ydet:-sin(%f)*yres+cos(%f)*ydet>>h2x",angleX,angleX,angleX,angleX));
+  nt->Draw(Form("cos(%f)*xres+sin(%f)*xdet:-sin(%f)*xres+cos(%f)*xdet>>h2y",angleY,angleY,angleY,angleY));
 
   TProfile* prx = new TProfile("prx", "residu X strips vs y pos", 300, meanydet-4, meanydet+4, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   TProfile* pry = new TProfile("pry", "residu Y strips vs x pos", 300, meanxdet-4, meanxdet+4, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
-  nt->Draw("yres:ydet>>prx");
-  nt->Draw("xres:xdet>>pry");
+  // nt->Draw("yres:ydet>>prx");
+  // nt->Draw("xres:xdet>>pry");
+  nt->Draw(Form("cos(%f)*yres+sin(%f)*ydet:-sin(%f)*yres+cos(%f)*ydet>>prx",angleX,angleX,angleX,angleX));
+  nt->Draw(Form("cos(%f)*xres+sin(%f)*xdet:-sin(%f)*xres+cos(%f)*xdet>>pry",angleY,angleY,angleY,angleY));
 
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
@@ -276,7 +284,11 @@ std::vector<double> plotResidue(std::string resName, std::string graphname){
   c->Print(graphname.c_str(), "png");
   res->Close();
 
-  return { fitFuncX->GetParameter(2), fitFuncY->GetParameter(2) };
+
+  double angleXout = atan(fpol1->GetParameter(1));
+  double angleYout = atan(fpoly->GetParameter(1));
+
+  return { fitFuncX->GetParameter(2), fitFuncY->GetParameter(2), angleXout, angleYout };
 }
 
 void res3Dplot(std::string resName, std::string graphname){
@@ -719,6 +731,7 @@ void plotResidueSt(std::string resName, std::string graphname){
 
 std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::string fnameMM, std::string prefix){
   std::string graphname   = prefix+".png";
+  std::string graphnameRot   = prefix+"_rot.png";
   std::string graphnamech = prefix+"_channel.png";
   std::string graphnamest = prefix+"_strip.png";
   std::string graphnameCl = prefix+"_clsize"+".png";
@@ -728,6 +741,7 @@ std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::
 
   residue(resName, fnameBanco, fnameMM, det);
   std::vector<double> vect = plotResidue(resName, graphname);
+  vect = plotResidue(resName, graphnameRot, -vect[2], -vect[3]);
   // plotResidueSt(resName, graphnamest);
   // plotResidueChannel(resName, graphnamech);
   plotResidueClsize(resName, graphnameCl);

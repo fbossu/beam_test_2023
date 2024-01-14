@@ -43,7 +43,7 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
 
 // residue.cpp functions
 void residue(std::string resName, std::string fnameBanco, std::string fnameMM, StripTable det);
-std::vector<double> plotResidue(std::string resName, std::string graphname);
+std::vector<double> plotResidue(std::string resName, std::string graphname, double angleX=0., double angleY=0.);
 void res3Dplot(std::string resName, std::string graphname);
 void plotResidueClsize(std::string resName, std::string graphname);
 void plotResidueChannel(std::string resName, std::string graphname);
