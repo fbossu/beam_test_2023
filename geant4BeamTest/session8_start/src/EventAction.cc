@@ -147,26 +147,26 @@ void EventAction::trackingBanco(G4VHitsCollection* hc)
     gry.SetPointError(i,0,0.028/sqrt(12));
   }
 
-  auto ptrx = grx.Fit("pol1","Q0S");
-  auto ptry = gry.Fit("pol1","Q0S");
+  // auto ptrx = grx.Fit("pol1","Q0S");
+  // auto ptry = gry.Fit("pol1","Q0S");
 
-  if( l0 && l1 && l2 && l3 && (int)ptrx==0 && (int)ptry==0){
-    fx0 = ptrx->Parameter(0);
-    fmx = ptrx->Parameter(1);
-    fchi2x = ptrx->Chi2()/ptrx->Ndf();
+  // if( l0 && l1 && l2 && l3 && (int)ptrx==0 && (int)ptry==0){
+  //   fx0 = ptrx->Parameter(0);
+  //   fmx = ptrx->Parameter(1);
+  //   fchi2x = ptrx->Chi2()/ptrx->Ndf();
 
-    fy0 = ptry->Parameter(0);
-    fmy = ptry->Parameter(1);
-    fchi2y = ptry->Chi2()/ptry->Ndf();
-  }
-  else{
-    fx0 = -1.;
-    fmx = -1.;
-    fchi2x = -1.;
+  //   fy0 = ptry->Parameter(0);
+  //   fmy = ptry->Parameter(1);
+  //   fchi2y = ptry->Chi2()/ptry->Ndf();
+  // }
+  // else{
+  //   fx0 = -1.;
+  //   fmx = -1.;
+  //   fchi2x = -1.;
 
-    fy0 = -1.;
-    fmy = -1.;
-    fchi2y = -1.;
-  }
+  //   fy0 = -1.;
+  //   fmy = -1.;
+  //   fchi2y = -1.;
+  // }
 }
 }

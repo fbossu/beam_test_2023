@@ -313,6 +313,7 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 	minimum->SetVariable(3,"rotZ", pStart[3], step[3]);
 	minimum->SetVariable(4,"rotY", pStart[4], step[4]);
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
+	// minimum->FixVariable(0); 
 	if(fixVars){
 		minimum->FixVariable(0);
 		minimum->FixVariable(3);
@@ -880,7 +881,7 @@ int main(int argc, char const *argv[])
 	// double pGrid[6] = {-286.6, pStart[1], pStart[2], pStart[3], 0.4, pStart[5]};
 	// double* pGrid = zRotAlign(Form("RotXYAlign_funcchi2_%s_%s_pgrid.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart, "xy");
 	
-	// double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pGrid);
+	// double* pRot = alignXY(run, det, tracksFit, XclsFit, YclsFit, pStart);
 	// std::cout<<"Final rot: "<<pRot[0]<<" "<<pRot[1]<<" "<<pRot[2]<<" "<<pRot[3]<<" "<<pRot[4]<<" "<<pRot[5]<<std::endl;
 	// double status = pRot[6];
 	double status = 5.;

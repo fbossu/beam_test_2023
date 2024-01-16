@@ -295,6 +295,132 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   return { fitFuncX->GetParameter(2), fitFuncY->GetParameter(2), angleXout, angleYout };
 }
 
+
+
+void plotResidueBanco(std::string resName, std::string graphname){
+  
+  // defStyle();
+  
+  TFile* res = new TFile((resName).c_str(), "open");
+  TNtupleD* nt = (TNtupleD*) res->Get("nt");
+
+  double meanxdet = getMean(nt, "xdet",{-200, 200});
+  double meanydet = getMean(nt, "ydet",{-200, 200});
+  double stdx = getStdDev(nt, "xres",{-50, 50});
+  double stdy = getStdDev(nt, "yres",{-50, 50});
+
+  double meanresx = getMean(nt, "xres",{-200, 200});
+  double meanresy = getMean(nt, "yres",{-200, 200});
+  double meanstX = getMean(nt, "stX",{-50, 50});
+  double meanstY = getMean(nt, "stY",{-50, 50});
+
+  double avg_std = (stdx+stdy)/2.;
+
+  std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
+
+  TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  hx->GetXaxis()->SetTitle("residue on y axis (mm)");
+  TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  hy->GetXaxis()->SetTitle("residue on x axis (mm)");
+  // nt->Draw("yres>>hx");
+  // nt->Draw("xres>>hy");
+  nt->Draw("yres>>hx");
+  nt->Draw("xres>>hy");
+
+  // Fit hx with a Gaussian function
+  TF1* fitFuncX = new TF1("fitFuncX", "gaus", meanresy-2.*avg_std, meanresy+2.*avg_std);
+  fitFuncX->SetParameters(0, stdy);
+  hx->Fit(fitFuncX, "R");
+
+  // Fit hy with a Gaussian function
+  TF1* fitFuncY = new TF1("fitFuncY", "gaus", meanresx-2.*avg_std, meanresx+2.*avg_std);
+  fitFuncY->SetParameters(0, stdx);
+  hy->Fit(fitFuncY, "R");
+
+  TH2F* h2x = new TH2F("h2x", "Residue X strips vs y pos", 300, meanydet-4, meanydet+4, 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  h2x->GetXaxis()->SetTitle("position y axis (mm)");
+  h2x->GetYaxis()->SetTitle("residue (mm)");
+
+  TH2F* h2y = new TH2F("h2y", "Residue Y strips vs x pos", 300, meanxdet-4, meanxdet+4, 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  h2y->GetXaxis()->SetTitle("position x axis (mm)");
+  h2y->GetYaxis()->SetTitle("residue (mm)");
+  // nt->Draw("yres:ydet>>h2x");
+  // nt->Draw("xres:xdet>>h2y");
+  nt->Draw("yres:ytrack>>h2x");
+  nt->Draw("xres:xtrack>>h2y");
+
+  TProfile* prx = new TProfile("prx", "residu X strips vs y pos", 300, meanydet-4, meanydet+4, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  TProfile* pry = new TProfile("pry", "residu Y strips vs x pos", 300, meanxdet-4, meanxdet+4, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  // nt->Draw("yres:ydet>>prx");
+  // nt->Draw("xres:xdet>>pry");
+  nt->Draw("yres:ytrack>>prx");
+  nt->Draw("xres:xtrack>>pry");
+
+  // gStyle->SetTextFont(43); // Set the font to Helvetica
+  // gStyle->SetTextSize(20); // Set the font size to 0.05
+
+  TCanvas *c = new TCanvas("c", "c", 1600,1000);
+  // gStyle->SetOptStat(0);
+  TLatex latex;
+  // latex.SetTextFont(43);
+  // latex.SetTextSize(18);
+  std::string label;
+
+  c->Divide(2,2);
+  c->cd(1);
+  hx->Draw();
+  // gPad->SetLogy();
+  label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.8, (label).c_str());
+
+  label = "inter: " + std::to_string(Xinter).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
+  label = "#mu_{X}: " + std::to_string(fitFuncX->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
+
+  label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
+
+  c->cd(2);
+  hy->Draw();
+  // gPad->SetLogy();
+  label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.8, (label).c_str());
+
+  label = "inter: " + std::to_string(Yinter).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
+
+  label = "#mu_{Y}: " + std::to_string(fitFuncY->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
+
+  label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5);
+  latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
+  
+  c->cd(3);
+  TF1 *fpol1 = new TF1("pol1", "pol1", meanydet-1.5, meanydet+1.5);
+  prx->Fit(fpol1, "R");
+  h2x->Draw("colz");
+  prx->Draw("same");
+  gPad->SetLogz();
+  label = "slope="+ std::to_string(fpol1->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
+
+  c->cd(4);
+  TF1 *fpoly = new TF1("poly", "pol1", meanxdet-1.5, meanxdet+1.5);
+  pry->Fit(fpoly, "R");
+  h2y->Draw("colz");
+  pry->Draw("same");
+  gPad->SetLogz();
+  label = "slope="+ std::to_string(fpoly->GetParameter(1)).substr(0, 5);
+  latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
+
+  c->Print(graphname.c_str(), "png");
+  res->Close();
+}
+
+
+
+
 void res3Dplot(std::string resName, std::string graphname){
   
   // gROOT->SetStyle("myStyle");
@@ -740,12 +866,14 @@ std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::
   std::string graphnamest = prefix+"_strip.png";
   std::string graphnameCl = prefix+"_clsize"+".png";
   std::string graphname3D = prefix+"_3D"+".png";
+  std::string graphnameBanco = prefix+"_Banco"+".png";
 
   std::string resName = prefix+"_residueFile.root";
 
   residue(resName, fnameBanco, fnameMM, det);
   std::vector<double> vect = plotResidue(resName, graphname);
-  vect = plotResidue(resName, graphnameRot, -vect[2], -vect[3]);
+  std::vector<double> vectRot = plotResidue(resName, graphnameRot, -vect[2], -vect[3]);
+  plotResidueBanco(resName, graphnameBanco);
   // plotResidueSt(resName, graphnamest);
   // plotResidueChannel(resName, graphnamech);
   plotResidueClsize(resName, graphnameCl);
