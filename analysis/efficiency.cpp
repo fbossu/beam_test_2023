@@ -193,8 +193,8 @@ int main(int argc, char* argv[]){
     double numY = 0, denY = 0;
     double numXY = 0, denXY = 0;
 
-    double dtol = 4.;
-    double sigma = 2;
+    double dtol = 2.;
+    double sigma = 3;
 
     while( MM.Next() ){
         bool isBanco = banco.Next();
