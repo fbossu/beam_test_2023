@@ -517,7 +517,7 @@ void plotResidueClsize(std::string resName, std::string graphname){
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
 
-  std::vector<int> color = {kBlue, kRed, kViolet, kBlack};
+  std::vector<int> color = {kBlue, kRed, kViolet, kOrange};
 
   for(int i=0; i<N; i++){
     hx[i] = new TH1F(Form("hx_%d",i), "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
@@ -588,7 +588,7 @@ void plotResidueClsize(std::string resName, std::string graphname){
 
   for(int i=0; i<N; i++){
     latex.SetTextColor(color[i]);
-    label = Form("size%d: #mu_{X}=%.3f; #sigma_{X}=%.3f", i+1, fitFuncX[i]->GetParameter(1), fitFuncX[i]->GetParameter(2));
+    label = Form("size%d: #sigma_{X}=%.3f", i+1, fitFuncX[i]->GetParameter(2));
     latex.DrawLatexNDC(0.65, 0.72-i*0.04, (label).c_str());
     latex.SetTextColor(kBlack);
   }
@@ -604,7 +604,7 @@ void plotResidueClsize(std::string resName, std::string graphname){
 
   for(int i=0; i<N; i++){
     latex.SetTextColor(color[i]);
-    label = Form("size%d: #mu_{Y}=%.3f; #sigma_{Y}=%.3f", i+1, fitFuncY[i]->GetParameter(1), fitFuncY[i]->GetParameter(2));
+    label = Form("size%d: #sigma_{Y}=%.3f", i+1, fitFuncY[i]->GetParameter(2));
     latex.DrawLatexNDC(0.65, 0.72-i*0.04, (label).c_str());
     latex.SetTextColor(kBlack);
   }
@@ -860,12 +860,12 @@ void plotResidueSt(std::string resName, std::string graphname){
 
 
 std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::string fnameMM, std::string prefix){
-  std::string graphname   = prefix+".png";
+  std::string graphname      = prefix+".png";
   std::string graphnameRot   = prefix+"_rot.png";
-  std::string graphnamech = prefix+"_channel.png";
-  std::string graphnamest = prefix+"_strip.png";
-  std::string graphnameCl = prefix+"_clsize"+".png";
-  std::string graphname3D = prefix+"_3D"+".png";
+  std::string graphnamech    = prefix+"_channel.png";
+  std::string graphnamest    = prefix+"_strip.png";
+  std::string graphnameCl    = prefix+"_clsize"+".png";
+  std::string graphname3D    = prefix+"_3D"+".png";
   std::string graphnameBanco = prefix+"_Banco"+".png";
 
   std::string resName = prefix+"_residueFile.root";

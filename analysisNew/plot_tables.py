@@ -152,7 +152,7 @@ def plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, val, yTitle, graph
     for side in ['bottom', 'right', 'top', 'left']:
         ax1.spines[side].set_linewidth(2)
         ax2.spines[side].set_linewidth(2)
-
+    ax1.text(0.5, 0.5, 'Preliminary', fontsize=80, color='gray', ha='center', va='center', alpha=0.15, rotation=-30, transform=ax1.transAxes)
     plt.title(yTitle+' vs Pitch', loc='center')
     # fig.suptitle(yTitle+' vs Pitch', x=0.5, y=0.98)
     # plt.show()
@@ -229,7 +229,7 @@ def plotPitchAsa(XdataStrip, YdataStrip, XdataPlein, YdataPlein, val, yTitle, gr
         ax1.set_ylabel(yTitle+' [mm]')
     else :
         ax1.set_ylabel(yTitle)
-
+    ax1.text(0.5, 0.5, 'Preliminary', fontsize=80, color='gray', ha='center', va='center', alpha=0.15, rotation=-30, transform=ax1.transAxes)
     # fig.legend()
     plt.title(yTitle+' vs Pitch', loc='center')
     # fig.suptitle(yTitle+' vs Pitch', x=0.51, y=0.98)

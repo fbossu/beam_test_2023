@@ -78,6 +78,7 @@ class EventAction : public G4UserEventAction
     double fchi2y = -1.;
 
     std::vector<std::vector<G4double>> fMMpos;
+    std::vector<std::vector<G4double>> fbanco;
 
 };
 

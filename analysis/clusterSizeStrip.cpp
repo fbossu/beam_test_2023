@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
-  StripTable det(basedir+"../map/strip_map.txt");
+  StripTable det(basedir+"../map/asa_map.txt");
 
   // std::vector<int> zoneRuns = {16, 15, 14, 11, 13, 8, 6};
 
@@ -120,13 +120,13 @@ int main(int argc, char const *argv[])
     std::string run = p.first.substr(p.first.find("POS")+3, 2);
     // tex->DrawLatex(p.second[0], p.second[1], run.c_str());
   }
-  tex->DrawLatex(-80, 5,  "1mm");
-  tex->DrawLatex(-40, 5,  "1.5mm");
-  tex->DrawLatex(-0, 5,  "0.5mm");
+  //tex->DrawLatex(-80, 5,  "1mm");
+  //tex->DrawLatex(-40, 5,  "1.5mm");
+  //tex->DrawLatex(-0, 5,  "0.5mm");
 
-  tex->DrawLatex(-110, 104,  "0.5mm");
-  tex->DrawLatex(-110, 70,  "1.5mm");
-  tex->DrawLatex(-110, 30,  "1.mm");
+  //tex->DrawLatex(-110, 104,  "0.5mm");
+  //tex->DrawLatex(-110, 70,  "1.5mm");
+  //tex->DrawLatex(-110, 30,  "1.mm");
   c->Print("test.png", "png");
 
   // for( int i = 2; i < argc; i++) {
