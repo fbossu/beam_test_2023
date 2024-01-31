@@ -517,7 +517,7 @@ void plotResidueClsize(std::string resName, std::string graphname){
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
 
-  std::vector<int> color = {kBlue, kRed, kViolet, kOrange+2};
+  std::vector<int> color = {kBlue, kRed, kViolet, kOrange-3};
 
   for(int i=0; i<N; i++){
     hx[i] = new TH1F(Form("hx_%d",i), "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
