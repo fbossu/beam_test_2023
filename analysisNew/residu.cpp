@@ -359,7 +359,7 @@ void plotResidueBanco(std::string resName, std::string graphname){
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
 
-  TCanvas *c = new TCanvas("c", "c", 1600,1000);
+  TCanvas *c = new TCanvas("c", "c", 1600,1200);
   // gStyle->SetOptStat(0);
   TLatex latex;
   // latex.SetTextFont(43);
