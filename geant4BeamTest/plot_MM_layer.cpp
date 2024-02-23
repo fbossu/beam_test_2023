@@ -313,16 +313,16 @@ void plot_all(std::string fname, double pitch, double inter, double thRatio, dou
 
 
   auto start = (fname.find("/")==std::string::npos)?0 : fname.find("/")+1;
-  std::string prefix = Form("plots/_p%.2f_i%.2f_t%.2f_s%.2f", pitch, inter, thRatio, sigma);
-  std::string graphname = fname.substr( start, fname.find(".root")-start) + prefix + ".png";
-  std::string graphnameX = fname.substr( start, fname.find(".root")-start) + prefix + "_X.png";
-  std::string graphnameY = fname.substr( start, fname.find(".root")-start) + prefix + "_Y.png";
+  std::string prefix = "plots/" + fname.substr( start, fname.find(".root")-start) + Form("_p%.2f_i%.2f_t%.2f_s%.2f", pitch, inter, thRatio, sigma);
+  std::string graphname = prefix + ".png";
+  std::string graphnameX = prefix + "_X.png";
+  std::string graphnameY = prefix + "_Y.png";
   
-  std::string graphnameResX = fname.substr( start, fname.find(".root")-start) + prefix + "_resX.png";
-  std::string graphnameResY = fname.substr( start, fname.find(".root")-start) + prefix + "_resY.png";
+  std::string graphnameResX = prefix + "_resX.png";
+  std::string graphnameResY = prefix + "_resY.png";
 
-  std::string graphnameResPosX = fname.substr( start, fname.find(".root")-start) + prefix + "_ResPosX.png";
-  std::string graphnameResPosY = fname.substr( start, fname.find(".root")-start) + prefix + "_ResPosY.png";
+  std::string graphnameResPosX = prefix + "_ResPosX.png";
+  std::string graphnameResPosY = prefix + "_ResPosY.png";
 
   TH2F* h[5];
   TH2F* hresposX[5];
