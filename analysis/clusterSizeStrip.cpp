@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
 
   // TH2F* h2test = new TH2F("h2test", "strip position test", 500, -30, 130, 500, -130, 30);
   // TH2F* h2test = new TH2F("h2test", "", 500, -130, 30, 500, -30, 130);
-  TH2F* h2test = new TH2F("h2test", "", 150, -93, -87, 150, 25, 31);
+  TH2F* h2test = new TH2F("h2test", "", 150, -94, -88, 150, 25, 31);
   h2test->GetXaxis()->SetTitle("x (vertical strips) [mm]");
   h2test->GetYaxis()->SetTitle("y (horizontal strips) [mm]");
 
