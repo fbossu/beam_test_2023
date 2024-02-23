@@ -510,7 +510,7 @@ void plot_all(std::string fname, double pitch, double inter, double thRatio, dou
   c6->Print(graphnameResPosY.c_str(), "png");
 
   for(int l=0; l<5; l++){
-    std::string graphnameLayer = fname.substr( start, fname.find(".root")-start) + prefix + "_Layer"+std::to_string(l)+".png";
+    std::string graphnameLayer = prefix + "_Layer"+std::to_string(l)+".png";
     
     TCanvas *c7 = new TCanvas("c7", "c7", 1600,1200);
     c7->Divide(2,2, 0.01, 0.01);
@@ -594,8 +594,8 @@ int main(int argc, char const *argv[])
   std::string fname = argv[1];
   std::vector<double> pitch = {0.5, 1., 1.5};       // mm
   std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
-  std::vector<double> thRatio = {0.1, 0.2, 0.3};
-  std::vector<double> sigma = {0.2, 0.300, 0.4, 0.5}; // mm
+  std::vector<double> thRatio = {0.1, 0.2};
+  std::vector<double> sigma = {0.2, 0.300, 0.4}; // mm
 
   for( auto p : pitch){
     for( auto i : inter){
