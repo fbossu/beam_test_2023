@@ -79,6 +79,7 @@
 /vis/geometry/set/colour copperPlaneLV 0 red
 /vis/geometry/set/colour kaptonPlaneLV 0 yellow
 /vis/geometry/set/colour mylarPlaneLV 0 grey
+/vis/geometry/set/colour argonPlaneLV 0 blue
 
 /vis/geometry/set/colour siLV 0 red
 /vis/geometry/set/colour fcbLV 0 yellow

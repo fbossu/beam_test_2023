@@ -63,6 +63,8 @@ class EventAction : public G4UserEventAction
     G4double& getchi2x(){return fchi2x;}
     G4double& getchi2y(){return fchi2y;}
     std::vector<G4double>& getMMpos(int layer){return fMMpos[layer];}
+    G4double& getMMedep(int layer){return fMMedep[layer];}
+    std::vector<G4double>& getLpos(int layer){return fLpos[layer];}
 
   private:
     G4GenericMessenger*  fMessenger = nullptr;
@@ -78,7 +80,9 @@ class EventAction : public G4UserEventAction
     double fchi2y = -1.;
 
     std::vector<std::vector<G4double>> fMMpos;
-    std::vector<std::vector<G4double>> fbanco;
+    std::vector<G4double> fMMedep;
+    std::vector<std::vector<G4double>> fLpos;
+    std::vector<G4double> fLedep;
 
 };
 

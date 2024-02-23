@@ -48,7 +48,9 @@ G4bool BancoSD::ProcessHits(G4Step* step,
 {
   // Change the following lines to get the charge of the tracked particle
   G4double charge = step->GetTrack()->GetDefinition()->GetPDGCharge();
+  G4int trackParentId = step->GetTrack()->GetParentID();
   if ( charge == 0. ) return false;
+  if ( trackParentId != 0 ) return false;
 
   // Create new hit
   BancoHit* newHit = new BancoHit();
@@ -57,6 +59,7 @@ G4bool BancoSD::ProcessHits(G4Step* step,
   G4StepPoint* preStepPoint = step->GetPreStepPoint();
   G4double time = preStepPoint->GetGlobalTime();
   newHit->SetTime(time);
+  newHit->SetEnergyDeposit(step->GetTotalEnergyDeposit());
 
   // Position
 

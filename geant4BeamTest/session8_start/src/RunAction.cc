@@ -63,18 +63,21 @@ RunAction::RunAction(EventAction* eventAction) : fEventAction(eventAction)
 
   if(fEventAction){
     analysisManager->CreateNtuple(label, title);
-    analysisManager->CreateNtupleDColumn("x0");
-    analysisManager->CreateNtupleDColumn("y0");
-    analysisManager->CreateNtupleDColumn("mx");
-    analysisManager->CreateNtupleDColumn("my");
-    analysisManager->CreateNtupleDColumn("chi2x");
-    analysisManager->CreateNtupleDColumn("chi2y");
+    for(int i=0; i<5; i++){
+      analysisManager->CreateNtupleDColumn(Form("MMedep%d", i));
+    }
+    for(int i=0; i<4; i++){
+      analysisManager->CreateNtupleDColumn(Form("Ledep%d", i));
+    }
     for(int i=0; i<5; i++){
       analysisManager->CreateNtupleDColumn(Form("MMpos%d", i), fEventAction->getMMpos(i));
     }
+    for(int i=0; i<4; i++){
+      analysisManager->CreateNtupleDColumn(Form("Lpos%d", i), fEventAction->getLpos(i));
+    }
     analysisManager->FinishNtuple();
     // analysisManager->SetNtupleFileName(0, fileName);
-    analysisManager->CreateH1("testGauss","smearing", 100, 0., 1.);
+    // analysisManager->CreateH1("testGauss","smearing", 100, 0., 1.);
   }
 
 }

@@ -260,15 +260,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                     1,                     //copy number
                     checkOverlaps);        //overlaps checking
 
+
   // ---------------------- MM --------------------------
-  // MM in First arm
+
   hx = 5.*cm;
   hy = 5.*cm;
   G4double MM_hz = 3.5*mm/2.;
 
   G4VSolid* eicS = new G4Box("eicS", hx, hy, MM_hz);
   G4LogicalVolume* eicLV
-    = new G4LogicalVolume(eicS, argon, "eicLV");
+    = new G4LogicalVolume(eicS, air, "eicLV");
 
   G4double dz = 120*mm;
   for (G4int i=0; i<5; ++i) {
@@ -283,7 +284,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                     checkOverlaps);        //overlaps checking
   }
 
-  // Mylar in MM on the beampipe facing side of the detector. It will make the sensitive detector
+  // Mylar in MM on the beampipe facing side of the detector.
   hx = 5.*cm;
   hy = 5.*cm;
   G4double mylar_hz = 50*um/2.;
@@ -300,6 +301,26 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                     0,                     //copy number
                     checkOverlaps);        //overlaps checking
 
+
+  // Argon in MM, sensitive volume
+  hx = 5.*cm;
+  hy = 5.*cm;
+  G4double argon_hz = 3.*mm/2.;
+
+  G4VSolid* argonPlaneS = new G4Box("argonPlaneS", hx, hy, argon_hz);
+  G4LogicalVolume* argonPlaneLV
+    = new G4LogicalVolume(argonPlaneS, argon, "argonPlaneLV");
+  new G4PVPlacement(0,
+                    G4ThreeVector(0, 0, -MM_hz + 2*mylar_hz + argon_hz), 
+                    argonPlaneLV,          //its logical volume
+                    "argonPlane",          //its name
+                    eicLV,            //its mother  volume
+                    false,                 //no boolean operation
+                    0,                     //copy number
+                    checkOverlaps);        //overlaps checking
+
+
+
   // Kapton plane in MM
   hx = 5.*cm;
   hy = 5.*cm;
@@ -309,7 +330,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4LogicalVolume* kaptonPlaneLV
     = new G4LogicalVolume(kaptonPlaneS, kapton, "kaptonPlaneLV");
   new G4PVPlacement(0,
-                    G4ThreeVector(0, 0, MM_hz - kapton_hz), 
+                    G4ThreeVector(0, 0, -MM_hz + 2*mylar_hz + 2*argon_hz + kapton_hz), 
                     kaptonPlaneLV,          //its logical volume
                     "kaptonPlane",          //its name
                     eicLV,            //its mother  volume
@@ -353,7 +374,7 @@ void DetectorConstruction::ConstructSDandField()
   //
   MicromegasSD* eicSD = new MicromegasSD("eicSD");
   G4SDManager::GetSDMpointer()->AddNewDetector(eicSD);
-  SetSensitiveDetector("mylarPlaneLV", eicSD);
+  SetSensitiveDetector("argonPlaneLV", eicSD);
 
   BancoSD* bancoSD = new BancoSD("bancoSD");
   G4SDManager::GetSDMpointer()->AddNewDetector(bancoSD);

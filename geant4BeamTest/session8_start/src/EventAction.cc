@@ -52,7 +52,7 @@ namespace ED
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EventAction::EventAction() : fMMpos(5)
+EventAction::EventAction() : fMMpos(5, std::vector<G4double>(3,0.)), fMMedep(5,0.), fLpos(4, std::vector<G4double>(3,0.)), fLedep(4,0.)
 {
   // Generic messenger
   // Define /ED/event commands using generic messenger class
@@ -85,9 +85,16 @@ void EventAction::BeginOfEventAction(const G4Event* event)
     fMicromegasHCID = sdManager->GetCollectionID("MicromegasHitsCollection");
   }
   for( int i=0; i<5; i++ ){
-    fMMpos[i].clear();
+    fMMpos[i] = {0.,0.,0.};
+    fMMedep[i] = 0.;
   }
-
+  for( int i=0; i<4; i++ ){
+    fLpos[i] = {0.,0.,0.};
+    fLedep[i] = 0.;
+  }
+  if ( fVerbose ) {
+    G4cout << ">>> Event init successfull: " << event->GetEventID() << G4endl;
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -99,24 +106,54 @@ void EventAction::EndOfEventAction(const G4Event* event)
   auto hcBanco = hce->GetHC(fBancoHCID);
   auto hcMM = hce->GetHC(fMicromegasHCID);
   if ( hcBanco ){
-    trackingBanco(hcBanco);
-  }
-  if ( hcMM ){
-    for( int i=0; i<hcMM->GetSize(); i++ ){
-      auto hit = static_cast<MicromegasHit*>(hcMM->GetHit(i));
-      std::vector<double> hitPos= {hit->GetPosition().x()/mm, hit->GetPosition().y()/mm, hit->GetPosition().z()/mm};
-      // G4cout<<hitPos[0]<<" "<<hitPos[1]<<" "<<hitPos[2]<<G4endl;
-      fMMpos[hit->GetLayerNumber()].insert(fMMpos[hit->GetLayerNumber()].end(), hitPos.begin(), hitPos.end());
+    // trackingBanco(hcBanco);
+    std::vector<int> nHit = {0,0,0,0};
+    for( int i=0; i<hcBanco->GetSize(); i++ ){
+      auto hit = static_cast<BancoHit*>(hcBanco->GetHit(i));
+      nHit[hit->GetLadderNumber()]++;
+      fLpos[hit->GetLadderNumber()][0] += hit->GetPosition().x()/mm;
+      fLpos[hit->GetLadderNumber()][1] += hit->GetPosition().y()/mm;
+      fLpos[hit->GetLadderNumber()][2] += hit->GetPosition().z()/mm;
+      fLedep[hit->GetLadderNumber()]   += hit->GetEnergyDeposit()/keV;
+    }
+    for( int i=0; i<4; i++ ){
+      if( nHit[i]==0 ){
+        fLpos[i] = {-999.*mm,-999.*mm,-999.*mm};
+        fLedep[i] = -1.;
+        continue;
+      }
+      fLpos[i][0] /= nHit[i];
+      fLpos[i][1] /= nHit[i];
+      fLpos[i][2] /= nHit[i];
     }
   }
-  // G4cout<<fx0/mm<<" "<<fy0/mm<<" "<<fmx/mm<<" "<<fmy/mm<<" "<<fchi2x<<" "<<fchi2y<<G4endl;
-  analysisManager->FillNtupleDColumn(0, 0, fx0/mm);
-  // G4cout<<fx0/mm<<G4endl;
-  analysisManager->FillNtupleDColumn(0, 1, fy0/mm);
-  analysisManager->FillNtupleDColumn(0, 2, fmx/mm);
-  analysisManager->FillNtupleDColumn(0, 3, fmy/mm);
-  analysisManager->FillNtupleDColumn(0, 4, fchi2x);
-  analysisManager->FillNtupleDColumn(0, 5, fchi2y);
+  if ( hcMM ){
+    std::vector<int> nHit = {0,0,0,0,0};
+    for( int i=0; i<hcMM->GetSize(); i++ ){
+      auto hit = static_cast<MicromegasHit*>(hcMM->GetHit(i));
+      nHit[hit->GetLayerNumber()]++;
+      fMMpos[hit->GetLayerNumber()][0] += hit->GetPosition().x()/mm;
+      fMMpos[hit->GetLayerNumber()][1] += hit->GetPosition().y()/mm;
+      fMMpos[hit->GetLayerNumber()][2] += hit->GetPosition().z()/mm;
+      fMMedep[hit->GetLayerNumber()]   += hit->GetEnergyDeposit()/keV;
+    }
+    for( int i=0; i<5; i++ ){
+      if( nHit[i]==0 ){
+        fMMpos[i] = {-999.*mm,-999.*mm,-999.*mm};
+        fMMedep[i] = -1.;
+        continue;
+      }
+      fMMpos[i][0] /= nHit[i];
+      fMMpos[i][1] /= nHit[i];
+      fMMpos[i][2] /= nHit[i];
+    }
+  }
+  for(int i=0; i<5; i++){
+    analysisManager->FillNtupleDColumn(0, i, fMMedep[i]);
+  }
+  for(int i=0; i<4; i++){
+    analysisManager->FillNtupleDColumn(0, i+5, fLedep[i]);
+  }
   analysisManager->AddNtupleRow();
   
   if ( fVerbose ) {

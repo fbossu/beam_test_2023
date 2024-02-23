@@ -59,16 +59,19 @@ class MicromegasHit : public G4VHit
     void SetLayerNumber(G4int number) { fLayerNumber = number; }
     void SetTime(G4double time)       { fTime = time; }
     void SetPosition(G4ThreeVector position) { fPosition = position; }
+    void SetEnergyDeposit(G4double energy) { fEnergy = energy; }
 
     // getter methods
-    G4int          GetLayerNumber() const { return fLayerNumber;}
-    G4double       GetTime() const        { return fTime; }
-    G4ThreeVector  GetPosition() const    { return fPosition; }
+    G4int          GetLayerNumber() const   { return fLayerNumber;}
+    G4double       GetTime() const          { return fTime; }
+    G4ThreeVector  GetPosition() const      { return fPosition; }
+    G4double       GetEnergyDeposit() const { return fEnergy; }
 
   private:
     // data members
     G4int          fLayerNumber = -1;
     G4double       fTime = 0.;
+    G4double       fEnergy = 0.;
     G4ThreeVector  fPosition;
 };
 

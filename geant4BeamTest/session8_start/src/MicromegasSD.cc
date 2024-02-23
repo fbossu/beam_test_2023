@@ -85,7 +85,9 @@ G4bool MicromegasSD::ProcessHits(G4Step* step,
 {
   // Change the following lines to get the charge of the tracked particle
   G4double charge = step->GetTrack()->GetDefinition()->GetPDGCharge();
+  G4int trackParentId = step->GetTrack()->GetParentID();
   if ( charge == 0. ) return false;
+  if ( trackParentId != 0 ) return false;
 
   // Create new hit
   MicromegasHit* newHit = new MicromegasHit();
@@ -101,89 +103,13 @@ G4bool MicromegasSD::ProcessHits(G4Step* step,
   G4int copyNo = touchable->GetCopyNumber(1);
   newHit->SetLayerNumber(copyNo);
 
-  // Position
-  // strips of pitch 1mm, center of strip on integers
-  // double xtol = 0.4;
-  // double ytol = 0.4;
-  // double xtol = G4RandGauss::shoot(0.5, 0.3);
-  double xStW = 0., yStW = 0.;
-  double xtol = 0., ytol = 0;
-
-  if(copyNo == 4){
-    xStW = 0.8;
-    yStW = 0.8;
-    ytol = landauFunc->GetRandom();
-    xtol = 0.4*ytol;
-  }else{
-    xStW = 0.25;
-    yStW = 1.;
-    ytol = landauFunc->GetRandom();
-    xtol = ytol;
-  }
-  
-  G4double smearSigma = 0.15*mm;
-  bool xminOn = false, yminOn = false, xmaxOn = false, ymaxOn = false;
-
   G4ThreeVector position = preStepPoint->GetPosition();
-  // position.setY(position.y()/mm+1*mm);
-  // double xStmin = std::floor(position.x()/mm);
-  // double yStmin = std::floor(position.y()/mm);
-
-  // // std::cout<<abs(position.x()/mm - (xStmin+xStW/2.))<< " " << abs(position.x()/mm - (xStmin+1 - xStW/2.)) << std::endl;
-  // if( position.x()/mm - (xStmin+xStW/2.) < xtol ) xminOn = true;
-  // if( position.y()/mm - (yStmin+yStW/2.) < ytol ) yminOn = true;
-  // if( position.x()/mm - (xStmin+1 - xStW/2.) > -xtol ) xmaxOn = true;
-  // if( position.y()/mm - (yStmin+1 - yStW/2.) > -ytol ) ymaxOn = true;
-
-  // // if(xminOn && xmaxOn) position.setX(position.x()/mm);
-  // if(xminOn && xmaxOn) position.setX(G4RandGauss::shoot(position.x()/mm, smearSigma));
-  // else if(xminOn) position.setX(xStmin*mm);
-  // else if(xmaxOn) position.setX((xStmin+1)*mm);
-  // else position.setX(-999);
-
-  // // if(yminOn && ymaxOn) position.setY(position.y()/mm);
-  // if(yminOn && ymaxOn) position.setY(G4RandGauss::shoot(position.y()/mm, smearSigma));
-  // else if(yminOn) position.setY(yStmin*mm);
-  // else if(ymaxOn) position.setY((yStmin+1)*mm);
-  // else position.setY(-999);
-
-  // if(xminOn && xmaxOn) position.setX(-999);
-  // else position.setX(std::round(position.x()/mm)*mm);
-  
-  // if(yminOn && ymaxOn) position.setY(-999);
-  // else position.setY(std::round(position.y()/mm)*mm);
-
   newHit->SetPosition(position);
-
-  // G4double pitch = 0.5*mm;
-  // G4double xsmear = -pitch/2. + pitch * G4UniformRand();
-  // G4double ysmear = -pitch/2. + pitch * G4UniformRand();
-  // G4double xsmear = G4RandGauss::shoot(0., pitch/sqrt(12));
-  // G4double ysmear = G4RandGauss::shoot(0., pitch/sqrt(12));
-
-  // G4ThreeVector position = preStepPoint->GetPosition();
-  // position.setX(position.x()/mm + xsmear);
-  // position.setY(position.y()/mm + ysmear);
-  // newHit->SetPosition(position);
-
-  // G4ThreeVector position = preStepPoint->GetPosition();
-  // newHit->SetPosition(position);
-
+  newHit->SetEnergyDeposit(step->GetTotalEnergyDeposit());
 
   // Add hit in the collection
   fHitsCollection->insert(newHit);
-  if(copyNo == 4){
-      auto analysisManager = G4AnalysisManager::Instance();
-      analysisManager->FillH1(0, xtol);
-  }
 
-  // Add hits properties in the ntuple
-  // auto analysisManager = G4AnalysisManager::Instance();
-  // analysisManager->FillNtupleIColumn(0, 0, copyNo);
-  // analysisManager->FillNtupleDColumn(0, 1, position.x()/mm);
-  // analysisManager->FillNtupleDColumn(0, 2, position.y()/mm);
-  // analysisManager->FillNtupleDColumn(0, 3, position.z()/mm);
-  // analysisManager->AddNtupleRow(0);
 
   return false;
 }
