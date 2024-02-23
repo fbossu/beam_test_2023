@@ -91,8 +91,8 @@ int main(int argc, char const *argv[])
   TTreeReaderValue< std::vector<cluster> > cls( reader, "clusters");
 
   // TH2F* h2test = new TH2F("h2test", "strip position test", 500, -30, 130, 500, -130, 30);
-  TH2F* h2test = new TH2F("h2test", "", 500, -130, 30, 500, -30, 130);
-  // TH2F* h2test = new TH2F("h2test", "", 500, -80, -74, 500, 40, 46);
+  // TH2F* h2test = new TH2F("h2test", "", 500, -130, 30, 500, -30, 130);
+  TH2F* h2test = new TH2F("h2test", "", 500, -96, -90, 500, 24, 30);
   h2test->GetXaxis()->SetTitle("x (vertical strips) [mm]");
   h2test->GetYaxis()->SetTitle("y (horizontal strips) [mm]");
 
