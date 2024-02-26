@@ -53,7 +53,7 @@ double checkOverlap(double R, double Xc, double Yc,
     return R - sqrt(pow(Xn-Xc,2) + pow(Yn-Yc,2));
 } 
 
-track trackingBanco(std::vector<std::vector<double>> ladderPos, std::vector<double> ladderEdep, bool smear=true){
+track trackingBanco(const std::vector<std::vector<double>>& ladderPos, const std::vector<double>& ladderEdep, bool smear=true){
 
   TGraphErrors gry;
   TGraphErrors grx;
@@ -69,7 +69,7 @@ track trackingBanco(std::vector<std::vector<double>> ladderPos, std::vector<doub
     double x = 0, y = 0;
     if(smear){
       double diff = 0.0015*ladderEdep[index];
-      double offset = 0.002; // 5µm dead edge
+      double offset = 0.002; // dead edge
       int cX = std::floor(pos[0]/pitchx);
       int cY = std::floor(pos[1]/pitchy);
       for(int i=0; i<3; i++){
@@ -121,7 +121,7 @@ track trackingBanco(std::vector<std::vector<double>> ladderPos, std::vector<doub
 }
 
 
-cluster MMclusterStrip(std::vector<double> pos, double edep, double pitch, double interRatio, double threshold, double sigma){
+cluster MMclusterStrip(const std::vector<double>& pos, double edep, double pitch, double interRatio, double threshold, double sigma){
 
     double inter = pitch*interRatio;
     double minLim = -50.;
@@ -136,8 +136,8 @@ cluster MMclusterStrip(std::vector<double> pos, double edep, double pitch, doubl
     f->SetParameters(edep, pos[0], sigma, pos[1], sigma);
 
     for(int i=0; i<(maxLim-minLim)/pitch; i++){
-      double intx = f->Integral(minLim+i*pitch, minLim+(i+1)*pitch, minLim, maxLim, 1e-6);
-      double inty = f->Integral(minLim, maxLim, minLim+i*pitch+inter/2., minLim+(i+1)*pitch-inter/2., 1e-6);
+      double intx = f->Integral(minLim+i*pitch, minLim+(i+1)*pitch, minLim, maxLim, 1e-5);
+      double inty = f->Integral(minLim, maxLim, minLim+i*pitch+inter/2., minLim+(i+1)*pitch-inter/2., 1e-5);
       if(intx>threshold){
         x += (minLim+(i+0.5)*pitch)*intx;
         chargex += intx;
@@ -159,6 +159,7 @@ cluster MMclusterStrip(std::vector<double> pos, double edep, double pitch, doubl
     cl.chargex = chargex;
     cl.chargey = chargey;
     // std::cout<<cl.x<<" "<<cl.y<<" "<<cl.z<<" "<<cl.edep<<" "<<cl.clsizex<<" "<<cl.clsizey<<" "<<cl.chargex<<" "<<cl.chargey<<std::endl;
+    delete f;
     return cl;
 }
 
@@ -281,6 +282,7 @@ void plot_all(std::string fname, double pitch, double inter, double thRatio, dou
   TTree* tree = (TTree*)fin->Get("eic");
   TH1F* hedp = new TH1F("hedep", "hedep", 300, 0., 5.);
   tree->Draw("MMedep0>>hedep");
+
   double threshold = 0.;
   double prob = 0.5;
   hedp->GetQuantiles(1, &threshold, &prob);
@@ -288,9 +290,8 @@ void plot_all(std::string fname, double pitch, double inter, double thRatio, dou
   std::cout<<"pitch="<<pitch<<", inter="<<inter<<"*pitch, medianEdep="<<threshold;
   threshold *= thRatio;
   std::cout<<", threshold="<<threshold<<std::endl;
-
-  // plotTracks(fname);
-
+  delete tree, hedp;
+  
   TTreeReader reader("eic", fin);
   TTreeReaderValue<std::vector<double>> Lpos0( reader, "Lpos0");
   TTreeReaderValue<std::vector<double>> Lpos1( reader, "Lpos1");
@@ -549,8 +550,11 @@ void plot_all(std::string fname, double pitch, double inter, double thRatio, dou
     c7->Print(graphnameLayer.c_str(), "png");
     delete c7;
   }
+  fin->Close();
+  delete c1, c2, c3, c4, c5, c6;
+  delete fin;
+  // delete h[5], hresposX[5], hresposY[5], hx[5], hy[5], hresX[5], hresY[5], h1clsizex[5], h1clsizey[5], hresposX[5], hresposY[5];
 }
-
 
 void defStyle(){
   // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
@@ -592,8 +596,8 @@ int main(int argc, char const *argv[])
 { 
   defStyle();
   std::string fname = argv[1];
-  std::vector<double> pitch = {0.5, 1., 1.5};       // mm
-  std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
+  std::vector<double> pitch = {1., 1.5};       // mm
+  std::vector<double> inter =  {0.25};         // fraction of pitch
   std::vector<double> thRatio = {0.1, 0.2};
   std::vector<double> sigma = {0.2, 0.300, 0.4}; // mm
 
