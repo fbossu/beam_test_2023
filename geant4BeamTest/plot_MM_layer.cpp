@@ -123,7 +123,7 @@ track trackingBanco(const std::vector<std::vector<double>>& ladderPos, const std
 
 cluster MMclusterStrip(const std::vector<double>& pos, double edep, double pitch, double interRatio, double threshold, double sigma){
 
-    double inter = pitch*interRatio;
+    double inter = pitch - pitch*interRatio;
     double minLim = -50.;
     double maxLim =  50.;
 
