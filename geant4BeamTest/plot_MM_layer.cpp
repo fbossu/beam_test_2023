@@ -1,4 +1,6 @@
 #include <string>
+#include <iostream>
+#include <fstream>
 
 #include "TFile.h"
 #include "TChain.h"
@@ -276,7 +278,7 @@ ROOT::Math::XYZPoint rotation(double posx, double posy, double posz){
 }
 
 
-void plot_all(std::string fname, double pitch, double inter, double thRatio, double sigma){
+std::vector<double> plot_all(std::string fname, double pitch, double inter, double thRatio, double sigma){
 
   TFile *fin = TFile::Open(fname.c_str(), "read");
   TTree* tree = (TTree*)fin->Get("eic");
@@ -405,6 +407,24 @@ void plot_all(std::string fname, double pitch, double inter, double thRatio, dou
       }
     }
 
+  // Save all histo to file
+  TFile *fout = new TFile((prefix+".root").c_str(), "recreate");
+  for( int i=0; i<5; i++){
+    fout->mkdir(Form("Layer%d", i));
+    fout->cd(Form("Layer%d", i));
+    h[i]->Write();
+    hx[i]->Write();
+    hy[i]->Write();
+    hresX[i]->Write();
+    hresY[i]->Write();
+    hresposX[i]->Write();
+    hresposY[i]->Write();
+    h1clsizex[i]->Write();
+    h1clsizey[i]->Write();
+  }
+  fout->Close();
+
+  // Plots
   TLatex latex;
   latex.SetTextFont(43);
   latex.SetTextSize(25);
@@ -550,10 +570,14 @@ void plot_all(std::string fname, double pitch, double inter, double thRatio, dou
     c7->Print(graphnameLayer.c_str(), "png");
     delete c7;
   }
+
+  std::vector<double> results = {h1clsizex[0]->GetMean(), hresX[0]->GetFunction("gaus")->GetParameter(2), h1clsizey[0]->GetMean(), hresY[0]->GetFunction("gaus")->GetParameter(2)};
+  
   fin->Close();
   delete c1, c2, c3, c4, c5, c6;
-  delete fin;
+  delete fin, fout;
   // delete h[5], hresposX[5], hresposY[5], hx[5], hy[5], hresX[5], hresY[5], h1clsizex[5], h1clsizey[5], hresposX[5], hresposY[5];
+  return results;
 }
 
 void defStyle(){
@@ -599,18 +623,27 @@ int main(int argc, char const *argv[])
   std::vector<double> pitch = {0.5, 1., 1.5};       // mm
   std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
   std::vector<double> thRatio = {0.1};
-  std::vector<double> sigma = {0.5, 0.6}; // mm
-
-  for( auto p : pitch){
-    for( auto i : inter){
-      for( auto t : thRatio){
-        for( auto s : sigma){
+  std::vector<double> sigma = {0.2, 0.3, 0.4, 0.5, 0.6};     // mm
+  
+  for( auto t : thRatio){
+    for( auto s : sigma){
+      std::ofstream outfile;
+      outfile.open(Form("Layer0_SimuTable_s%.2f.txt", s));
+      outfile<<"#run\tzone\tgain"<<std::endl;
+      outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
+      outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
+        for( auto p : pitch){
+          for( auto i : inter){
           std::cout<<"pitch="<<p<<", inter="<<i<<", thRatio="<<t<<", sigma="<<s<<std::endl;
-          plot_all(fname, p, i, t, s);
+          std::vector<double> r = plot_all(fname, p, i, t, s);
+          outfile<<"simu"<<"\t"<<"-1"<<"\t"<<"0"<<std::endl;
+          outfile<<"\t\t"<<p<<"\t"<<i<<"\t"<<r[0]<<"\t"<<-1.<<"\t"<<r[1]<<std::endl;
+          outfile<<"\t\t"<<p<<"\t"<<i<<"\t"<<r[2]<<"\t"<<-1.<<"\t"<<r[3]<<std::endl;
+          }
         }
+      outfile.close();
       }
     }
-  }
 
   return 0;
 }
