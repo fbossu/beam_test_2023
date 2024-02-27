@@ -598,8 +598,8 @@ int main(int argc, char const *argv[])
   std::string fname = argv[1];
   std::vector<double> pitch = {0.5, 1., 1.5};       // mm
   std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
-  std::vector<double> thRatio = {0.1, 0.2};
-  std::vector<double> sigma = {0.2, 0.300, 0.4}; // mm
+  std::vector<double> thRatio = {0.1};
+  std::vector<double> sigma = {0.5, 0.6}; // mm
 
   for( auto p : pitch){
     for( auto i : inter){
