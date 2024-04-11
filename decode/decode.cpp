@@ -58,7 +58,8 @@ int main( int argc, const char **argv) {
 
   // useful vairables
   bool isEvent = false;  // check the end of the event
-  bool isFT    = false;  // on if FT is reached and set off by the header
+  bool isFT    = false;  // on if FT (Final Trailer) is reached and set off by the header
+  bool isZS    = true;   // true if zero suppressed data. false if not
   int i = 0;             // just a counter
   bool debug = false;     // printing stuff
   char prev = cout.fill(); // for debug formatting
@@ -93,6 +94,7 @@ int main( int argc, const char **argv) {
 
       isEvent = true; // we are in an event
       isFT = false;
+      isZS = get_zs_mode(data);  // true if zero supressed data, false otherwise
 
       timestamp = 0;      
       delta_timestamp = 0;      
@@ -150,8 +152,8 @@ int main( int argc, const char **argv) {
       // end of the header lines, we can now reset the counter of the headers
       iFeuH=0;
     }
-    else if( is_data_zs( data ) && isEvent && ! isFT ) {
-      // read data
+    else if( isZS && is_data( data ) && isEvent && ! isFT ) {
+      // read zero-suppressed data
       // =======================================
       // first line dreamId and channel Id
       // second line channel data
@@ -184,6 +186,57 @@ int main( int argc, const char **argv) {
       sample.push_back( sampleID );
       amplitude.push_back( ampl );
       
+    }
+    else if (!isZS && is_data_header(data) && isEvent && !isFT) {
+        // read non-zero suppressed data
+        // =======================================
+        // first 4 words raw header, first 3 seem to be trigger id, skip
+        // word 4 contains dream id
+        // 5th to 68th words are channel data for channels 0-63
+        // 69th to 74th words raw trailer, skip
+        // isEvent is to avoid reading a empty line after the EoE
+
+        //channelID = get_channel_ID(data);
+        read16(is, data);  // Raw header word 1, Trigger Id MSB
+        read16(is, data);  // Raw header word 2, Trigger Id ISB
+        read16(is, data);  // Raw header word 3, Trigger Id LSB
+        dreamID = get_dream_ID(data);  // Raw header word 4 contains Dream Id
+
+        if (debug) {
+            print_data(data);
+            prev = cout.fill('0');
+            cout << isEvent << "  " << setw(4) << hex << data << "   ";
+        }
+        for (int chan_i = 0; chan_i <= 63; chan_i++) {
+            read16(is, data);  // read next word
+            if (!is_data(data)) {
+                cout << "Bad read at dream_ID: " << dreamID << " channel: " << chan_i << " sample: " << sampleID << ". Crashing.";
+            }
+
+            ampl = get_data(data);
+
+            if (debug) {
+                cout << setw(4) << hex << data << endl;
+                cout << dec;
+                cout.fill(prev);
+                print_data(data);
+            }
+
+            //stripValues = { dreamID*64 + channelID, sampleID, amplitude };
+            //stripSamples.push_back( stripValues );
+            channelID = chan_i;  // Redundant, just to match ZS read.
+            channel.push_back(dreamID * 64 + channelID);
+            sample.push_back(sampleID);
+            amplitude.push_back(ampl);
+        }
+
+        read16(is, data);  // Raw trailer word 69, CMN Chan 0-31
+        read16(is, data);  // Raw trailer word 70, CMN Chan 32-63
+        read16(is, data);  // Raw trailer word 71, Cell Id MSB
+        read16(is, data);  // Raw trailer word 72, Cell Id ISB
+        read16(is, data);  // Raw trailer word 73, Cell Id LSB
+        read16(is, data);  // Raw trailer word 74, Dream Id and decoded trailer
+        read16(is, data);  // Next word after data trailer, should be final trailer
     }
     else if ( is_final_trailer( data ) ){
       // read the final trailer
