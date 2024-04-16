@@ -85,6 +85,7 @@ int main( int argc, const char **argv) {
 
     //if( i > 600 ) break;
     //if( i > 574 ) debug = true;
+      //if (debug && (i > 2)) break;
 
     // FEU header
     // ---------
@@ -104,6 +105,9 @@ int main( int argc, const char **argv) {
 
       // loop over the FEU header data
       while ( is_Feu_header( data ) ){
+        if (debug) {
+            print_data(data);
+        }
         if( iFeuH == 0 ){
           FeuID = get_Feu_ID( data );
           sampleID = data & 0x800;
@@ -197,8 +201,20 @@ int main( int argc, const char **argv) {
         // isEvent is to avoid reading a empty line after the EoE
 
         //channelID = get_channel_ID(data);
+        if (debug) {
+            cout << "Start data header:" << endl;
+        }
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw header word 1, Trigger Id MSB
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw header word 2, Trigger Id ISB
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw header word 3, Trigger Id LSB
         dreamID = get_dream_ID(data);  // Raw header word 4 contains Dream Id
 
@@ -207,10 +223,14 @@ int main( int argc, const char **argv) {
             prev = cout.fill('0');
             cout << isEvent << "  " << setw(4) << hex << data << "   ";
         }
+        if (debug) {
+            cout << "End data header:" << endl;
+        }
         for (int chan_i = 0; chan_i <= 63; chan_i++) {
             read16(is, data);  // read next word
             if (!is_data(data)) {
-                cout << "Bad read at dream_ID: " << dreamID << " channel: " << chan_i << " sample: " << sampleID << ". Crashing.";
+                cout << "Bad read at dream_ID: " << dreamID << " channel: " << chan_i << " sample: " << sampleID << ". Crashing." << endl;
+                print_data(data);
             }
 
             ampl = get_data(data);
@@ -230,13 +250,40 @@ int main( int argc, const char **argv) {
             amplitude.push_back(ampl);
         }
 
+        if (debug) {
+            cout << "Start data trailer:" << endl;
+        }
         read16(is, data);  // Raw trailer word 69, CMN Chan 0-31
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw trailer word 70, CMN Chan 32-63
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw trailer word 71, Cell Id MSB
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw trailer word 72, Cell Id ISB
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw trailer word 73, Cell Id LSB
+        if (debug) {
+            print_data(data);
+        }
         read16(is, data);  // Raw trailer word 74, Dream Id and decoded trailer
-        read16(is, data);  // Next word after data trailer, should be final trailer
+        if (debug) {
+            print_data(data);
+        }
+        if (debug) {
+            cout << "End data trailer" << endl;
+        }
+        //read16(is, data);  // Next word after data trailer, should be final trailer
+        //if (debug) {
+        //    print_data(data);
+        //}
     }
     else if ( is_final_trailer( data ) ){
       // read the final trailer

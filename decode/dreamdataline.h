@@ -17,7 +17,7 @@ inline uint16_t get_channel_ID( uint16_t data )   { return (((data) & 0x3F)); }
 inline uint16_t get_dream_ID( uint16_t data )   { return (((data) & 0xE00)>>9); }
 inline uint16_t get_data( uint16_t data )   { return (((data) & 0xFFF)); }
 
-inline uint16_t get_dream_ID( uint16_t data )   { return (((data) & 0xE00)>>9); }
+//inline uint16_t get_dream_ID( uint16_t data )   { return (((data) & 0xE00)>>9); }
 inline uint16_t get_dream_ID_ZS( uint16_t data )   { return (((data) & 0x1C0)>>6); }
 
 inline uint16_t get_EoE( uint16_t data ){ return (((data) & 0x800)>>11); }
