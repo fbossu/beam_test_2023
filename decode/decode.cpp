@@ -85,7 +85,7 @@ int main( int argc, const char **argv) {
 
     //if( i > 600 ) break;
     //if( i > 574 ) debug = true;
-      //if (debug && (i > 2)) break;
+      if (debug && (i > 0)) break;
 
     // FEU header
     // ---------
@@ -102,7 +102,9 @@ int main( int argc, const char **argv) {
       eventID   = 0;      
       FeuID     = 0;
       sampleID  = 0;
+      iFeuH = 0;
 
+      if (debug) cout << "Start FEU header..." << endl;
       // loop over the FEU header data
       while ( is_Feu_header( data ) ){
         if (debug) {
@@ -136,10 +138,7 @@ int main( int argc, const char **argv) {
         }
 
         iFeuH++;
-        // there are maximum 8 header lines
-        if( iFeuH < 8 ) { if( read16( is, data ) ) break; }
-        else if ( iFeuH > 8 ){ cerr << "ERROR: Too many FEU headers " << endl; break; }
-        else { break; }
+        if (read16(is, data)) break;
       }
 
       if ( debug ){
@@ -153,8 +152,6 @@ int main( int argc, const char **argv) {
           << " === " << iFeuH<<endl;
       }
 
-      // end of the header lines, we can now reset the counter of the headers
-      iFeuH=0;
     }
     else if( isZS && is_data( data ) && isEvent && ! isFT ) {
       // read zero-suppressed data
@@ -184,11 +181,10 @@ int main( int argc, const char **argv) {
       }
 
 
-      //stripValues = { dreamID*64 + channelID, sampleID, amplitude };
-      //stripSamples.push_back( stripValues );
       channel.push_back( dreamID*64 + channelID );
       sample.push_back( sampleID );
       amplitude.push_back( ampl );
+      if (read16(is, data)) break;
       
     }
     else if (!isZS && is_data_header(data) && isEvent && !isFT) {
@@ -200,149 +196,107 @@ int main( int argc, const char **argv) {
         // 69th to 74th words raw trailer, skip
         // isEvent is to avoid reading a empty line after the EoE
 
-        //channelID = get_channel_ID(data);
-        if (debug) {
-            cout << "Start data header:" << endl;
+        int data_header_num = 0;
+        dreamID = -1;
+        // Raw header word 1 is Trigger Id MSB, 2 is Trigger Id ISB, 3 is Trigger Id LSB, 4 contains Dream Id
+        while (is_data_header(data)) {
+            data_header_num++;
+            if (debug) { cout << "Data header #" << data_header_num << " "; print_data(data); }
+            if (data_header_num == 4) dreamID = get_dream_ID(data);  // Contains Dream Id
+            read16(is, data);
         }
-        if (debug) {
-            print_data(data);
-        }
-        read16(is, data);  // Raw header word 1, Trigger Id MSB
-        if (debug) {
-            print_data(data);
-        }
-        read16(is, data);  // Raw header word 2, Trigger Id ISB
-        if (debug) {
-            print_data(data);
-        }
-        read16(is, data);  // Raw header word 3, Trigger Id LSB
-        dreamID = get_dream_ID(data);  // Raw header word 4 contains Dream Id
 
-        if (debug) {
-            print_data(data);
-            prev = cout.fill('0');
-            cout << isEvent << "  " << setw(4) << hex << data << "   ";
-        }
-        if (debug) {
-            cout << "End data header:" << endl;
-        }
-        for (int chan_i = 0; chan_i <= 63; chan_i++) {
-            read16(is, data);  // read next word
-            if (!is_data(data)) {
-                cout << "Bad read at dream_ID: " << dreamID << " channel: " << chan_i << " sample: " << sampleID << ". Crashing." << endl;
-                print_data(data);
-            }
+        if (dreamID == -1) cout << "Bad read, didn't get dream id from data header." << endl;
 
+        channelID = 0;
+        while (is_data(data)) {
             ampl = get_data(data);
 
             if (debug) {
-                cout << setw(4) << hex << data << endl;
+                cout << setw(4) << hex << data << "  channel #" << channelID << endl;
                 cout << dec;
                 cout.fill(prev);
                 print_data(data);
             }
 
-            //stripValues = { dreamID*64 + channelID, sampleID, amplitude };
-            //stripSamples.push_back( stripValues );
-            channelID = chan_i;  // Redundant, just to match ZS read.
             channel.push_back(dreamID * 64 + channelID);
             sample.push_back(sampleID);
             amplitude.push_back(ampl);
+            channelID++;
+            read16(is, data);
         }
 
-        if (debug) {
-            cout << "Start data trailer:" << endl;
+        if (channelID != 64) cout << "Bad read, last channel ID != 64" << endl;
+
+        bool eof = false;
+        int data_trailer_num = 0;
+        while (is_data_trailer(data)) {
+            data_trailer_num++;
+            if (debug) {
+                cout << "Data trailer #" << data_trailer_num << " ";
+                print_data(data);
+            }
+            eof = read16(is, data);
         }
-        read16(is, data);  // Raw trailer word 69, CMN Chan 0-31
-        if (debug) {
+        if (eof) break;  // End of file
+        
+        // Shouldn't be true if successful read. If bad read, read till data header to reset for next event.
+        while (!is_final_trailer(data) && !is_data_header(data)) { 
+            cout << "Bad read, expected data header but got the following:" << endl;
             print_data(data);
+            eof = read16(is, data);
         }
-        read16(is, data);  // Raw trailer word 70, CMN Chan 32-63
-        if (debug) {
-            print_data(data);
-        }
-        read16(is, data);  // Raw trailer word 71, Cell Id MSB
-        if (debug) {
-            print_data(data);
-        }
-        read16(is, data);  // Raw trailer word 72, Cell Id ISB
-        if (debug) {
-            print_data(data);
-        }
-        read16(is, data);  // Raw trailer word 73, Cell Id LSB
-        if (debug) {
-            print_data(data);
-        }
-        read16(is, data);  // Raw trailer word 74, Dream Id and decoded trailer
-        if (debug) {
-            print_data(data);
-        }
-        if (debug) {
-            cout << "End data trailer" << endl;
-        }
-        //read16(is, data);  // Next word after data trailer, should be final trailer
-        //if (debug) {
-        //    print_data(data);
-        //}
+        if (eof) break;  // End of file
     }
-    else if ( is_final_trailer( data ) ){
-      // read the final trailer
-      // =====================
- 
-      isFT = true;
-      // check if this is the end of the event (EoE)
-      if(  get_EoE(data) == 1  ) { 
 
-        delta_timestamp = timestamp - old_timestamp;
-        old_timestamp = timestamp;
-        // fill the three
-        auto a = nt.Fill();
-
-        // reset all
-        isEvent = false;
-
-        channel.clear();
-        sample.clear();
-        amplitude.clear();
-
-        if( i==0 ){
-          cout << " reading FEU " << FeuID << endl;
-        }
-
-        i++; // count events;
-      }
-
-
-      iFeuH = 0; // reset the FEU header counter
-
-      if( debug ){
-        prev = cout.fill('0');
-        cout << "FT "<< setw(4)  << hex << data << "   ";
-      }
-
-      // read one additional line for the VEP
-      read16(is,data);
-
-      if( debug ){
-        cout << setw(4)  << hex << data<< "  " << isEvent << endl;
-        cout << dec  ;
-        cout.fill( prev);
-      }
-    
-
-
-    }
     else{ 
-      if( debug ) {
-        cout << "other ... " ;
-        print_data(data);
-      }
+        if (debug) {
+            cout << "other ... " ;
+            print_data(data);
+        }
+      read16(is, data);
     }
 
-    // read next block of 16bits
-    if( read16( is, data ) ) break;
-    //print_data( data );
+    if (is_final_trailer(data)) {
+        // read the final trailer
+        // =====================
 
+        isFT = true;
+        // check if this is the end of the event (EoE)
+        if (get_EoE(data) == 1) {
+
+            delta_timestamp = timestamp - old_timestamp;
+            old_timestamp = timestamp;
+            auto a = nt.Fill();  // fill the tree
+
+            // reset all
+            isEvent = false;
+
+            channel.clear();
+            sample.clear();
+            amplitude.clear();
+
+            if (i == 0) {
+                cout << " reading FEU " << FeuID << endl;
+            }
+
+            i++;  // count events;
+        }
+
+        if (debug) {
+            prev = cout.fill('0');
+            cout << "FT " << setw(4) << hex << data << "   ";
+        }
+
+        read16(is, data);  // read one additional line for the VEP
+
+        if (debug) {
+            cout << setw(4) << hex << data << "  " << isEvent << endl;
+            cout << dec;
+            cout.fill(prev);
+        }
+        if (read16(is, data)) break;
+    }
   }
 
   cout << " Events analysed : " << i << endl;
