@@ -83,7 +83,15 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
     TTreeReaderValue<std::vector<cluster>> cls(reader, "clusters");
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
 
-    std::vector<double> beamAvg = beamPos(fBanco, det.getZpos());
+    TFile* filebanco = TFile::Open(fBanco.c_str(), "read");
+    if (!filebanco) {
+        std::cerr << "Error: could not open input file " << fBanco << std::endl;
+        return {0,0,0,0,0};
+    }
+    TTreeReader readerBanco("events", filebanco);
+    TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
+
+    // std::vector<double> beamAvg = beamPos(fBanco, det.getZpos());
 
     int nX=0, nY=0;
     double gainNum=0, gainDen=0;
@@ -93,12 +101,21 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
 
         std::shared_ptr<cluster> maxX = maxSizeClX(*cls);
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
+        bool isBanco = banco.Next();
+        if(!isBanco){
+            std::cout<<"WARNING: Missing banco event"<<std::endl;
+            continue;
+        }
+        if(tracks->size() == 0) continue;
+        auto tr = *std::min_element(tracks->begin(), tracks->end(),
+                       [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
 
         int ampX=0, ampY=0;
         if(maxX) {
             nX++;
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, 64);
-            if(abs(detPos[1]-beamAvg[1])<10){
+            double res = detPos[1] - tr.y0 - tr.my*detPos[2];
+            if(abs(res)<5.){
                 ampX = totMaxAmp(*hits, maxX->id);
                 Xclsize.push_back(maxX->size);
             }
@@ -107,7 +124,8 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         if(maxY) {
             nY++;
             std::vector<double> detPos = det.pos3D(64, maxY->stripCentroid);
-            if(abs(detPos[0]-beamAvg[0])<10){
+            double res = detPos[0] - tr.x0 - tr.mx*detPos[2];
+            if(abs(res)<5.){
                 ampY = totMaxAmp(*hits, maxY->id);
                 Yclsize.push_back(maxY->size);
             }
