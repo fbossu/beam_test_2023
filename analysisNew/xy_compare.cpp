@@ -101,7 +101,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
 
         std::shared_ptr<cluster> maxX = maxSizeClX(*cls);
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
-        bool isBanco = banco.Next();
+        bool isBanco = readerBanco.Next();
         if(!isBanco){
             std::cout<<"WARNING: Missing banco event"<<std::endl;
             continue;
