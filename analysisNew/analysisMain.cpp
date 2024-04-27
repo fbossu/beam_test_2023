@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
     std::map<int, std::vector<std::string>> files = parseFiles(zoneRuns, argc, argv);
 
     std::ofstream outfile;
-    outfile.open(Form("%s_table.txt", detName.c_str()));
+    outfile.open(Form("%s_table_res.txt", detName.c_str()));
     outfile<<"#run\tzone\tgain"<<std::endl;
     outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
