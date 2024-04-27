@@ -47,6 +47,7 @@ std::vector<double> beamPos(std::string fBanco, double z){
         meanx += tr.y0 + z*tr.my;
         count++;
     }
+    filebanco->Close();
     return {meanx/count, meany/count};
 }
 
@@ -97,18 +98,20 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         if(maxX) {
             nX++;
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, 64);
-            if(abs(detPos[1]-beamAvg[1])<5){
+            if(abs(detPos[1]-beamAvg[1])<10){
                 ampX = totMaxAmp(*hits, maxX->id);
                 Xclsize.push_back(maxX->size);
             }
+            else maxX = nullptr;
         }
         if(maxY) {
             nY++;
             std::vector<double> detPos = det.pos3D(64, maxY->stripCentroid);
-            if(abs(detPos[0]-beamAvg[0])<5){
+            if(abs(detPos[0]-beamAvg[0])<10){
                 ampY = totMaxAmp(*hits, maxY->id);
                 Yclsize.push_back(maxY->size);
             }
+            else maxY = nullptr;
         }
 
         if(maxX && maxY){

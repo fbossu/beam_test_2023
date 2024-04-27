@@ -49,19 +49,19 @@ plt.rcParams.update({'lines.markersize': 26})
 # listmsc = [0.101, 0.212, 0.364, 0.549, 0.766]
 listmsc = [0.101, 0.197, 0.323, 0.461, 0.600]
 
-file_pathStrip = './stripFEU1Inv/stripFEU1_table.txt'
+file_pathStrip = './stripFEU1Inv/stripFEU1_table_res.txt'
 GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, 0)
 # GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, listmsc[0])
 
-file_pathInter = './interFEU1Inv/interFEU1_table.txt'
+file_pathInter = './interFEU1Inv/interFEU1_table_res.txt'
 GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, 0)
 # GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, listmsc[1])
 
-file_pathPlein = './asaFEU2Inv/asaFEU2_table.txt'
+file_pathPlein = './asaFEU2Inv/asaFEU2_table_res.txt'
 GdataPlein, XdataPlein, YdataPlein = parse_file(file_pathPlein, 0)
 # GdataPlein, XdataPlein, YdataPlein = parse_file(file_pathPlein, listmsc[2])
 
-file_pathAsa = './asaFEU4Inv/asaFEU4_table.txt'
+file_pathAsa = './asaFEU4Inv/asaFEU4_table_res.txt'
 GdataAsa, XdataAsa, YdataAsa = parse_file(file_pathAsa, 0)
 # GdataAsa, XdataAsa, YdataAsa = parse_file(file_pathAsa, listmsc[4])
 
