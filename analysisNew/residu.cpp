@@ -102,6 +102,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
   double avgxdet = 0;
 
   while( MM.Next() ){
+    if(n>3000) break;
     // if(n==1000){
       // std::cout<<"n: "<<n<<std::endl;
       // n++;
@@ -189,9 +190,9 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
-  TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 50, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 50, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
   // nt->Draw("yres>>hx");
   // nt->Draw("xres>>hy");
@@ -249,7 +250,7 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   label = "#mu_{X}: " + std::to_string(fitFuncX->GetParameter(1)).substr(0, 5);
   latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
 
-  label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5);
+  label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5) + "#pm " + std::to_string(fitFuncX->GetParError(2)).substr(0, 6);
   latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
 
   c->cd(2);
@@ -264,7 +265,7 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   label = "#mu_{Y}: " + std::to_string(fitFuncY->GetParameter(1)).substr(0, 5);
   latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
 
-  label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5);
+  label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5)+ "#pm " + std::to_string(fitFuncY->GetParError(2)).substr(0, 6);
   latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
   
   c->cd(3);
@@ -872,11 +873,11 @@ std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::
 
   residue(resName, fnameBanco, fnameMM, det);
   std::vector<double> vect = plotResidue(resName, graphname);
-  std::vector<double> vectRot = plotResidue(resName, graphnameRot, -vect[2], -vect[3]);
+  // std::vector<double> vectRot = plotResidue(resName, graphnameRot, -vect[2], -vect[3]);
   plotResidueBanco(resName, graphnameBanco);
   // plotResidueSt(resName, graphnamest);
   // plotResidueChannel(resName, graphnamech);
-  plotResidueClsize(resName, graphnameCl);
+  // plotResidueClsize(resName, graphnameCl);
   // res3Dplot(resName, graphname3D);
   return vect;
 }

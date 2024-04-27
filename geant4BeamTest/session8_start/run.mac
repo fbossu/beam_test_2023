@@ -22,27 +22,46 @@
 #/gun/particle e-
 #/run/beamOn 300000
 
-/gps/particle e-
-/gps/pos/type Beam
-#/gps/direction 0 0 1
+/gps/particle mu-
+/gps/pos/type Plane
 
 /gps/pos/rot1 1 0 0
 /gps/pos/rot2 0 1 0
 
-/gps/pos/shape Ellipse
+/gps/pos/shape Rectangle
 /gps/pos/centre 0. 0. 0. mm
-/gps/pos/sigma_x .435 mm
-/gps/pos/sigma_y .324 mm
+/gps/pos/halfx 80. mm
+/gps/pos/halfy 10. mm
 
 /gps/ang/rot1 0 1 0
 /gps/ang/rot2 1 0 0
-/gps/ang/type beam2d
-/gps/ang/sigma_x 0.00137 rad
-/gps/ang/sigma_y 0.00142 rad
+/gps/ang/type iso
+/gps/ang/mintheta 0 deg
+/gps/ang/maxtheta 30 deg
 
-/gps/ene/type Gauss
-/gps/ene/mono 880 MeV
-/gps/ene/sigma 0.015 MeV
+/gps/ene/mono 1 GeV
+
+#/gps/particle e-
+#/gps/pos/type Beam
+##/gps/direction 0 0 1
+#
+#/gps/pos/rot1 1 0 0
+#/gps/pos/rot2 0 1 0
+#
+#/gps/pos/shape Ellipse
+#/gps/pos/centre 0. 0. 0. mm
+#/gps/pos/sigma_x .435 mm
+#/gps/pos/sigma_y .324 mm
+#
+#/gps/ang/rot1 0 1 0
+#/gps/ang/rot2 1 0 0
+#/gps/ang/type beam2d
+#/gps/ang/sigma_x 0.00137 rad
+#/gps/ang/sigma_y 0.00142 rad
+#
+#/gps/ene/type Gauss
+#/gps/ene/mono 880 MeV
+#/gps/ene/sigma 0.015 MeV
 
 /run/beamOn 300000
 #/run/beamOn 30
