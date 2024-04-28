@@ -190,9 +190,9 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
-  TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 50, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 50, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
   hy->GetXaxis()->SetTitle("residue on x axis (mm)");
   // nt->Draw("yres>>hx");
   // nt->Draw("xres>>hy");
