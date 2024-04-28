@@ -137,8 +137,8 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     legX->AddEntry(hclX[0], "all hits scaled by 1/clsize", "l");
     legX->AddEntry(hclcenterX[0], "center strip", "l");
     // legX->AddEntry("", Form("X pitch = %.2f mm", pitchX), "");
-    legX->SetTextFont(43);
-    legX->SetTextSize(15);
+    // legX->SetTextFont(43);
+    // legX->SetTextSize(15);
     legX->Draw();
     c2->SaveAs(Form("%s_timeofmax_clusterSizeX_ref%d.png", detName.c_str(), zone));
 
@@ -162,8 +162,8 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     legY->AddEntry(hclY[0], "all hits scaled by 1/clsize", "l");
     legY->AddEntry(hclcenterY[0], "center strip", "l");
     // legY->AddEntry("", Form("Y pitch = %.2f mm", pitchY), "");
-    legY->SetTextFont(43);
-    legY->SetTextSize(15);
+    // legY->SetTextFont(43);
+    // legY->SetTextSize(15);
     legY->Draw();
     c2y->SaveAs(Form("%s_timeofmax_clusterSizeY_ref%d.png", detName.c_str(), zone));
 
