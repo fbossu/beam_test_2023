@@ -9,6 +9,40 @@
 #include "clusterSize.h"
 #include "TLatex.h"
 
+void defStyle(){
+  // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
+  // myStyle = gROOT->GetStyle("Default");
+  // TStyle* myStyle = new TStyle("Plain","Default Style");
+    gStyle->SetName("myStyle");
+    gStyle->SetTextFont(43);
+    gStyle->SetTextSize(25);
+
+    // Set the font and size for all axis labels
+    gStyle->SetLabelFont(43, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
+    gStyle->SetLabelSize(25, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
+
+    // Set the font and size for all axis titles
+    gStyle->SetTitleFont(43, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleSize(25, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+
+    gStyle->SetTitleFont(43,"T"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleSize(25,"T"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+
+  // gROOT->SetStyle("myStyle");
+  // gROOT->ForceStyle();
+    // gStyle->SetPalette(kTemperatureMap);
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit(0);
+    gStyle->SetPadTopMargin(0.07);
+    gStyle->SetPadBottomMargin(0.12);
+    gStyle->SetPadLeftMargin(0.12);
+    gStyle->SetPadRightMargin(0.12);
+
+    gStyle->SetLineWidth(2);
+    gStyle->SetFrameLineWidth(2);
+    // gStyle->SetFuncWidth(2);
+    gStyle->SetHistLineWidth(1);
+}
 
 int plots_samplemax(std::string fname, std::string detName, StripTable det, int zone){
     
@@ -84,12 +118,14 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     c1->SaveAs(Form("%s_sampleMax_deltaT_ref%d.png", detName.c_str(), zone));
 
     TCanvas* c2 = new TCanvas("c2", "c2", 1600, 1000);
-    c2->Divide(3,2);
-    for(int i=0; i<6; i++){
+    c2->Divide(3,1);
+    for(int i=0; i<3; i++){
         c2->cd(i+1);
+        hclcenterX[i]->SetStats(0);
         hclcenterX[i]->SetLineColor(kBlue);
         hclcenterX[i]->Draw();
 
+        hclX[i]->SetStats(0);
         hclX[i]->SetLineColor(kRed);
         hclX[i]->Scale(1./(i+1));
         hclX[i]->Draw("HIST same");
@@ -105,12 +141,14 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     c2->SaveAs(Form("%s_timeofmax_clusterSizeX_ref%d.png", detName.c_str(), zone));
 
     TCanvas* c2y = new TCanvas("c2y", "c2y", 1600, 1000);
-    c2y->Divide(3,2);
-    for(int i=0; i<6; i++){
+    c2y->Divide(3,1);
+    for(int i=0; i<3; i++){
         c2y->cd(i+1);
+        hclcenterY[i]->SetStats(0);
         hclcenterY[i]->SetLineColor(kBlue);
         hclcenterY[i]->Draw();
 
+        hclY[i]->SetStats(0);
         hclY[i]->SetLineColor(kRed);
         hclY[i]->Scale(1./(i+1));
         hclY[i]->Draw("HIST same");
@@ -150,6 +188,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "Usage: " << argv[0] << "<detname> <input_file.root>" << std::endl;
         return 1;
     }
+    defStyle();
 
     std::string basedir = argv[0];
     basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
