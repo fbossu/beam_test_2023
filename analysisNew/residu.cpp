@@ -488,7 +488,7 @@ void plotResidueClsize(std::string resName, std::string graphname){
   
   TFile* res = new TFile((resName).c_str(), "open");
   TNtupleD* nt = (TNtupleD*) res->Get("nt");
-  int N = 4;
+  int N = 3;
 
   double meanxdet = getMean(nt, "xdet",{-200, 200});
   double meanydet = getMean(nt, "ydet",{-200, 200});
@@ -877,7 +877,7 @@ std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::
   plotResidueBanco(resName, graphnameBanco);
   // plotResidueSt(resName, graphnamest);
   // plotResidueChannel(resName, graphnamech);
-  // plotResidueClsize(resName, graphnameCl);
+  plotResidueClsize(resName, graphnameCl);
   // res3Dplot(resName, graphname3D);
   return vect;
 }
