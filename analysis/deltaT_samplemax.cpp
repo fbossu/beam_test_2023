@@ -134,8 +134,8 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     }
     c2->cd(0);
     TLegend* legX = new TLegend(0.8, 0.7, 1, 0.9);
-    legX->AddEntry(hclX[0], "#splitline{samplemax all hits}{scaled by 1/clsize}", "l");
-    legX->AddEntry(hclcenterX[0], "samplemax of center strip", "l");
+    legX->AddEntry(hclX[0], "all hits scaled by 1/clsize", "l");
+    legX->AddEntry(hclcenterX[0], "center strip", "l");
     legX->AddEntry("", Form("X pitch = %.2f mm", pitchX), "");
     legX->SetTextFont(43);
     legX->SetTextSize(15);
