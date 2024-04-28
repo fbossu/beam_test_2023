@@ -614,14 +614,14 @@ void plotResidueClsize(std::string resName, std::string graphname){
   h2x[1]->Draw("");
   h2x[2]->Draw("same");
   h2x[0]->Draw("same");
-  h2x[3]->Draw("same");
+  // h2x[3]->Draw("same");
   gPad->SetLogz();
 
   c->cd(4);
   h2y[1]->Draw("");
   h2y[2]->Draw("same");
   h2y[0]->Draw("same");
-  h2y[3]->Draw("same");
+  // h2y[3]->Draw("same");
   gPad->SetLogz();
 
   c->Print(graphname.c_str(), "png");
