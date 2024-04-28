@@ -102,7 +102,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
   double avgxdet = 0;
 
   while( MM.Next() ){
-    if(n>3000) break;
+    // if(n>3000) break;
     // if(n==1000){
       // std::cout<<"n: "<<n<<std::endl;
       // n++;
