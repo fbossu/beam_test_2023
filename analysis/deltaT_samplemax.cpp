@@ -117,21 +117,23 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     // gPad->SetLogz();
     c1->SaveAs(Form("%s_sampleMax_deltaT_ref%d.png", detName.c_str(), zone));
 
-    TCanvas* c2 = new TCanvas("c2", "c2", 1600, 1000);
+    TCanvas* c2 = new TCanvas("c2", "c2", 1600, 500);
     c2->Divide(3,1);
     for(int i=0; i<3; i++){
         c2->cd(i+1);
         hclcenterX[i]->SetStats(0);
         hclcenterX[i]->SetLineColor(kBlue);
+        hclcenterX[i]->SetLineWidth(2);
         hclcenterX[i]->Draw();
 
         hclX[i]->SetStats(0);
         hclX[i]->SetLineColor(kRed);
+        hclX[i]->SetLineWidth(2);
         hclX[i]->Scale(1./(i+1));
         hclX[i]->Draw("HIST same");
     }
     c2->cd(0);
-    TLegend* legX = new TLegend(0.85, 0.7, 1, 0.8);
+    TLegend* legX = new TLegend(0.8, 0.7, 1, 0.85);
     legX->AddEntry(hclX[0], "#splitline{samplemax all hits}{scaled by 1/clsize}", "l");
     legX->AddEntry(hclcenterX[0], "samplemax of center strip", "l");
     legX->AddEntry("", Form("X pitch = %.2f mm", pitchX), "");
@@ -140,21 +142,23 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     legX->Draw();
     c2->SaveAs(Form("%s_timeofmax_clusterSizeX_ref%d.png", detName.c_str(), zone));
 
-    TCanvas* c2y = new TCanvas("c2y", "c2y", 1600, 1000);
+    TCanvas* c2y = new TCanvas("c2y", "c2y", 1600, 500);
     c2y->Divide(3,1);
     for(int i=0; i<3; i++){
         c2y->cd(i+1);
         hclcenterY[i]->SetStats(0);
         hclcenterY[i]->SetLineColor(kBlue);
+        hclcenterY[i]->SetLineWidth(2);
         hclcenterY[i]->Draw();
 
         hclY[i]->SetStats(0);
         hclY[i]->SetLineColor(kRed);
+        hclY[i]->SetLineWidth(2);
         hclY[i]->Scale(1./(i+1));
         hclY[i]->Draw("HIST same");
     }
     c2y->cd(0);
-    TLegend* legY = new TLegend(0.85, 0.7, 1, 0.8);
+    TLegend* legY = new TLegend(0.8, 0.7, 1, 0.85);
     legY->AddEntry(hclY[0], "#splitline{samplemax all hits}{scaled by 1/clsize}", "l");
     legY->AddEntry(hclcenterY[0], "samplemax of center strip", "l");
     legY->AddEntry("", Form("Y pitch = %.2f mm", pitchY), "");
