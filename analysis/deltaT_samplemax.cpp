@@ -136,7 +136,7 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     TLegend* legX = new TLegend(0.8, 0.7, 1, 0.9);
     legX->AddEntry(hclX[0], "all hits scaled by 1/clsize", "l");
     legX->AddEntry(hclcenterX[0], "center strip", "l");
-    legX->AddEntry("", Form("X pitch = %.2f mm", pitchX), "");
+    // legX->AddEntry("", Form("X pitch = %.2f mm", pitchX), "");
     legX->SetTextFont(43);
     legX->SetTextSize(15);
     legX->Draw();
@@ -159,9 +159,9 @@ int plots_samplemax(std::string fname, std::string detName, StripTable det, int 
     }
     c2y->cd(0);
     TLegend* legY = new TLegend(0.8, 0.7, 1, 0.9);
-    legY->AddEntry(hclY[0], "#splitline{samplemax all hits}{scaled by 1/clsize}", "l");
-    legY->AddEntry(hclcenterY[0], "samplemax of center strip", "l");
-    legY->AddEntry("", Form("Y pitch = %.2f mm", pitchY), "");
+    legY->AddEntry(hclY[0], "all hits scaled by 1/clsize", "l");
+    legY->AddEntry(hclcenterY[0], "center strip", "l");
+    // legY->AddEntry("", Form("Y pitch = %.2f mm", pitchY), "");
     legY->SetTextFont(43);
     legY->SetTextSize(15);
     legY->Draw();
