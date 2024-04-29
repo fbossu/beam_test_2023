@@ -432,7 +432,7 @@ std::vector<double> plot_all(std::string fname, double pitch, double inter, doub
     for( int i=0; i<5; i++){
 
         if(MMpos[i][0]<-900 || MMpos[i][1]<-900) continue;
-        cluster cl = MMclusterStrip(MMpos[i], MMedep[i], pitch, inter, threshold, sigma, false);
+        cluster cl = MMclusterStrip(MMpos[i], MMedep[i], pitch, inter, threshold, sigma, true);
 
         h[i]->Fill(cl.x, cl.y);
         hx[i]->Fill(cl.x);

@@ -85,7 +85,7 @@ std::vector<THStack*> waveforms(std::string fnameMM, int& entry, int clsizeX=0, 
 
     THStack* hsx = new THStack("hsx", "");
     THStack* hsy = new THStack("hsy", "");
-    for(int i=0; i<4; i++){
+    for(int i=0; i<1; i++){
         hsx->Add(hx[i]);
         hsy->Add(hy[i]);
     }
@@ -150,7 +150,19 @@ int main(int argc, char const *argv[])
   // StripTable det(mapName);
   std::string graphname = "waveform_"+run+"_"+detName+"_32_cuts.png";
   
-  plotWaveform(fnameMM,graphname, 1000, 3, 2);
+  TCanvas *c = new TCanvas("c", "c", 1600,800);
+  gStyle->SetOptStat(0);
+  TLatex latex;
+  latex.SetTextFont(43);
+  latex.SetTextSize(18);
+  std::string label;
+    auto hs = waveforms(fname, entry, clsizeX, clsizeY);
+    c->cd(i+1);
+    hs[0]->Draw("nostack");
+    hs[0]->GetXaxis()->SetTitle("time sample");
+    hs[0]->GetYaxis()->SetTitle("ADC");
+  c->Print(graphname.c_str(), "png");
+  // plotWaveform(fnameMM,graphname, 1000, 3, 2);
 
   return 0;
 }
