@@ -130,6 +130,7 @@ int main(int argc, char const *argv[])
 
   std::string detName = argv[1];
   std::string fnameMM = argv[2];
+  int event = std::stoi(argv[3]);
   
   std::string mapName;
   if (detName.find("asa") != std::string::npos) {
@@ -149,14 +150,13 @@ int main(int argc, char const *argv[])
 //   StripTable det(mapName, alignName);
   // StripTable det(mapName);
   std::string graphname = "waveform_"+run+"_"+detName+"_32_cuts.png";
-  int entry = 100;
   TCanvas *c = new TCanvas("c", "c", 1600,800);
   gStyle->SetOptStat(0);
   TLatex latex;
   latex.SetTextFont(43);
   latex.SetTextSize(18);
   std::string label;
-  auto hs = waveforms(fnameMM, entry, 3);
+  auto hs = waveforms(fnameMM, event, 3);
   hs[0]->Draw("nostack");
   hs[0]->GetXaxis()->SetTitle("time sample");
   hs[0]->GetYaxis()->SetTitle("ADC");
