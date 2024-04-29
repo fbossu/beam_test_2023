@@ -70,11 +70,11 @@ std::vector<THStack*> waveforms(std::string fnameMM, int& entry, int clsizeX=0, 
         auto hitsY = getHits(*hits, maxY->id);
         for(int i=0; i<maxX->size && i<4; i++){
             std::cout<<"X "<<i<<" maxsample "<<hitsX[i].samplemax<<" maxamp "<<hitsX[i].maxamp<<std::endl;
-            for(int j=0; j<hitsX[i].samples.size(); j++) hx[i]->SetBinContent(j, hitsX[i].samples[j]);
+            for(int j=0; j<hitsX[i].samples.size(); j++) hx[i]->SetBinContent(j, hitsX[i].samples[j]-256);
         }
         for(int i=0; i<maxY->size && i<4; i++){
             std::cout<<"Y "<<i<<" maxsample "<<hitsY[i].samplemax<<" maxamp "<<hitsY[i].maxamp<<std::endl;
-            for(int j=0; j<hitsY[i].samples.size(); j++) hy[i]->SetBinContent(j, hitsY[i].samples[j]);
+            for(int j=0; j<hitsY[i].samples.size(); j++) hy[i]->SetBinContent(j, hitsY[i].samples[j]-256);
         }
     }
 
