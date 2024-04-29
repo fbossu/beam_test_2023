@@ -44,11 +44,13 @@ std::vector<THStack*> waveforms(std::string fnameMM, int& entry, int clsizeX=0, 
         hx[i] = new TH1F(("hx"+std::to_string(i)).c_str(), ("waveform strip nb "+std::to_string(i+1)).c_str(), 17, -0.5, 16.0);
         hx[i]->GetXaxis()->SetTitle("time sample");
         hx[i]->GetYaxis()->SetTitle("ADC");
+        hx[i]->SetLineWidth(2);
         hx[i]->SetLineColor(color[i]);
         hy[i] = new TH1F(("hy"+std::to_string(i)).c_str(), ("waveform strip nb "+std::to_string(i+1)).c_str(), 17, -0.5, 16.0);
         hy[i]->GetXaxis()->SetTitle("time sample");
         hy[i]->GetYaxis()->SetTitle("ADC");
         hy[i]->SetLineColor(color[i]);
+        hy[i]->SetLineWidth(2);
     }
 
     MM.SetEntry(entry-1);
@@ -150,7 +152,7 @@ int main(int argc, char const *argv[])
 //   StripTable det(mapName, alignName);
   // StripTable det(mapName);
   std::string graphname = "waveform_"+run+"_"+detName+"_32_cuts.png";
-  TCanvas *c = new TCanvas("c", "c", 1600,800);
+  TCanvas *c = new TCanvas("c", "c", 1200,800);
   gStyle->SetOptStat(0);
   TLatex latex;
   latex.SetTextFont(43);
@@ -160,6 +162,7 @@ int main(int argc, char const *argv[])
   hs[0]->Draw("nostack");
   hs[0]->GetXaxis()->SetTitle("time sample");
   hs[0]->GetYaxis()->SetTitle("ADC");
+  hs[0]->GetYaxis()->SetRangeUser(0, 200);
   c->Print(graphname.c_str(), "png");
   // plotWaveform(fnameMM,graphname, 1000, 3, 2);
 
