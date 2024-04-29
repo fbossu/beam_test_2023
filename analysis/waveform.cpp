@@ -162,7 +162,7 @@ int main(int argc, char const *argv[])
   hs[0]->Draw("nostack");
   hs[0]->GetXaxis()->SetTitle("time sample");
   hs[0]->GetYaxis()->SetTitle("ADC");
-  hs[0]->GetYaxis()->SetRangeUser(0, 200);
+  hs[0]->SetMinimum(0.);
   c->Print(graphname.c_str(), "png");
   // plotWaveform(fnameMM,graphname, 1000, 3, 2);
 
