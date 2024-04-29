@@ -123,7 +123,7 @@ int main(int argc, char const *argv[])
   std::string basedir = argv[0];
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   
-  if(argc != 3){
+  if(argc != 3 && argc != 4){
     std::cerr << "Usage: " << argv[0] << " <detName> <mm.root>" << std::endl;
     return 1;
   }
