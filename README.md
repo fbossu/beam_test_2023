@@ -1,6 +1,6 @@
 # Beam test 2023
 
-## decoding fdf
+## Decoding fdf
 
 ```
 cd decode
@@ -19,6 +19,7 @@ make
 Takes a decoded file and a FEU number.
 Use FEUNb=5 to only make hits no need for any mapping info.
 FEU 1 to 4 were connected to specific detectors in the beam test and the code knows which detector is connected to which FEU and how the connectors where inverted. It then pulls the maping for that detector and build hits&clusters.
+[detector hits and cluster definition](reco/definitions.h)
 
 ## Decoding Alpide output
 
@@ -29,6 +30,7 @@ make
 ./decode_banco ladder.root noise.root
 ```
 Outputs fdec.root where each event has a hits and a clusters vector filled with all the reconstructed banco::hit and banco::cluster object reconstructed in that event.
+[banco hits, cluster and track definition](banco/definition_banco.h)
 
 ## Tracks reconstruction
 
