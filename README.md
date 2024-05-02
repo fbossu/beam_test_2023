@@ -23,7 +23,7 @@ FEU 1 to 4 were connected to specific detectors in the beam test and the code kn
 
 ## Decoding Alpide output
 
-Takes the Alpide output root files for one ladder and a noise file to find the noisy pixels.
+Takes the Alpide output root files for one ladder and a noise file for that ladder to find the noisy pixels.
 ```
 cd banco
 make
