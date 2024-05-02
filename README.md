@@ -1,5 +1,7 @@
 # Beam test 2023
 
+All the decoding and reconstruction software uses the logic that at each step the output file is recreated in the same directory than the code with a standard name. Then a script can be used to move and rename the final files to be kept.
+
 ## Decoding fdf
 
 ```
@@ -39,4 +41,4 @@ Takes the decoded files of all 4 ladders for that runs
 ./reco_banco ladder*.root
 ```
 Outputs a root file with for each event a vector with all the banco::track objects.
-Many options to input an alignment file with the offsets of each ladder, and a global rotation file. Also an option to compute the residues and add the plots to th output root file.
+Many options to input an alignment file with the offsets of each ladder, and a global rotation file. Also an option to compute residues and add the plots to the output root file.
