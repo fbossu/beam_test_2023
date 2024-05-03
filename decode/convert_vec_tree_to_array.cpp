@@ -52,7 +52,7 @@ void convertTree(const char* inputFileName = "ftest.root", const char* outputFil
     nt.Branch("timestamp", &timestamp);
     nt.Branch("delta_timestamp", &delta_timestamp);
     nt.Branch("ftst", &fine_timestamp);
-    nt.Branch("amp", amp, Form("amp[%d][%d]/s", maxChannels + 1, maxSamples + 1));
+    nt.Branch("amplitude", amp, Form("amp[%d][%d]/s", maxChannels + 1, maxSamples + 1));
 
     int nEntries = inputTree->GetEntries();
     for (int i = 0; i < nEntries; ++i) {
