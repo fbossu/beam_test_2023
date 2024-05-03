@@ -38,6 +38,15 @@ int main( int argc, const char **argv) {
 
   cout << argv[1] << endl;
   ifstream is( argv[1], std::ifstream::binary );
+  if (!is) {
+	cout << "Cannot open " << argv[1] << endl << "Exiting." << endl;
+	return 1;
+  }
+
+  if (is.peek() == ifstream::traits_type::eof()) {
+      cout << "File is empty " << argv[1] << endl << "Exiting." << endl;
+      return 1;
+  }
 
 
   // this is where we store the 2 bytes of each data line
@@ -61,7 +70,7 @@ int main( int argc, const char **argv) {
   bool isFT    = false;  // on if FT (Final Trailer) is reached and set off by the header
   bool isZS    = true;   // true if zero suppressed data. false if not
   int i = 0;             // just a counter
-  bool debug = true;     // printing stuff
+  bool debug = false;     // printing stuff
   char prev = cout.fill(); // for debug formatting
 
   // store data
