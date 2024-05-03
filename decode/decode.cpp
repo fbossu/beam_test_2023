@@ -254,7 +254,7 @@ int main( int argc, const char **argv) {
             cout << "other ... " ;
             print_data(data);
         }
-      read16(is, data);
+        if (read16(is, data)) break;
     }
 
     if (is_final_trailer(data)) {
