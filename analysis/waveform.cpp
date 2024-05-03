@@ -44,11 +44,13 @@ std::vector<THStack*> waveforms(std::string fnameMM, int& entry, int clsizeX=0, 
         hx[i] = new TH1F(("hx"+std::to_string(i)).c_str(), ("waveform strip nb "+std::to_string(i+1)).c_str(), 17, -0.5, 16.0);
         hx[i]->GetXaxis()->SetTitle("time sample");
         hx[i]->GetYaxis()->SetTitle("ADC");
+        hx[i]->SetLineWidth(2);
         hx[i]->SetLineColor(color[i]);
         hy[i] = new TH1F(("hy"+std::to_string(i)).c_str(), ("waveform strip nb "+std::to_string(i+1)).c_str(), 17, -0.5, 16.0);
         hy[i]->GetXaxis()->SetTitle("time sample");
         hy[i]->GetYaxis()->SetTitle("ADC");
         hy[i]->SetLineColor(color[i]);
+        hy[i]->SetLineWidth(2);
     }
 
     MM.SetEntry(entry-1);
@@ -70,11 +72,11 @@ std::vector<THStack*> waveforms(std::string fnameMM, int& entry, int clsizeX=0, 
         auto hitsY = getHits(*hits, maxY->id);
         for(int i=0; i<maxX->size && i<4; i++){
             std::cout<<"X "<<i<<" maxsample "<<hitsX[i].samplemax<<" maxamp "<<hitsX[i].maxamp<<std::endl;
-            for(int j=0; j<hitsX[i].samples.size(); j++) hx[i]->SetBinContent(j, hitsX[i].samples[j]);
+            for(int j=0; j<hitsX[i].samples.size(); j++) hx[i]->SetBinContent(j, hitsX[i].samples[j]-256);
         }
         for(int i=0; i<maxY->size && i<4; i++){
             std::cout<<"Y "<<i<<" maxsample "<<hitsY[i].samplemax<<" maxamp "<<hitsY[i].maxamp<<std::endl;
-            for(int j=0; j<hitsY[i].samples.size(); j++) hy[i]->SetBinContent(j, hitsY[i].samples[j]);
+            for(int j=0; j<hitsY[i].samples.size(); j++) hy[i]->SetBinContent(j, hitsY[i].samples[j]-256);
         }
     }
 
@@ -85,7 +87,7 @@ std::vector<THStack*> waveforms(std::string fnameMM, int& entry, int clsizeX=0, 
 
     THStack* hsx = new THStack("hsx", "");
     THStack* hsy = new THStack("hsy", "");
-    for(int i=0; i<4; i++){
+    for(int i=0; i<1; i++){
         hsx->Add(hx[i]);
         hsy->Add(hy[i]);
     }
@@ -123,13 +125,14 @@ int main(int argc, char const *argv[])
   std::string basedir = argv[0];
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   
-  if(argc != 3){
+  if(argc != 3 && argc != 4){
     std::cerr << "Usage: " << argv[0] << " <detName> <mm.root>" << std::endl;
     return 1;
   }
 
   std::string detName = argv[1];
   std::string fnameMM = argv[2];
+  int event = std::stoi(argv[3]);
   
   std::string mapName;
   if (detName.find("asa") != std::string::npos) {
@@ -149,8 +152,19 @@ int main(int argc, char const *argv[])
 //   StripTable det(mapName, alignName);
   // StripTable det(mapName);
   std::string graphname = "waveform_"+run+"_"+detName+"_32_cuts.png";
-  
-  plotWaveform(fnameMM,graphname, 1000, 3, 2);
+  TCanvas *c = new TCanvas("c", "c", 1200,800);
+  gStyle->SetOptStat(0);
+  TLatex latex;
+  latex.SetTextFont(43);
+  latex.SetTextSize(18);
+  std::string label;
+  auto hs = waveforms(fnameMM, event, 3);
+  hs[0]->Draw("nostack");
+  hs[0]->GetXaxis()->SetTitle("time sample");
+  hs[0]->GetYaxis()->SetTitle("ADC");
+  hs[0]->SetMinimum(0.);
+  c->Print(graphname.c_str(), "png");
+  // plotWaveform(fnameMM,graphname, 1000, 3, 2);
 
   return 0;
 }
