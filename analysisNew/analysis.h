@@ -51,6 +51,6 @@ void plotResidueSt(std::string resName, std::string graphname);
 std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::string fnameMM, std::string prefix);
 
 // xy_compare.cpp functions
-std::vector<double> xy_compare(std::string fname, StripTable det, int zone, std::string graphName);
+std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable det, int zone, std::string graphName);
 
 #endif

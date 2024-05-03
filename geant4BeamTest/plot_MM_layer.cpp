@@ -123,7 +123,16 @@ track trackingBanco(const std::vector<std::vector<double>>& ladderPos, const std
 }
 
 
-cluster MMclusterStrip(const std::vector<double>& pos, double edep, double pitch, double interRatio, double threshold, double sigma){
+cluster MMclusterStrip(const std::vector<double>& pos, double edep, double pitch, double interRatio, double threshold, double sigma, bool smear=true){
+
+    if(!smear){
+      cluster cl;
+      cl.x = pos[0];
+      cl.y = pos[1];
+      cl.z = pos[2];
+      cl.edep = edep;
+      return cl;
+    }
 
     double inter = pitch - pitch*interRatio;
     double minLim = -50.;
@@ -200,11 +209,18 @@ void plotTracks(std::string fnameBanco){
     TH1F* h1clsize = new TH1F("h1clsize", "clsize", 11, -0.5, 10.5);
     h1trchi2y->SetXTitle("clsize");
 
-    double z = 0;
-    // double z= 305.6;
+    TH1F* h1res[10];
+    for(int i=0; i<10; i++){
+      h1res[i] = new TH1F(Form("h1res%d", i), Form("residue true-reconstructed track at z=%dmm", (i+1)*50), 200, -0.1, 0.1);
+      h1res[i]->SetXTitle("residue (mm)");
+    }
+
+    // double z = 0;
+    double z= 785.6;
 
     while(reader.Next()){
       track trk = trackingBanco({*Lpos0, *Lpos1, *Lpos2, *Lpos3}, {*Ledep0, *Ledep1, *Ledep2, *Ledep3});
+      track trkTrue = trackingBanco({*Lpos0, *Lpos1, *Lpos2, *Lpos3}, {*Ledep0, *Ledep1, *Ledep2, *Ledep3}, false);
       if( trk.chi2x < 0. || trk.chi2y< 0. ) continue;
       // if(*chi2x>1. or *chi2y>1) continue;
       h2tr->Fill(trk.x0 + z*trk.mx, trk.y0 + z*trk.my);
@@ -215,15 +231,19 @@ void plotTracks(std::string fnameBanco){
       h1trchi2x->Fill(trk.chi2x);
       h1trchi2y->Fill(trk.chi2y);
       h1clsize->Fill(trk.clsize);
+
+      for(int i=0; i<10; i++){
+        h1res[i]->Fill(trkTrue.x0+(i+1)*50*trkTrue.mx - trk.x0 - (i+1)*50*trk.mx);
+      }
     }
   
     TCanvas *c2 = new TCanvas("c2", "c2", 1000,1000);
     h2tr->Draw("colz");
     // gPad->SetLogz();
-    c2->Print("tracks_ladder0.png", "png");
+    c2->Print("tracks_MM4.png", "png");
 
     TLatex latex;
-    latex.SetTextSize(0.035);
+    // latex.SetTextSize(0.035);
     std::string label;
 
     TCanvas *c3 = new TCanvas("c3", "c3", 1600,1000);
@@ -251,7 +271,7 @@ void plotTracks(std::string fnameBanco){
     h1trmy->Draw();
     label = "#sigma_{my}: "+ std::to_string(h1trmy->GetFunction("gaus")->GetParameter(2)).substr(0, 5);
     latex.DrawLatexNDC(0.14, 0.85, (label).c_str());
-    c3->Print("tracksXY_ladder0.png", "png");
+    c3->Print("tracksXY_MM4.png", "png");
 
     TCanvas *c4 = new TCanvas("c4", "c4", 1600,1000);
     c4->Divide(2,2);
@@ -262,6 +282,35 @@ void plotTracks(std::string fnameBanco){
     c4->cd(3);
     h1clsize->Draw();
     c4->Print("tracksChi2.png", "png");
+
+    TCanvas *c5 = new TCanvas("c5", "c5", 1600,1000);
+    c5->Divide(2,5);
+    for(int i=0; i<10; i++){
+      c5->cd(i+1);
+      h1res[i]->Fit("gaus");
+      h1res[i]->Draw();
+      label = "#sigma_{residue}: "+ std::to_string(h1res[i]->GetFunction("gaus")->GetParameter(2)).substr(0, 5)+"mm";
+      latex.DrawLatexNDC(0.14, 0.85, (label).c_str());
+    }
+    c5->Print("tracksRes.png", "png");
+
+    TFile *fout = TFile::Open("tracks.root", "update");
+
+    TGraphErrors *grRes = new TGraphErrors(10);
+    for(int i=0; i<10; i++){
+      grRes->SetPoint(i, (i+1)*50-(*Lpos3)[2], h1res[i]->GetFunction("gaus")->GetParameter(2));
+      grRes->SetPointError(i, 0, h1res[i]->GetFunction("gaus")->GetParError(2));
+    }
+    grRes->SetName("grRes30mm");
+    grRes->Write();
+    TCanvas *c6 = new TCanvas("c6", "c6", 800,800);
+    grRes->Draw("AP");
+    grRes->SetMarkerStyle(20);
+    grRes->SetMarkerSize(1);
+    grRes->SetMarkerColor(kBlue);
+    grRes->GetXaxis()->SetTitle("z (mm)");
+    grRes->GetYaxis()->SetTitle("#sigma_{residue} (mm)");
+    c6->Print("tracksResGraph.png", "png");
 
     fbanco->Close();
 }
@@ -383,7 +432,7 @@ std::vector<double> plot_all(std::string fname, double pitch, double inter, doub
     for( int i=0; i<5; i++){
 
         if(MMpos[i][0]<-900 || MMpos[i][1]<-900) continue;
-        cluster cl = MMclusterStrip(MMpos[i], MMedep[i], pitch, inter, threshold, sigma);
+        cluster cl = MMclusterStrip(MMpos[i], MMedep[i], pitch, inter, threshold, sigma, true);
 
         h[i]->Fill(cl.x, cl.y);
         hx[i]->Fill(cl.x);
@@ -620,30 +669,34 @@ int main(int argc, char const *argv[])
 { 
   defStyle();
   std::string fname = argv[1];
-  std::vector<double> pitch = {0.5, 1., 1.5};       // mm
-  std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
-  std::vector<double> thRatio = {0.1};
-  std::vector<double> sigma = {0.2, 0.3, 0.4, 0.5, 0.6};     // mm
+  plotTracks(fname);
+  std::vector<double> r = plot_all(fname, 1., 0.25, 0.2, 0.8);
+  std::cout<<"clsizex="<<r[0]<<", resx="<<r[1]<<", clsizey="<<r[2]<<", resy="<<r[3]<<std::endl;
+  // std::vector<double> r = plot_all(fname, 0., 0., 0., 0.);
+  // std::vector<double> pitch = {0.5, 1., 1.5};       // mm
+  // std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
+  // std::vector<double> thRatio = {0.1};
+  // std::vector<double> sigma = {0.2, 0.3, 0.4, 0.5, 0.6};     // mm
   
-  for( auto t : thRatio){
-    for( auto s : sigma){
-      std::ofstream outfile;
-      outfile.open(Form("Layer0_SimuTable_s%.2f.txt", s));
-      outfile<<"#run\tzone\tgain"<<std::endl;
-      outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
-      outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
-        for( auto p : pitch){
-          for( auto i : inter){
-          std::cout<<"pitch="<<p<<", inter="<<i<<", thRatio="<<t<<", sigma="<<s<<std::endl;
-          std::vector<double> r = plot_all(fname, p, i, t, s);
-          outfile<<"simu"<<"\t"<<"-1"<<"\t"<<"0"<<std::endl;
-          outfile<<"\t\t"<<p<<"\t"<<i<<"\t"<<r[0]<<"\t"<<-1.<<"\t"<<r[1]<<std::endl;
-          outfile<<"\t\t"<<p<<"\t"<<i<<"\t"<<r[2]<<"\t"<<-1.<<"\t"<<r[3]<<std::endl;
-          }
-        }
-      outfile.close();
-      }
-    }
+  // for( auto t : thRatio){
+  //   for( auto s : sigma){
+  //     std::ofstream outfile;
+  //     outfile.open(Form("Layer0_SimuTable_s%.2f.txt", s));
+  //     outfile<<"#run\tzone\tgain"<<std::endl;
+  //     outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
+  //     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
+  //       for( auto p : pitch){
+  //         for( auto i : inter){
+  //         std::cout<<"pitch="<<p<<", inter="<<i<<", thRatio="<<t<<", sigma="<<s<<std::endl;
+  //         std::vector<double> r = plot_all(fname, p, i, t, s);
+  //         outfile<<"simu"<<"\t"<<"-1"<<"\t"<<"0"<<std::endl;
+  //         outfile<<"\t\t"<<p<<"\t"<<i<<"\t"<<r[0]<<"\t"<<-1.<<"\t"<<r[1]<<std::endl;
+  //         outfile<<"\t\t"<<p<<"\t"<<i<<"\t"<<r[2]<<"\t"<<-1.<<"\t"<<r[3]<<std::endl;
+  //         }
+  //       }
+  //     outfile.close();
+  //     }
+  //   }
 
   return 0;
 }
