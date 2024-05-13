@@ -55,7 +55,9 @@ int main( int argc, const char **argv) {
   string outputFileName = "ftest.root";
   if (argc == 3) {
 	  outputFileName = argv[2];
-	  outputFileName += ".root";
+	  if (outputFileName.find(".root") == string::npos) {
+		  outputFileName += ".root";
+	  }
   }
 
   // this is where we store the 2 bytes of each data line
