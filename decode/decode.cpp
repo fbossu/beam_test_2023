@@ -36,6 +36,10 @@ void print_data( uint16_t data ){
 
 int main( int argc, const char **argv) {
 
+  if (argc < 2) {
+	cout << "Usage: " << argv[0] << " <filename>" << endl;
+    return 1;
+  }
   cout << argv[1] << endl;
   ifstream is( argv[1], std::ifstream::binary );
   if (!is) {
@@ -48,6 +52,11 @@ int main( int argc, const char **argv) {
       return 1;
   }
 
+  string outputFileName = "ftest.root";
+  if (argc == 3) {
+	  outputFileName = argv[2];
+	  outputFileName += ".root";
+  }
 
   // this is where we store the 2 bytes of each data line
   uint16_t data = 0;
@@ -78,7 +87,7 @@ int main( int argc, const char **argv) {
   vector<uint16_t> channel;
   vector<uint16_t> amplitude;
  
-  TFile fout( "ftest.root", "recreate");
+  TFile fout(outputFileName.data(), "recreate");
   TTree nt("nt","nt");
   nt.SetDirectory(&fout);
   nt.Branch("eventId",&eventID );
