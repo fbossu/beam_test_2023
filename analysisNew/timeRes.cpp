@@ -30,8 +30,8 @@ int main(int argc, char* argv[]) {
     TTreeReaderValue<std::vector<cluster>> cls(reader, "clusters");
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, -4, 4);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, -4, 4);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, -6, 4);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, -6, 4);
     
     while (reader.Next()) {
         
@@ -39,11 +39,11 @@ int main(int argc, char* argv[]) {
         std::shared_ptr<cluster> clY = maxSizeClY(*cls);
         if(clX){
             auto hX = getHits(*hits, clX->id);
-            h_timeofmaxX->Fill(hX[0].tdiff);
+            if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].tdiff);
         }
         if(clY){
             auto hY = getHits(*hits, clY->id);
-            h_timeofmaxY->Fill(hY[0].tdiff);
+            if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].tdiff);
         }
         if(!clX && !clY){
             std::vector<hit> hX, hY;
@@ -54,12 +54,12 @@ int main(int argc, char* argv[]) {
                 if(hX.size() > 1){
                     std::sort (hX.begin(), hX.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    h_timeofmaxX->Fill(hX[0].tdiff);
+                    if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].tdiff);
                 }
                 if(hY.size() > 1){
                     std::sort (hY.begin(), hY.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    h_timeofmaxY->Fill(hY[0].tdiff);
+                    if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].tdiff);
                 }
             }
         }
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
     // fit each histogram with a gaussian centered around 4
     TF1 *f = new TF1("f", "gaus", 0, 10);
-    f->SetParameter(1, 0);
+    f->SetParameter(1, -1);
 
     gStyle->SetOptFit(1111);
     TCanvas *c = new TCanvas("c", "c", 1600, 1200);
