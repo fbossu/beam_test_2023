@@ -41,11 +41,11 @@ int main(int argc, char* argv[]) {
             auto hX = getHits(*hits, clX->id);
             h_timeofmaxX->Fill(hX[0].timeofmax);
         }
-        else if(clY){
+        if(clY){
             auto hY = getHits(*hits, clY->id);
             h_timeofmaxY->Fill(hY[0].timeofmax);
         }
-        else{
+        if(!clX && !clY){
             std::vector<hit> hX, hY;
             for(auto h : *hits){
                 if(h.axis == 'x') hX.push_back(h);
