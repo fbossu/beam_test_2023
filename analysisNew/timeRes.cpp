@@ -8,6 +8,8 @@
 #include "../map/StripTable.h"
 #include "analysis.h"
 #include "TLatex.h"
+#include "TCanvas.h"
+#include "TF1.h"
 
 int main(int argc, char* argv[]) {
     
@@ -48,9 +50,9 @@ int main(int argc, char* argv[]) {
             for(auto h : *hits){
                 if(h.axis == 'x') hX.push_back(h);
                 else hY.push_back(h);
-                std::sort (hX.begin(), X.end(),
+                std::sort (hX.begin(), hX.end(),
                     [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                std::sort (hY.begin(), Y.end(),
+                std::sort (hY.begin(), hY.end(),
                     [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
                 h_timeofmaxX->Fill(hX[0].timeofmax);
                 h_timeofmaxY->Fill(hY[0].timeofmax);
