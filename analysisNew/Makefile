@@ -1,4 +1,4 @@
-all: clusterSize.o xy_compare.o residu.o analysisMain
+all: clusterSize.o xy_compare.o residu.o analysisMain timeRes
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs ) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -15,3 +15,6 @@ xy_compare.o: analysis.h xy_compare.cpp clusterSize.cpp
 
 analysisMain: analysisMain.cpp analysis.h residu.o xy_compare.o clusterSize.o
 	g++ -o analysisMain analysisMain.cpp residu.o xy_compare.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
+
+timeRes: timeRes.cpp residu.o xy_compare.o clusterSize.o
+	g++ -o timeRes timeRes.cpp residu.o xy_compare.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
