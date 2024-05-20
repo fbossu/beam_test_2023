@@ -66,17 +66,17 @@ int main(int argc, char* argv[]) {
     }
 
     // fit each histogram with a gaussian centered around 4
-    TF1 *f = new TF1("f", "gaus", 0, 10);
+    TF1 *f = new TF1("f", "gaus", -3, 0);
     f->SetParameter(1, -1);
 
     gStyle->SetOptFit(1111);
     TCanvas *c = new TCanvas("c", "c", 1600, 1200);
     c->Divide(2, 1);
     c->cd(1);
-    h_timeofmaxX->Fit("f");
+    h_timeofmaxX->Fit(f, "R");
     h_timeofmaxX->Draw();
     c->cd(2);
-    h_timeofmaxY->Fit("f");
+    h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
     c->SaveAs((detName + "_tdiff.png").c_str());
     return 0;
