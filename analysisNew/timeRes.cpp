@@ -50,12 +50,17 @@ int main(int argc, char* argv[]) {
             for(auto h : *hits){
                 if(h.axis == 'x') hX.push_back(h);
                 else hY.push_back(h);
-                std::sort (hX.begin(), hX.end(),
-                    [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                std::sort (hY.begin(), hY.end(),
-                    [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                h_timeofmaxX->Fill(hX[0].timeofmax);
-                h_timeofmaxY->Fill(hY[0].timeofmax);
+                
+                if(hX.size() > 1){
+                    std::sort (hX.begin(), hX.end(),
+                        [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
+                    h_timeofmaxX->Fill(hX[0].timeofmax);
+                }
+                if(hY.size() > 1){
+                    std::sort (hY.begin(), hY.end(),
+                        [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
+                    h_timeofmaxY->Fill(hY[0].timeofmax);
+                }
             }
         }
     }
