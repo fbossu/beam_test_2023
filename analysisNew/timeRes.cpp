@@ -30,8 +30,8 @@ int main(int argc, char* argv[]) {
     TTreeReaderValue<std::vector<cluster>> cls(reader, "clusters");
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, 0, 8);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, 0, 8);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, -4, 4);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, -4, 4);
     
     while (reader.Next()) {
         
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
     // fit each histogram with a gaussian centered around 4
     TF1 *f = new TF1("f", "gaus", 0, 10);
-    f->SetParameter(1, 4);
+    f->SetParameter(1, 0);
 
     gStyle->SetOptFit(1111);
     TCanvas *c = new TCanvas("c", "c", 1600, 1200);
