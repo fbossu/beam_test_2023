@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
     TF1 *f = new TF1("f", "gaus", 0, 10);
     f->SetParameter(1, 4);
 
+    gStyle->SetOptFit(1111);
     TCanvas *c = new TCanvas("c", "c", 1600, 1200);
     c->Divide(2, 1);
     c->cd(1);
