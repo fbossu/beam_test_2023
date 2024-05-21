@@ -14,7 +14,11 @@
 
 using namespace std;
 
+
+// =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
+
+bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
@@ -26,7 +30,34 @@ void niceBar( int tot, int i, int N=50 ){
   cout << flush;
 }
 
-void reco( string name, DetectorTable det) {
+cluster makeCluster( vector<hit*> &hitcl, int clId){
+
+  double centroidNum = 0.;
+  double centroidDen = 0.;
+  double stripCentroidNum = 0.;
+  char axis = hitcl.at(0)->axis;
+  // std::cout << "axis " << axis << std::endl;
+
+  for( auto h : hitcl ){
+    // if( h->axis != axis ) std::cout << "ERROR: hits in the same cluster have different axis" << endl;
+    h->clusterId = clId;
+    centroidNum += h->channel * (h->maxamp-256);
+    stripCentroidNum += h->strip * (h->maxamp-256);
+    centroidDen += h->maxamp-256;
+  }
+  cluster cl;
+  cl.id = clId;
+  cl.size = hitcl.size();
+  cl.centroid = centroidNum / centroidDen;
+  cl.stripCentroid = stripCentroidNum / centroidDen;
+  cl.axis = axis;
+  return cl;
+}
+
+// =====================================================================
+bool JustHits = false;
+// =====================================================================
+void reco( string name, DreamTable det) {
 
   TFile *infile = TFile::Open(name.data());
   if( !infile ){
@@ -53,21 +84,26 @@ void reco( string name, DetectorTable det) {
   nt->SetBranchAddress( "ftst", &ftst );
 
   //
-  name = name.substr( name.rfind('/')+1  ).insert( 0, "rec_");
-  TFile *fout  = TFile::Open( name.data(), "recreate");
+  // name = name.substr( name.rfind('/')+1  ).insert( 0, "rec_");
+  TFile *fout  = TFile::Open( "frec.root", "recreate");
   TTree outnt( "events","test_beam_2023");
   outnt.SetDirectory( fout );
 
+  uint64_t out_eventId   = 1;
+  uint64_t out_timestamp = 0;
+  uint64_t out_delta_timestamp = 0;
+  uint16_t out_ftst = 0;
   hit ahit;
   vector<hit> *hits = new vector<hit>();
   vector<cluster> *cls = new vector<cluster>();
   outnt.Branch( "hits", &hits );
   outnt.Branch( "clusters", &cls );
-  outnt.Branch( "eventId", &eventId );
-  outnt.Branch( "timestamp", &timestamp );
-  outnt.Branch( "delta_timestamp", &delta_timestamp);
-  outnt.Branch( "ftst", &ftst );
+  outnt.Branch( "eventId", &out_eventId );
+  outnt.Branch( "timestamp", &out_timestamp );
+  outnt.Branch( "delta_timestamp", &out_delta_timestamp);
+  outnt.Branch( "ftst", &out_ftst );
 
+  uint64_t tmp_evId = 1;
   // loop over the events
   // --------------------
   for ( int iev=0; iev<nt->GetEntries() ; iev++){
@@ -75,10 +111,27 @@ void reco( string name, DetectorTable det) {
 
     nt->GetEntry(iev);
 
-    map<uint16_t,uint16_t> maxamp;
-    map<uint16_t,uint16_t> sampmax;
-    map<uint16_t,float> flex;
-    map<uint16_t,vector<uint16_t>> amplitudes;
+    // add empty events for those that have been lost
+    while( tmp_evId < eventId ){
+      out_timestamp = -1;
+      out_delta_timestamp = -1;
+      out_ftst = -1;
+      out_eventId = tmp_evId;
+      outnt.Fill();
+      tmp_evId++;
+    }
+    out_timestamp = timestamp;
+    out_delta_timestamp = delta_timestamp;
+    out_ftst = ftst;
+    out_eventId = eventId;
+    tmp_evId = out_eventId + 1;
+      //
+
+    unordered_map<uint16_t,uint16_t> maxamp;
+    unordered_map<uint16_t,uint16_t> sampmax;
+    unordered_map<uint16_t,float> flex;
+    unordered_map<uint16_t,float> tmax;
+    unordered_map<uint16_t,vector<uint16_t>> amplitudes;
 
     // make hits
     // ---------
@@ -86,7 +139,7 @@ void reco( string name, DetectorTable det) {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
-      if(!det.isConnected(jch)) continue;
+      if(!JustHits && !det.isConnected(jch)) continue;
          
       amplitudes[jch].push_back( ampl->at(j));
 
@@ -100,30 +153,67 @@ void reco( string name, DetectorTable det) {
       }
     }
 
-    // find the inflection point
+    // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
-      uint16_t max = 0;
+      int dmax = 0;
       uint16_t imax = 0;
+      int npos = 0;
+      int i=0;
+      uint16_t prev;
+      int diff = 0;
       //for( int i=0;i<a.second.size()-1; i++){
-      for( int i=0;i<a.second.size()-1; i++){
+      for( auto &s : a.second){
         if( i > sampmax[a.first] ) break;
-        uint16_t diff = a.second.at(i+1) - a.second.at(i);
-        if( diff > max ){
-          max = diff;
-          imax = i;
+        diff = s - prev;
+        if( i > 0) {
+          if( diff > 0 ) npos++;
+          if( diff > dmax ){
+            dmax = diff;
+            imax = i;
+          }
         }
+        prev = s;
+        i++;
       }
-      flex[a.first] = (float)(2*imax+1)/2.;
+      //flex[a.first] = (float)(2*imax+1)/2.;
+      //if( imax > 0  && a.second.at(imax)-a.second.at(imax-1) > 0){
+      if( imax > 0 ){
+        float m = a.second.at(imax) - a.second.at(imax-1);
+        flex[a.first] = (float)imax-1. - a.second.at(imax-1)/m ;
+      }
+      else flex[a.first] = 999.;
     }
 
+    // find the time of max with a parabolic fit of the three bins around the sampmax
+    for( auto &sm : sampmax){
+      auto amp = amplitudes[sm.first];
+      if( sm.second == 0 || sm.second==15 ) { tmax[sm.first] = sm.second; continue; } // TODO fix max
+
+      float x0 = (float) (sm.second - 1.);
+      float x1 = (float) (sm.second) ;
+      float x2 = (float) (sm.second + 1.);
+      float y0 = (float) (amp.at( sm.second - 1 ));
+      float y1 = (float) (amp.at( sm.second  ));
+      float y2 = (float) (amp.at( sm.second + 1 ));
+
+      float max = ( x0*x0*y1 - x0*x0*y2 - x1*x1*y0 + x1*x1*y2 + x2*x2*y0 - x2*x2*y1  )\
+                  /(2*(x0*y1 - x0*y2 - x1*y0 + x1*y2 + x2*y0 - x2*y1 ));
+      tmax[sm.first] = max;
+
+    }
+    
 
     // fill a vector of hits
     hits->clear();
     for( auto &m : maxamp ){
       ahit.channel   = m.first;
       ahit.maxamp    = m.second;
+      ahit.strip     = det.stripNb(m.first);
+      ahit.axis      = det.axis(m.first);
       ahit.samplemax = sampmax[m.first];
-      ahit.inflex    = flex[m.first];
+      ahit.tdiff     = flex[m.first];
+      ahit.timeofmax = tmax[m.first];
+      ahit.samples.assign( amplitudes[m.first].begin(),  amplitudes[m.first].end() );
       hits->push_back(ahit);
     }
 
@@ -132,87 +222,46 @@ void reco( string name, DetectorTable det) {
     // -------------
     // a cluster is a sequence of contiguous hits
     // TODO: 
-    //   1.  check for hits begin in the same part of the detector
     //   2.  check for missing/dead strip
 
-    // sort hits, probably not needed, but just in case
+    // select and sort hits, sorting probably not needed, but just in case
+    
     sort( hits->begin(), hits->end(), compareHits );
-
+    
     cls->clear();
-    int oldch = -1;
-    uint16_t clId = 1;
-    for( auto it = hits->begin(); it < hits->end(); ){
-      // std::cout<<"channel: "<<it->channel<<std::endl;
-      // start a new cluster
-      if( oldch < 0 ){
-        oldch = it->channel;
-        int size = 0;
-        int numCh = 0;
-        int denCh = 0;
-        int numSt = 0;
-        int denSt = 0;
+    std::vector<hit*> hitCl;
+    int clId = 1;
 
-        int pitch = det.getPitch(it->channel);
-        int inter = det.getInter(it->channel);
-        char axis = det.getAxis(it->channel);
+    if( !JustHits ){
+      for( auto &it : *hits){
 
-        // check if the first hit is on the edge of a region
-        bool edge = det.isEdge(oldch);
+        if( !goodHit(it) ){
+          it.clusterId = 0;
+          continue;
+        }
 
-        // loop over the hits
-        while( oldch >= 0 ){
-
-          // compute the numerator and the denumerator for the centroid  
-          numCh += it->channel * it->maxamp;
-          denCh += it->maxamp;
-
-          numSt += det.getStripNb(it->channel) * it->maxamp;  
-          denSt += it->maxamp;
-
-          // std::cout<<det.getAll(it->channel)<<std::endl;
-
-          // assign the cluster Id to the hit. 
-          it->clusterId = clId; 
-
-          // increase the size of the cluster
-          size++;
-
-          // look for the next hit, check that the next hit is a neighbourg
-          it++;
-          if( it == hits->end() || (it->channel - oldch) > 1 || !det.isNeighbour(oldch, it->channel) ){
-            // TODO add here some conditions to skip missing strips and so on
-            edge = edge || det.isEdge(it->channel);
-            break;
-          }
-          else {
-            oldch = it->channel;
-          }
-
-        } // here the cluster is found
-
-        // make a cluster
-        cluster cl;
-        cl.size     = size;
-        cl.centroid = (float) numCh / denCh;
-        cl.id       = clId;
-        cl.stripCentroid = (float) numSt / denCh;
-        cl.pitch = pitch;
-        cl.inter = inter;
-        cl.axis = axis;
-        cls->push_back( cl );
-
-        // if here, the cluster is finished. reset oldch and increase the clId for the next one
-        oldch = -1;
-        clId++;
-
-      }// this was a cluster
-
-    } // end loop over hits
-
+        if( hitCl.size() == 0 ){
+          hitCl.push_back(&it);
+        }
+        else if( det.isNeighbour(hitCl.back()->channel, it.channel) ){
+          hitCl.push_back(&it);
+        }
+        else{
+          cls->push_back( makeCluster(hitCl, clId) );
+          hitCl.clear();
+          hitCl.push_back(&it);
+          clId++;
+        }
+      }
+      if( hitCl.size() > 0){
+        cls->push_back( makeCluster(hitCl, clId) );
+        hitCl.clear();
+      }
+    }
 
     outnt.Fill();
 
-    //if( eventId > 10  )break;
+    //if( eventId > 20  )break;
 
   }
   fout->Write();
@@ -227,19 +276,24 @@ void reco( string name, DetectorTable det) {
 
 int main( int argc, char **argv ){
 
+  string basedir = argv[0];
+  basedir = basedir.substr(0, basedir.size()-4);
+  cout << basedir << endl;
   if( argc < 2 ) {
     // cerr << " no file name specified \n";
-    cerr << " At least one argument need to be specified\n";
+    cerr << " At least two arguments need to be specified";
     return 1;
   }
 
   string fname = argv[1];
+  DreamTable det;
 
-  DetectorTable  det = DetectorTable("../map/strip_map.txt", 4, 5, 6, 7);
-  det.setInversion(false, true, false, true);
+  if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
+
+  det = DreamTable(basedir + "../map/inter_map.txt", 4, 3, 1, 2);
+  det.setInversion(true, true, false, false);
 
   reco( fname, det );
 
   return 0;
 }
-
