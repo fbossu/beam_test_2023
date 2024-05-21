@@ -277,7 +277,7 @@ void reco( string name, DreamTable det) {
 int main( int argc, char **argv ){
 
   string basedir = argv[0];
-  basedir = basedir.substr(0, basedir.size()-4);
+  basedir = basedir.substr(0, basedir.size()-8);
   cout << basedir << endl;
   if( argc < 2 ) {
     // cerr << " no file name specified \n";
