@@ -10,7 +10,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "../map/DetectorTable.h"
+#include "../map/DreamTable.h"
 
 using namespace std;
 
