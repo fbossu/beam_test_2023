@@ -31,8 +31,8 @@ int main(int argc, char* argv[]) {
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
     TTreeReaderValue<uint16_t> ftst(reader, "ftst");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, 0., 10);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, 0., 10);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, 0., 500);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, 0., 500);
     
     while (reader.Next()) {
         
@@ -40,11 +40,11 @@ int main(int argc, char* argv[]) {
         std::shared_ptr<cluster> clY = maxSizeClY(*cls);
         if(clX){
             auto hX = getHits(*hits, clX->id);
-            if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax+*ftst);
+            if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50+*ftst*10);
         }
         if(clY){
             auto hY = getHits(*hits, clY->id);
-            if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax+*ftst);
+            if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax*50+*ftst*10);
         }
         if(!clX && !clY){
             std::vector<hit> hX, hY;
@@ -55,12 +55,12 @@ int main(int argc, char* argv[]) {
                 if(hX.size() > 1){
                     std::sort (hX.begin(), hX.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax+*ftst);
+                    if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50+*ftst*10);
                 }
                 if(hY.size() > 1){
                     std::sort (hY.begin(), hY.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax+*ftst);
+                    if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax*50+*ftst*10);
                 }
             }
         }
