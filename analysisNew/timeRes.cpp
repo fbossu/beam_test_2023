@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
     TTreeReader reader("events", file);
     TTreeReaderValue<std::vector<cluster>> cls(reader, "clusters");
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
+    TTreeReaderValue<uint16_t> ftst(reader, "ftst");
 
     TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, -6, 4);
     TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, -6, 4);
@@ -39,11 +40,11 @@ int main(int argc, char* argv[]) {
         std::shared_ptr<cluster> clY = maxSizeClY(*cls);
         if(clX){
             auto hX = getHits(*hits, clX->id);
-            if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].tdiff);
+            if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax+*ftst);
         }
         if(clY){
             auto hY = getHits(*hits, clY->id);
-            if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].tdiff);
+            if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax+*ftst);
         }
         if(!clX && !clY){
             std::vector<hit> hX, hY;
@@ -54,20 +55,20 @@ int main(int argc, char* argv[]) {
                 if(hX.size() > 1){
                     std::sort (hX.begin(), hX.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].tdiff);
+                    if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax+*ftst);
                 }
                 if(hY.size() > 1){
                     std::sort (hY.begin(), hY.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].tdiff);
+                    if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax+*ftst);
                 }
             }
         }
     }
 
     // fit each histogram with a gaussian centered around 4
-    TF1 *f = new TF1("f", "gaus", -3, 0);
-    f->SetParameter(1, -1);
+    TF1 *f = new TF1("f", "gaus", 1, 6);
+    f->SetParameter(1, 4);
 
     gStyle->SetOptFit(1111);
     TCanvas *c = new TCanvas("c", "c", 1600, 1200);
@@ -78,6 +79,6 @@ int main(int argc, char* argv[]) {
     c->cd(2);
     h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
-    c->SaveAs((detName + "_tdiff.png").c_str());
+    c->SaveAs((detName + "_timeofmax.png").c_str());
     return 0;
 }

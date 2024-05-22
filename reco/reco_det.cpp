@@ -1,5 +1,5 @@
 #include "TFile.h"
-#include "TFile.h"
+#include "TChain.h"
 #include "TTree.h"
 #include "TInterpreter.h"
 #include "definitions.h"
@@ -18,7 +18,7 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
-bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11; }
+bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>400; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
@@ -41,9 +41,9 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   for( auto h : hitcl ){
     // if( h->axis != axis ) std::cout << "ERROR: hits in the same cluster have different axis" << endl;
     h->clusterId = clId;
-    centroidNum += h->channel * (h->maxamp-256);
-    stripCentroidNum += h->strip * (h->maxamp-256);
-    centroidDen += h->maxamp-256;
+    centroidNum += h->channel * (h->maxamp);
+    stripCentroidNum += h->strip * (h->maxamp);
+    centroidDen += h->maxamp;
   }
   cluster cl;
   cl.id = clId;
@@ -57,15 +57,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
 // =====================================================================
 bool JustHits = false;
 // =====================================================================
-void reco( string name, DreamTable det) {
-
-  TFile *infile = TFile::Open(name.data());
-  if( !infile ){
-    return;
-  }
-  cout << "reading " << name << endl;
-
-  TTree *nt = (TTree*)infile->Get("nt");
+void reco( TChain *nt, DreamTable det) {
 
   uint64_t eventId;
   uint64_t timestamp;
@@ -125,14 +117,13 @@ void reco( string name, DreamTable det) {
     out_ftst = ftst;
     out_eventId = eventId;
     tmp_evId = out_eventId + 1;
-      //
 
     unordered_map<uint16_t,uint16_t> maxamp;
     unordered_map<uint16_t,uint16_t> sampmax;
     unordered_map<uint16_t,float> flex;
     unordered_map<uint16_t,float> tmax;
     unordered_map<uint16_t,vector<uint16_t>> amplitudes;
-
+    
     // make hits
     // ---------
 
@@ -187,7 +178,7 @@ void reco( string name, DreamTable det) {
     // find the time of max with a parabolic fit of the three bins around the sampmax
     for( auto &sm : sampmax){
       auto amp = amplitudes[sm.first];
-      if( sm.second == 0 || sm.second==15 ) { tmax[sm.first] = sm.second; continue; } // TODO fix max
+      if( sm.second == 0 || sm.second==amp.size()-1 ) { tmax[sm.first] = sm.second; continue; } 
 
       float x0 = (float) (sm.second - 1.);
       float x1 = (float) (sm.second) ;
@@ -199,9 +190,7 @@ void reco( string name, DreamTable det) {
       float max = ( x0*x0*y1 - x0*x0*y2 - x1*x1*y0 + x1*x1*y2 + x2*x2*y0 - x2*x2*y1  )\
                   /(2*(x0*y1 - x0*y2 - x1*y0 + x1*y2 + x2*y0 - x2*y1 ));
       tmax[sm.first] = max;
-
     }
-    
 
     // fill a vector of hits
     hits->clear();
@@ -216,7 +205,6 @@ void reco( string name, DreamTable det) {
       ahit.samples.assign( amplitudes[m.first].begin(),  amplitudes[m.first].end() );
       hits->push_back(ahit);
     }
-
 
     // make clusters
     // -------------
@@ -266,10 +254,9 @@ void reco( string name, DreamTable det) {
   }
   fout->Write();
   fout->Close();
-  infile->Close();
 
   cout << setw(100) << "  \r"<< flush;
-  cout << "finished processing " << name << endl;
+  cout << "finished processing " << endl;
 }
 
 
@@ -285,15 +272,16 @@ int main( int argc, char **argv ){
     return 1;
   }
 
-  string fname = argv[1];
+  TChain *ch = new TChain("nt");
+  for( int i = 1; i < argc; i++){
+    ch->Add( argv[i] );
+  }
   DreamTable det;
 
-  if( fname.find( ".root" ) > fname.size() ) {cerr << fname << " is not a root file " << endl; return 1;}
+  det = DreamTable(basedir + "../map/inter_map.txt", 0, 1, 2, 3);
+  det.setInversion(false, false, false, false);
 
-  det = DreamTable(basedir + "../map/inter_map.txt", 4, 3, 1, 2);
-  det.setInversion(true, true, false, false);
-
-  reco( fname, det );
+  reco( ch, det );
 
   return 0;
 }
