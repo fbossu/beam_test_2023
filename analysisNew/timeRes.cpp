@@ -79,6 +79,6 @@ int main(int argc, char* argv[]) {
     c->cd(2);
     h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
-    c->SaveAs((detName + "_timeofmax.png").c_str());
+    c->SaveAs((detName + "_timeofmax_ftst.png").c_str());
     return 0;
 }
