@@ -67,8 +67,8 @@ int main(int argc, char* argv[]) {
     }
 
     // fit each histogram with a gaussian centered around 4
-    TF1 *f = new TF1("f", "gaus", 1, 6);
-    f->SetParameter(1, 4);
+    TF1 *f = new TF1("f", "gaus", 100, 350);
+    f->SetParameter(1, 250);
 
     gStyle->SetOptFit(1111);
     TCanvas *c = new TCanvas("c", "c", 1600, 1200);
