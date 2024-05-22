@@ -40,11 +40,11 @@ int main(int argc, char* argv[]) {
         std::shared_ptr<cluster> clY = maxSizeClY(*cls);
         if(clX){
             auto hX = getHits(*hits, clX->id);
-            if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50+*ftst*10);
+            if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50);
         }
         if(clY){
             auto hY = getHits(*hits, clY->id);
-            if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax*50+*ftst*10);
+            if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax*50);
         }
         if(!clX && !clY){
             std::vector<hit> hX, hY;
@@ -55,12 +55,12 @@ int main(int argc, char* argv[]) {
                 if(hX.size() > 1){
                     std::sort (hX.begin(), hX.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50+*ftst*10);
+                    if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50);
                 }
                 if(hY.size() > 1){
                     std::sort (hY.begin(), hY.end(),
                         [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
-                    if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax*50+*ftst*10);
+                    if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax*50);
                 }
             }
         }
@@ -79,6 +79,6 @@ int main(int argc, char* argv[]) {
     c->cd(2);
     h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
-    c->SaveAs((detName + "_timeofmax_ftst.png").c_str());
+    c->SaveAs((detName + "_timeofmax.png").c_str());
     return 0;
 }
