@@ -31,8 +31,8 @@ int main(int argc, char* argv[]) {
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
     TTreeReaderValue<uint16_t> ftst(reader, "ftst");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, -6, 4);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, -6, 4);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "tdiff X", 80, 0., 10);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "tdiff Y", 80, 0., 10);
     
     while (reader.Next()) {
         
