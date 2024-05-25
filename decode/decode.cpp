@@ -81,7 +81,7 @@ int main( int argc, const char **argv) {
   bool isFT    = false;  // on if FT (Final Trailer) is reached and set off by the header
   bool isZS    = true;   // true if zero suppressed data. false if not
   int i = 0;             // just a counter
-  bool debug = false;     // printing stuff
+  bool debug = true;     // printing stuff
   char prev = cout.fill(); // for debug formatting
 
   // store data
@@ -246,7 +246,15 @@ int main( int argc, const char **argv) {
             read16(is, data);
         }
 
-        if (channelID != 64) cout << "Bad read, last channel ID != 64" << endl;
+        if (channelID != 64) {
+	    cout << "Bad read, last channel ID != 64" << endl;
+	    if (debug) {
+	        print_data(data);
+	        cout << "Press Enter to continue..." << endl;
+	        cin.get(); // Wait for user to press Enter
+	    }
+	}
+
 
         bool eof = false;
         int data_trailer_num = 0;
