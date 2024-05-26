@@ -81,7 +81,7 @@ int main( int argc, const char **argv) {
   bool isFT    = false;  // on if FT (Final Trailer) is reached and set off by the header
   bool isZS    = true;   // true if zero suppressed data. false if not
   int i = 0;             // just a counter
-  bool debug = false;     // printing stuff
+  bool debug = true;     // printing stuff
   char prev = cout.fill(); // for debug formatting
 
   // store data
@@ -217,17 +217,22 @@ int main( int argc, const char **argv) {
         // isEvent is to avoid reading a empty line after the EoE
 
         int data_header_num = 0;
-        bool got_dream_id = true;
+        bool got_dream_id = false;
         // Raw header word 1 is Trigger Id MSB, 2 is Trigger Id ISB, 3 is Trigger Id LSB, 4 contains Dream Id
         while (is_data_header(data)) {
             data_header_num++;
             if (debug) { cout << "Data header #" << data_header_num << " "; print_data(data); }
-            if (data_header_num == 4) dreamID = get_dream_ID(data);  // Contains Dream Id
-            else { got_dream_id = false; dreamID = 0; }
+            if (data_header_num == 4) {
+                dreamID = get_dream_ID(data);  // Contains Dream Id
+                got_dream_id = true;
+            }
             read16(is, data);
         }
 
-        if (!got_dream_id) cout << "Bad read, didn't get dream id from data header." << endl;
+        if (!got_dream_id) {
+            cout << "Bad read, didn't get dream id from data header." << endl;
+            dreamID = 0;
+        }
 
         channelID = 0;
         while (is_data(data)) {
