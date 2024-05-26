@@ -218,6 +218,7 @@ int main( int argc, const char **argv) {
 
         int data_header_num = 0;
         bool got_dream_id = false;
+        bool eof = false;
         // Raw header word 1 is Trigger Id MSB, 2 is Trigger Id ISB, 3 is Trigger Id LSB, 4 contains Dream Id
         while (is_data_header(data)) {
             data_header_num++;
@@ -226,7 +227,12 @@ int main( int argc, const char **argv) {
                 dreamID = get_dream_ID(data);  // Contains Dream Id
                 got_dream_id = true;
             }
-            read16(is, data);
+            eof = read16(is, data);
+            if (eof)  break;
+        }
+        if (eof) {
+            cout << "End of file reached while reading data header. Exiting early!" << endl;
+            break;
         }
 
         if (!got_dream_id) {
@@ -250,7 +256,12 @@ int main( int argc, const char **argv) {
             sample.push_back(sampleID);
             amplitude.push_back(ampl);
             channelID++;
-            read16(is, data);
+            eof = read16(is, data);
+            if (eof)  break;
+        }
+        if (eof) {
+            cout << "End of file reached while reading data. Exiting early!" << endl;
+            break;
         }
 
         if (channelID != 64) {
@@ -265,8 +276,6 @@ int main( int argc, const char **argv) {
             }
         }
 
-
-        bool eof = false;
         int data_trailer_num = 0;
         while (is_data_trailer(data)) {
             data_trailer_num++;
