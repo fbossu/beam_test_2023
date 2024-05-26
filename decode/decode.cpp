@@ -105,7 +105,7 @@ int main( int argc, const char **argv) {
 
     //if( i > 600 ) break;
     //if( i > 574 ) debug = true;
-      if (debug && (i > 0)) break;
+    //if (debug && (i > 0)) break;
 
     // FEU header
     // ---------
@@ -217,25 +217,27 @@ int main( int argc, const char **argv) {
         // isEvent is to avoid reading a empty line after the EoE
 
         int data_header_num = 0;
-        dreamID = -1;
+        bool got_dream_id = true;
         // Raw header word 1 is Trigger Id MSB, 2 is Trigger Id ISB, 3 is Trigger Id LSB, 4 contains Dream Id
         while (is_data_header(data)) {
             data_header_num++;
             if (debug) { cout << "Data header #" << data_header_num << " "; print_data(data); }
             if (data_header_num == 4) dreamID = get_dream_ID(data);  // Contains Dream Id
+            else { got_dream_id = false; dreamID = 0; }
             read16(is, data);
         }
 
-        if (dreamID == -1) cout << "Bad read, didn't get dream id from data header." << endl;
+        if (!got_dream_id) cout << "Bad read, didn't get dream id from data header." << endl;
 
         channelID = 0;
         while (is_data(data)) {
             ampl = get_data(data);
 
             if (debug) {
-                cout << setw(4) << hex << data << "  channel #" << channelID << endl;
+                cout << setw(4) << hex << data;
                 cout << dec;
                 cout.fill(prev);
+                cout << "  channel #" << channelID << endl;
                 print_data(data);
             }
 
@@ -247,13 +249,16 @@ int main( int argc, const char **argv) {
         }
 
         if (channelID != 64) {
-	    cout << "Bad read, last channel ID != 64" << endl;
-	    if (debug) {
-	        print_data(data);
-	        cout << "Press Enter to continue..." << endl;
-	        cin.get(); // Wait for user to press Enter
-	    }
-	}
+            cout << "Bad read, last channel ID " << channelID << " != 64" << endl;
+            if (debug) {
+                print_data(data);
+                cout << "Press Enter to continue..." << endl;
+                cin.get(); // Wait for user to press Enter
+                while (!read16(is, data)) {
+                    print_data(data);
+                }
+            }
+        }
 
 
         bool eof = false;
