@@ -81,7 +81,7 @@ int main( int argc, const char **argv) {
   bool isFT    = false;  // on if FT (Final Trailer) is reached and set off by the header
   bool isZS    = true;   // true if zero suppressed data. false if not
   int i = 0;             // just a counter
-  bool debug = true;     // printing stuff
+  bool debug = false;     // printing stuff
   char prev = cout.fill(); // for debug formatting
 
   // store data
@@ -231,7 +231,7 @@ int main( int argc, const char **argv) {
             if (eof)  break;
         }
         if (eof) {
-            cout << "End of file reached while reading data header. Exiting early!" << endl;
+            cout << "End of file reached while reading data header " << data_header_num << ". Exiting early!" << endl;
             break;
         }
 
@@ -260,7 +260,7 @@ int main( int argc, const char **argv) {
             if (eof)  break;
         }
         if (eof) {
-            cout << "End of file reached while reading data. Exiting early!" << endl;
+            cout << "End of file reached while reading data channel " << channelID << ". Exiting early!" << endl;
             break;
         }
 
