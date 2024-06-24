@@ -432,7 +432,7 @@ std::vector<double> plot_all(std::string fname, double pitch, double inter, doub
     for( int i=0; i<5; i++){
 
         if(MMpos[i][0]<-900 || MMpos[i][1]<-900) continue;
-        cluster cl = MMclusterStrip(MMpos[i], MMedep[i], pitch, inter, threshold, sigma, true);
+        cluster cl = MMclusterStrip(MMpos[i], MMedep[i], pitch, inter, threshold, sigma, false);
 
         h[i]->Fill(cl.x, cl.y);
         hx[i]->Fill(cl.x);
@@ -670,9 +670,9 @@ int main(int argc, char const *argv[])
   defStyle();
   std::string fname = argv[1];
   plotTracks(fname);
-  std::vector<double> r = plot_all(fname, 1., 0.25, 0.2, 0.8);
-  std::cout<<"clsizex="<<r[0]<<", resx="<<r[1]<<", clsizey="<<r[2]<<", resy="<<r[3]<<std::endl;
-  // std::vector<double> r = plot_all(fname, 0., 0., 0., 0.);
+  // std::vector<double> r = plot_all(fname, 1., 0.25, 0.2, 0.8);
+  // std::cout<<"clsizex=<<r[0]<<", resx="<<r[1]<<", clsizey="<<r[2]<<", resy="<<r[3]<<std::endl;
+  std::vector<double> r = plot_all(fname, 0., 0., 0., 0.);
   // std::vector<double> pitch = {0.5, 1., 1.5};       // mm
   // std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
   // std::vector<double> thRatio = {0.1};

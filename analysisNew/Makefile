@@ -1,4 +1,4 @@
-all: clusterSize.o xy_compare.o residu.o analysisMain timeRes
+all: clusterSize.o xy_compare.o residu.o analysisMain timeRes overlayResidue
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs ) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -18,3 +18,6 @@ analysisMain: analysisMain.cpp analysis.h residu.o xy_compare.o clusterSize.o
 
 timeRes: timeRes.cpp residu.o xy_compare.o clusterSize.o
 	g++ -o timeRes timeRes.cpp residu.o xy_compare.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
+
+overlayResidue: overlayResidue.cpp analysis.h
+	g++ -o overlayResidue overlayResidue.cpp $(DT) $(ROOT)
