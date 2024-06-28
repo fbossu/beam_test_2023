@@ -1,4 +1,4 @@
-all: clusterSize.o xy_compare.o residu.o analysisMain timeRes overlayResidue
+all: clusterSize.o xy_compare.o residu.o analysisMain timeRes overlayResidue spectreP2
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs ) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -21,3 +21,6 @@ timeRes: timeRes.cpp residu.o xy_compare.o clusterSize.o
 
 overlayResidue: overlayResidue.cpp analysis.h
 	g++ -o overlayResidue overlayResidue.cpp $(DT) $(ROOT)
+
+spectreP2: spectreP2.cpp ../reco/definitions.h
+	g++ -o spectreP2 spectreP2.cpp $(ROOT)

@@ -6,6 +6,7 @@
 /*#pragma link C++ class std::vector<hit>;*/
 
 #include <vector>
+#include <cstdint>
 
 struct hit {
   uint16_t channel;
