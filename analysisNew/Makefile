@@ -23,4 +23,4 @@ overlayResidue: overlayResidue.cpp analysis.h
 	g++ -o overlayResidue overlayResidue.cpp $(DT) $(ROOT)
 
 spectreP2: spectreP2.cpp ../reco/definitions.h
-	g++ -o spectreP2 spectreP2.cpp $(ROOT)
+	g++ -o spectreP2 spectreP2.cpp ../reco/Dict.cxx $(ROOT)
