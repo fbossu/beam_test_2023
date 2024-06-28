@@ -29,9 +29,12 @@ void spectreP2(std::string fname, std::string run, TFile *fout){
             if(h.channel/64 == 6 || h.channel/64 == 7) Edep_3 += h.maxamp - 256;
         }
         // fill if there was a hit on the detector
-        if(Edep_1>0.1) hEdep_1->Fill(Edep_1);
-        if(Edep_2>0.1) hEdep_2->Fill(Edep_2);
-        if(Edep_3>0.1) hEdep_3->Fill(Edep_3);
+        // if(Edep_1>0.1) 
+        hEdep_1->Fill(Edep_1);
+        // if(Edep_2>0.1) 
+        hEdep_2->Fill(Edep_2);
+        // if(Edep_3>0.1) 
+        hEdep_3->Fill(Edep_3);
     }
     fout->cd();
     fout->mkdir(run.c_str());
@@ -59,7 +62,7 @@ int main(int argc, char* argv[]){
         std::string run = fname.substr(fname.find("HVS"), fname.find("_FEU5.root") - fname.find("HVS"));
         std::cout << "Processing run: " << run << std::endl;
 
-        spectreP2(argv[i], run, fout);
+        spectreP2(fname, run, fout);
     }
     fout->Close();
 
