@@ -61,6 +61,7 @@ int main(int argc, char* argv[]){
 
         spectreP2(argv[i], run, fout);
     }
+    fout->Close();
 
     return 0;
 }
