@@ -5,9 +5,9 @@
 int main(int argc, char* argv[]) {
     defStyle();
     TFile* fgeant = new TFile("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "READ");
-    TFile* fmm = new TFile("asaFEU2_POS05_z3_residues_residueFile.root", "READ");
+    TFile* fmm = new TFile("asaFEU4_POS05_z3_residues_residueFile.root", "READ");
 
-    TH1F* hgeant = (TH1F*)fgeant->Get("Layer2/resXLayer2");
+    TH1F* hgeant = (TH1F*)fgeant->Get("Layer4/resXLayer4");
     hgeant->SetLineColor(kRed);
     hgeant->SetLineWidth(2);
     hgeant->GetXaxis()->SetTitle("residue [mm]");
@@ -28,10 +28,10 @@ int main(int argc, char* argv[]) {
     leg->AddEntry(hMM, "data", "l");
 
     TCanvas* c = new TCanvas("c", "c", 1000, 800);
-    hgeant->SetTitle("Detector D3");
+    hgeant->SetTitle("Detector D4");
     hgeant->Draw("hist");
     hMM->Draw("hist same");
     leg->Draw();
-    c->SaveAs("overlayResidueD3.png");
+    c->SaveAs("overlayResidueD4.png");
     return 0;
 }

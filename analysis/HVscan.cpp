@@ -36,6 +36,11 @@ int main(int argc, char const *argv[])
 	HV["HVS05"] = 380; HV["HVS06"] = 390; HV["HVS07"] = 400; HV["HVS08"] = 410; HV["HVS09"] = 420; 
 	HV["HVS10"] = 430; HV["HVS11"] = 430;
 
+	std::map<std::string, double> HVP2;
+	HV["HVS01"] = 300; HV["HVS02"] = 350; HV["HVS03"] = 360; HV["HVS04"] = 370; HV["HVS04Again"] = 370;
+	HV["HVS05"] = 380; HV["HVS06"] = 390; HV["HVS07"] = 400; HV["HVS08"] = 410; HV["HVS09"] = 410; 
+	HV["HVS10"] = 410; HV["HVS11"] = 410;
+
 	/*
 	*/
 	return 0;
