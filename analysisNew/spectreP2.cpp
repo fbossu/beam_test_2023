@@ -15,9 +15,10 @@ void spectreP2(){
         Edep_2 = 0;
         Edep_3 = 0;
         for(auto& h : *hits){
-            if(h.channel/64 == 2 || h.channel/64 == 3) Edep_1 += h.maxamp;
-            if(h.channel/64 == 4 || h.channel/64 == 5) Edep_2 += h.maxamp;
-            if(h.channel/64 == 6 || h.channel/64 == 7) Edep_3 += h.maxamp;
+            // separate per P2 detector, -256 is for the ZS amplitude offset
+            if(h.channel/64 == 2 || h.channel/64 == 3) Edep_1 += h.maxamp - 256;
+            if(h.channel/64 == 4 || h.channel/64 == 5) Edep_2 += h.maxamp - 256;
+            if(h.channel/64 == 6 || h.channel/64 == 7) Edep_3 += h.maxamp - 256;
         }
         hEdep_1->Fill(Edep_1);
         hEdep_2->Fill(Edep_2);
