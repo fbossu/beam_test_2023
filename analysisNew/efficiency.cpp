@@ -89,7 +89,9 @@ std::vector<std::vector<double>> beamPosition(std::string fname, double zpos, bo
     }
 
     TTreeReader reader("events", file);
+    std::cout<<"cc"<<std::endl;
     TTreeReaderValue<std::vector<banco::track>> tracks(reader, "tracks");
+    std::cout<<"cc"<<std::endl;
 
     TH1F *hx = new TH1F("hx", "x position", 100, 2, 12);
     TH1F *hy = new TH1F("hy", "y position", 100, 1, 11); 
