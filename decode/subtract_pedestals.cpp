@@ -68,9 +68,10 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     }
 
     // Fit each histogram to a Gaussian and store the mean and sigma
+    TF1* fit_func = new TF1("fit_func", "gaus");
+	cout << "Fitting pedestals" << endl;
     for (auto& kv : hist_map) {
-        TF1* fit_func = new TF1("fit_func", "gaus");
-        kv.second->Fit(fit_func, "Q");
+        kv.second->Fit(fit_func, "Q0");
         double mean = fit_func->GetParameter(1);
         double sigma = fit_func->GetParameter(2);
         pedestal_params[kv.first] = std::make_pair(mean, sigma);
