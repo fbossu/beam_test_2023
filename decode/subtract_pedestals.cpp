@@ -9,46 +9,48 @@
 // Calculate and subtract pedestals from data. Input data and pedestal files both in vector format.
 
 void subtract_pedestals(const char* input_data_file_name, const char* input_ped_file_name, const char* output_file_name, float n_sigma=3) {
-	TFile fin(input_data_file_name);
-	TTree* input_tree = dynamic_cast<TTree*>(fin.Get("nt"));
-	if (!input_tree) {
-		std::cerr << "Error: Input tree not found." << std::endl;
-		return;
-	}
+    // Open data file and get tree
+    TFile fin(input_data_file_name);
+    TTree* input_tree = dynamic_cast<TTree*>(fin.Get("nt"));
+    if (!input_tree) {
+        std::cerr << "Error: Input tree not found." << std::endl;
+        return;
+    }
 
-	uint64_t timestamp = 0;
-	uint64_t delta_timestamp = 0;
-	uint16_t fine_timestamp = 0;
-	uint64_t event_id = 0;
-	std::vector<uint16_t> sample;
-	std::vector<uint16_t> channel;
-	std::vector<uint16_t> amplitude;
+    uint64_t timestamp = 0;
+    uint64_t delta_timestamp = 0;
+    uint16_t fine_timestamp = 0;
+    uint64_t event_id = 0;
+    std::vector<uint16_t>* sample = nullptr;
+    std::vector<uint16_t>* channel = nullptr;
+    std::vector<uint16_t>* amplitude = nullptr;
 
-	input_tree->SetBranchAddress("eventId", &event_id);
-	input_tree->SetBranchAddress("timestamp", &timestamp);
-	input_tree->SetBranchAddress("delta_timestamp", &delta_timestamp);
-	input_tree->SetBranchAddress("ftst", &fine_timestamp);
-	input_tree->SetBranchAddress("sample", &sample);
-	input_tree->SetBranchAddress("channel", &channel);
-	input_tree->SetBranchAddress("amplitude", &amplitude);
+    input_tree->SetBranchAddress("eventId", &event_id);
+    input_tree->SetBranchAddress("timestamp", &timestamp);
+    input_tree->SetBranchAddress("delta_timestamp", &delta_timestamp);
+    input_tree->SetBranchAddress("ftst", &fine_timestamp);
+    input_tree->SetBranchAddress("sample", &sample);
+    input_tree->SetBranchAddress("channel", &channel);
+    input_tree->SetBranchAddress("amplitude", &amplitude);
 
-	TFile fin_ped(input_ped_file_name);
-	TTree* input_ped_tree = dynamic_cast<TTree*>(fin_ped.Get("nt"));
-	if (!input_ped_tree) {
-		std::cerr << "Error: Input pedestal tree not found." << std::endl;
-		return;
-	}
+    // Open pedestal file and get tree
+    TFile fin_ped(input_ped_file_name);
+    TTree* input_ped_tree = dynamic_cast<TTree*>(fin_ped.Get("nt"));
+    if (!input_ped_tree) {
+        std::cerr << "Error: Input pedestal tree not found." << std::endl;
+        return;
+    }
 
-	std::vector<uint16_t> ped_sample;
-	std::vector<uint16_t> ped_channel;
-	std::vector<uint16_t> ped_amplitude;
+    std::vector<uint16_t>* ped_sample = nullptr;
+    std::vector<uint16_t>* ped_channel = nullptr;
+    std::vector<uint16_t>* ped_amplitude = nullptr;
 
-	input_ped_tree->SetBranchAddress("sample", &ped_sample);
-	input_ped_tree->SetBranchAddress("channel", &ped_channel);
-	input_ped_tree->SetBranchAddress("amplitude", &ped_amplitude);
+    input_ped_tree->SetBranchAddress("sample", &ped_sample);
+    input_ped_tree->SetBranchAddress("channel", &ped_channel);
+    input_ped_tree->SetBranchAddress("amplitude", &ped_amplitude);
 
-	// Map to hold pedestal parameters (mean and sigma) for each channel
-	std::map<uint16_t, std::pair<double, double>> pedestal_params;
+    // Map to hold pedestal parameters (mean and sigma) for each channel
+    std::map<uint16_t, std::pair<double, double>> pedestal_params;
 
     // Loop over pedestal tree entries to calculate pedestal mean and sigma for each channel
     int n_ped_entries = input_ped_tree->GetEntries();
@@ -56,12 +58,12 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
 
     for (int i = 0; i < n_ped_entries; ++i) {
         input_ped_tree->GetEntry(i);
-        for (size_t j = 0; j < ped_channel.size(); ++j) {
-            uint16_t ch = ped_channel[j];
+        for (size_t j = 0; j < ped_channel->size(); ++j) {
+            uint16_t ch = (*ped_channel)[j];
             if (hist_map.find(ch) == hist_map.end()) {
-                hist_map[ch] = new TH1F(Form("hist_ch%d", ch), Form("Channel %d Pedestal", ch), 4096, 0, 4096);
+                hist_map[ch] = new TH1F(Form("hist_ch%d", ch), Form("Channel %d Pedestal", ch), 100, 0, 4096);
             }
-            hist_map[ch]->Fill(ped_amplitude[j]);
+            hist_map[ch]->Fill((*ped_amplitude)[j]);
         }
     }
 
@@ -77,7 +79,7 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     }
 
     // Create output file and tree
-	TFile fout(output_file_name, "recreate");
+    TFile fout(output_file_name, "recreate");
     TTree* nt = new TTree("nt", "nt");
 
     nt->Branch("eventId", &event_id);
@@ -93,35 +95,35 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     for (int i = 0; i < n_entries; ++i) {
         input_tree->GetEntry(i);
 
-        std::vector<uint16_t> filtered_sample;
-        std::vector<uint16_t> filtered_channel;
-        std::vector<uint16_t> filtered_amplitude;
+        std::vector<uint16_t>* filtered_sample = new std::vector<uint16_t>;
+        std::vector<uint16_t>* filtered_channel = new std::vector<uint16_t>;
+        std::vector<uint16_t>* filtered_amplitude = new std::vector<uint16_t>;
 
-        for (size_t j = 0; j < sample.size(); ++j) {
-            uint16_t ch = channel[j];
+        for (size_t j = 0; j < sample->size(); ++j) {
+            uint16_t ch = (*channel)[j];
             double mean = pedestal_params[ch].first;
             double sigma = pedestal_params[ch].second;
-            if (amplitude[j] > mean + 3 * sigma) {
-                filtered_sample.push_back(sample[j]);
-                filtered_channel.push_back(channel[j]);
-                filtered_amplitude.push_back(amplitude[j]);
+            if ((*amplitude)[j] > mean + 3 * sigma) {
+                filtered_sample->push_back((*sample)[j]);
+                filtered_channel->push_back((*channel)[j]);
+                filtered_amplitude->push_back((*amplitude)[j]);
             }
         }
 
-        sample = filtered_sample;
-        channel = filtered_channel;
-        amplitude = filtered_amplitude;
-
-        if (!sample.empty()) {
+        if (!filtered_sample->empty()) {
+            sample = filtered_sample;
+            channel = filtered_channel;
+            amplitude = filtered_amplitude;
             nt->Fill();
         }
+
+        delete filtered_sample;
+        delete filtered_channel;
+        delete filtered_amplitude;
     }
 
     fout.Write();
     fout.Close();
-
-    fin.Close();
-    fin_ped.Close();
 }
 
 int main(int argc, char* argv[]) {

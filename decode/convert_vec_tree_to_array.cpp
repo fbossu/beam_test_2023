@@ -19,7 +19,6 @@ void convertTree(const char* inputFileName = "ftest.root", const char* outputFil
     std::vector<uint16_t> *channel = nullptr;
     std::vector<uint16_t> *amplitude = nullptr;
 
-    TFile inputFile(inputFileName);
     inputTree->SetBranchAddress("eventId", &eventID);
     inputTree->SetBranchAddress("timestamp", &timestamp);
     inputTree->SetBranchAddress("delta_timestamp", &delta_timestamp);
