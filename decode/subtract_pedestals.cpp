@@ -95,7 +95,6 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     // Loop over data tree entries and filter based on pedestal mean + 3 sigma
     int n_entries = input_tree->GetEntries();
     for (int i = 0; i < n_entries; ++i) {
-		std::cout << "Processing entry " << i << " of " << n_entries << std::endl;
         input_tree->GetEntry(i);
 
         std::vector<uint16_t> filtered_sample;
@@ -109,7 +108,7 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
             if ((*amplitude)[j] > mean + 3 * sigma) {
                 filtered_sample.push_back((*sample)[j]);
                 filtered_channel.push_back((*channel)[j]);
-                filtered_amplitude.push_back((*amplitude)[j]);
+                filtered_amplitude.push_back((*amplitude)[j] - mean);
             }
         }
 
