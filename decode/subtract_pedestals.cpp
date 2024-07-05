@@ -61,7 +61,7 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
         for (size_t j = 0; j < ped_channel->size(); ++j) {
             uint16_t ch = (*ped_channel)[j];
             if (hist_map.find(ch) == hist_map.end()) {
-                hist_map[ch] = new TH1F(Form("hist_ch%d", ch), Form("Channel %d Pedestal", ch), 100, 0, 4096);
+                hist_map[ch] = new TH1F(Form("hist_ch%d", ch), Form("Channel %d Pedestal", ch), 4096, 0, 4096);
             }
             hist_map[ch]->Fill((*ped_amplitude)[j]);
         }
@@ -69,7 +69,9 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
 
     // Fit each histogram to a Gaussian and store the mean and sigma
     TF1* fit_func = new TF1("fit_func", "gaus");
-	cout << "Fitting pedestals" << endl;
+	fit_func->SetParameter(1, 300); // Initial guess for mean
+	fit_func->SetParameter(2, 5); // Initial guess for width
+    std::cout << "Fitting pedestals" << std::endl;
     for (auto& kv : hist_map) {
         kv.second->Fit(fit_func, "Q0");
         double mean = fit_func->GetParameter(1);
