@@ -9,30 +9,6 @@
 // Calculate and subtract pedestals from data. Input data and pedestal files both in vector format.
 
 void subtract_pedestals(const char* input_data_file_name, const char* input_ped_file_name, const char* output_file_name, float n_sigma=3) {
-    // Open data file and get tree
-    TFile fin(input_data_file_name);
-    TTree* input_tree = dynamic_cast<TTree*>(fin.Get("nt"));
-    if (!input_tree) {
-        std::cerr << "Error: Input tree not found." << std::endl;
-        return;
-    }
-
-    uint64_t timestamp = 0;
-    uint64_t delta_timestamp = 0;
-    uint16_t fine_timestamp = 0;
-    uint64_t event_id = 0;
-    std::vector<uint16_t>* sample = nullptr;
-    std::vector<uint16_t>* channel = nullptr;
-    std::vector<uint16_t>* amplitude = nullptr;
-
-    input_tree->SetBranchAddress("eventId", &event_id);
-    input_tree->SetBranchAddress("timestamp", &timestamp);
-    input_tree->SetBranchAddress("delta_timestamp", &delta_timestamp);
-    input_tree->SetBranchAddress("ftst", &fine_timestamp);
-    input_tree->SetBranchAddress("sample", &sample);
-    input_tree->SetBranchAddress("channel", &channel);
-    input_tree->SetBranchAddress("amplitude", &amplitude);
-
     // Open pedestal file and get tree
     TFile fin_ped(input_ped_file_name);
     TTree* input_ped_tree = dynamic_cast<TTree*>(fin_ped.Get("nt"));
@@ -68,11 +44,10 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     }
 
     // Fit each histogram to a Gaussian and store the mean and sigma
-    TF1* fit_func = new TF1("fit_func", "gaus");
-	fit_func->SetParameter(1, 300); // Initial guess for mean
-	fit_func->SetParameter(2, 5); // Initial guess for width
-    std::cout << "Fitting pedestals" << std::endl;
     for (auto& kv : hist_map) {
+        TF1* fit_func = new TF1(Form("fit_func_ch%d", kv.first), "gaus");
+        fit_func->SetParameter(1, 300); // Initial guess for mean
+        fit_func->SetParameter(2, 5); // Initial guess for width
         kv.second->Fit(fit_func, "Q0");
         double mean = fit_func->GetParameter(1);
         double sigma = fit_func->GetParameter(2);
@@ -80,6 +55,30 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
         delete kv.second; // Clean up histogram
         delete fit_func; // Clean up fit function
     }
+
+    // Open data file and get tree
+    TFile fin(input_data_file_name);
+    TTree* input_tree = dynamic_cast<TTree*>(fin.Get("nt"));
+    if (!input_tree) {
+        std::cerr << "Error: Input tree not found." << std::endl;
+        return;
+    }
+
+    uint64_t timestamp = 0;
+    uint64_t delta_timestamp = 0;
+    uint16_t fine_timestamp = 0;
+    uint64_t event_id = 0;
+    std::vector<uint16_t>* sample = nullptr;
+    std::vector<uint16_t>* channel = nullptr;
+    std::vector<uint16_t>* amplitude = nullptr;
+
+    input_tree->SetBranchAddress("eventId", &event_id);
+    input_tree->SetBranchAddress("timestamp", &timestamp);
+    input_tree->SetBranchAddress("delta_timestamp", &delta_timestamp);
+    input_tree->SetBranchAddress("ftst", &fine_timestamp);
+    input_tree->SetBranchAddress("sample", &sample);
+    input_tree->SetBranchAddress("channel", &channel);
+    input_tree->SetBranchAddress("amplitude", &amplitude);
 
     // Create output file and tree
     TFile fout(output_file_name, "recreate");
@@ -96,33 +95,31 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     // Loop over data tree entries and filter based on pedestal mean + 3 sigma
     int n_entries = input_tree->GetEntries();
     for (int i = 0; i < n_entries; ++i) {
+		std::cout << "Processing entry " << i << " of " << n_entries << std::endl;
         input_tree->GetEntry(i);
 
-        std::vector<uint16_t>* filtered_sample = new std::vector<uint16_t>;
-        std::vector<uint16_t>* filtered_channel = new std::vector<uint16_t>;
-        std::vector<uint16_t>* filtered_amplitude = new std::vector<uint16_t>;
+        std::vector<uint16_t> filtered_sample;
+        std::vector<uint16_t> filtered_channel;
+        std::vector<uint16_t> filtered_amplitude;
 
         for (size_t j = 0; j < sample->size(); ++j) {
             uint16_t ch = (*channel)[j];
             double mean = pedestal_params[ch].first;
             double sigma = pedestal_params[ch].second;
             if ((*amplitude)[j] > mean + 3 * sigma) {
-                filtered_sample->push_back((*sample)[j]);
-                filtered_channel->push_back((*channel)[j]);
-                filtered_amplitude->push_back((*amplitude)[j]);
+                filtered_sample.push_back((*sample)[j]);
+                filtered_channel.push_back((*channel)[j]);
+                filtered_amplitude.push_back((*amplitude)[j]);
             }
         }
 
-        if (!filtered_sample->empty()) {
-            sample = filtered_sample;
-            channel = filtered_channel;
-            amplitude = filtered_amplitude;
+        if (!filtered_sample.empty()) {
+            // Assign stack-allocated vectors to the pointer vectors
+            sample->swap(filtered_sample);
+            channel->swap(filtered_channel);
+            amplitude->swap(filtered_amplitude);
             nt->Fill();
         }
-
-        delete filtered_sample;
-        delete filtered_channel;
-        delete filtered_amplitude;
     }
 
     fout.Write();
