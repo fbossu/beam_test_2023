@@ -95,7 +95,7 @@ std::vector<std::vector<double>> beamPosition(std::string fname, double zpos, bo
     TH1F *hy = new TH1F("hy", "y position", 100, 1, 11); 
 
     while(reader.Next()){
-    std::cout<<"cc"<<std::endl;
+    std::cout<<tracks->size()<<std::endl;
         if(tracks->size() == 0) continue;
 
         auto tr = *std::min_element(tracks->begin(), tracks->end(),
