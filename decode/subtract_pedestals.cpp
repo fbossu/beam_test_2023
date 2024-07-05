@@ -77,7 +77,7 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     }
 
     // Create output file and tree
-    TFile* fout = TFile::Open(output_file_name, "recreate");
+	TFile fout(output_file_name, "recreate");
     TTree* nt = new TTree("nt", "nt");
 
     nt->Branch("eventId", &event_id);
@@ -117,14 +117,11 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
         }
     }
 
-    fout->Write();
-    fout->Close();
+    fout.Write();
+    fout.Close();
 
-    // Clean up input files
-    fin->Close();
-    delete fin;
-    fin_ped->Close();
-    delete fin_ped;
+    fin.Close();
+    fin_ped.Close();
 }
 
 int main(int argc, char* argv[]) {
