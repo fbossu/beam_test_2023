@@ -4,7 +4,6 @@
 #include "TTree.h"
 
 // Convert a tree with arrays to a tree with vectors
-// Untested!!!
 
 void convert_tree(const char* input_file_name = "ftest_array.root", const char* output_file_name = "ftest_vec.root", int max_channels = 511, int max_samples = 31) {
     TFile fin(input_file_name);

@@ -8,7 +8,7 @@
 
 // Calculate and subtract pedestals from data. Input data and pedestal files both in vector format.
 
-void subtract_pedestals(const char* input_data_file_name, const char* input_ped_file_name, const char* output_file_nam, float n_sigma=3) {
+void subtract_pedestals(const char* input_data_file_name, const char* input_ped_file_name, const char* output_file_name, float n_sigma=3) {
 	TFile fin(input_data_file_name);
 	TTree* input_tree = dynamic_cast<TTree*>(fin.Get("nt"));
 	if (!input_tree) {
@@ -77,18 +77,18 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     }
 
     // Create output file and tree
-    TFile fout(output_file_name, "recreate");
-    TTree nt("nt", "nt");
+    TFile* fout = TFile::Open(output_file_name, "recreate");
+    TTree* nt = new TTree("nt", "nt");
 
-    nt.Branch("eventId", &event_id);
-    nt.Branch("timestamp", &timestamp);
-    nt.Branch("delta_timestamp", &delta_timestamp);
-    nt.Branch("ftst", &fine_timestamp);
-    nt.Branch("sample", &sample);
-    nt.Branch("channel", &channel);
-    nt.Branch("amplitude", &amplitude);
+    nt->Branch("eventId", &event_id);
+    nt->Branch("timestamp", &timestamp);
+    nt->Branch("delta_timestamp", &delta_timestamp);
+    nt->Branch("ftst", &fine_timestamp);
+    nt->Branch("sample", &sample);
+    nt->Branch("channel", &channel);
+    nt->Branch("amplitude", &amplitude);
 
-    // Loop over data tree entries and filter based on pedestal mean + n_sigma sigma
+    // Loop over data tree entries and filter based on pedestal mean + 3 sigma
     int n_entries = input_tree->GetEntries();
     for (int i = 0; i < n_entries; ++i) {
         input_tree->GetEntry(i);
@@ -101,10 +101,10 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
             uint16_t ch = channel[j];
             double mean = pedestal_params[ch].first;
             double sigma = pedestal_params[ch].second;
-            if (amplitude[j] > mean + n_sigma * sigma) {
+            if (amplitude[j] > mean + 3 * sigma) {
                 filtered_sample.push_back(sample[j]);
                 filtered_channel.push_back(channel[j]);
-                filtered_amplitude.push_back(amplitude[j] - mean);
+                filtered_amplitude.push_back(amplitude[j]);
             }
         }
 
@@ -113,18 +113,24 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
         amplitude = filtered_amplitude;
 
         if (!sample.empty()) {
-            nt.Fill();
+            nt->Fill();
         }
     }
 
-    fout.Write();
-    fout.Close();
+    fout->Write();
+    fout->Close();
+
+    // Clean up input files
+    fin->Close();
+    delete fin;
+    fin_ped->Close();
+    delete fin_ped;
 }
 
 int main(int argc, char* argv[]) {
     const char* input_data_file_name = "data.root";
     const char* input_ped_file_name = "pedestal.root";
-    const char* output_file_name = "filtered_data.root";
+    const char* output_file_name = "pedestal_subtracted_data.root";
 	float n_sigma = 3;
 
     if (argc >= 2) {
