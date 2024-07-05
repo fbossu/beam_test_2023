@@ -22,7 +22,7 @@
 #include "../reco/definitions.h"
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
-#include "clusterSize.h"
+#include "analysis.h"
 
 
 void plot_efficiency(std::string fname, std::string detName){
