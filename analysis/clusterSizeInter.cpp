@@ -38,35 +38,46 @@ int main(int argc, char const *argv[])
   StripTable det(basedir+"../map/inter_map.txt");
 
   TTreeReader reader(chain);
+  TTreeReaderValue< std::vector<cluster> > clusters( reader, "clusters");
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
 
-  TH2F* h2test = new TH2F("h2test", "strip number test", 128, 256, 384, 128, 384, 512);
+  TH2F* h2test = new TH2F("h2test", "strip number test", 129, -0.5, 128.5, 129, -0.5, 128.5);
 
+  std::cout<<"Nb triggers "<<chain->GetEntries()<<std::endl;
   while( reader.Next()){
-    if(hits->size() == 0) continue;
-    hit maxX, maxY;
-    int maxAmpX = 0, maxAmpY = 0;
-    for(auto& h : *hits){
-      if(h.axis == 'x'){
-        if(h.maxamp > maxAmpX){
-          maxX = h;
-          maxAmpX = h.maxamp;
-        }
-      }
-      else if(h.axis == 'y'){
-        if(h.maxamp > maxAmpY){
-          maxY = h;
-          maxAmpY = h.maxamp;
-        }
-      }
+    auto maxX = maxSizeClX(*clusters);
+    auto maxY = maxSizeClY(*clusters);
+    if(maxX && maxY){
+      auto hitX = getHits(*hits, maxX->id);
+      auto hitY = getHits(*hits, maxY->id);
+      h2test->Fill(hitY[0].strip, hitX[0].strip);
     }
-    if(maxAmpX == 0 or maxAmpY == 0) continue;
-    h2test->Fill(maxY.channel, maxX.channel);
+    // if(hits->size() == 0) continue;
+    // hit maxX, maxY;
+    // int maxAmpX = 0, maxAmpY = 0;
+    // for(auto& h : *hits){
+    //   if(h.axis == 'x'){
+    //     if(h.maxamp > maxAmpX){
+    //       maxX = h;
+    //       maxAmpX = h.maxamp;
+    //     }
+    //   }
+    //   else if(h.axis == 'y'){
+    //     if(h.maxamp > maxAmpY){
+    //       maxY = h;
+    //       maxAmpY = h.maxamp;
+    //     }
+    //   }
+    // }
+    // if(maxAmpX == 0 or maxAmpY == 0) continue;
+    // std::cout << "maxX: " << maxX.channel << " maxY: " << maxY.channel << std::endl;
+    // h2test->Fill(maxY.strip, maxX.strip);
+
   }
 
   TCanvas *c = new TCanvas("c", "c", 1000,1000);
   h2test->Draw("colz");
-  gPad->SetLogz();
+  // gPad->SetLogz();
   c->Print("test.png", "png");
 
   // clusterSizeRegion(chain, detName, det);

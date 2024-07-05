@@ -22,7 +22,7 @@
 #include "../reco/definitions.h"
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
-#include "clusterSize.h"
+#include "analysis.h"
 
 
 void plot_efficiency(std::string fname, std::string detName){
@@ -193,7 +193,7 @@ int main(int argc, char* argv[]){
     double numY = 0, denY = 0;
     double numXY = 0, denXY = 0;
 
-    double dtol = 2.;
+    double dtol = 1.5;
     double sigma = 3;
 
     while( MM.Next() ){
@@ -241,11 +241,11 @@ int main(int argc, char* argv[]){
     std::cout<<"Efficiency Y: "<<numY/denY<<" den:"<<denXY<<std::endl;
     std::cout<<"Efficiency XY: "<<numXY/denXY<<" den:"<<denXY<<std::endl;
 
-    // in efficiency.txt file write run,numX,denX,numY,denY,numXY,denXY
-    std::ofstream outfile;
-    outfile.open("efficiency.txt");
-    outfile << run << "," << numX << "," << denX << "," << numY << "," << denY << "," << numXY << "," << denXY << std::endl;
-    outfile.close();
+    // // in efficiency.txt file write run,numX,denX,numY,denY,numXY,denXY
+    // std::ofstream outfile;
+    // outfile.open("efficiency.txt");
+    // outfile << run << "," << numX << "," << denX << "," << numY << "," << denY << "," << numXY << "," << denXY << std::endl;
+    // outfile.close();
 
     fMM->Close();
     fbanco->Close();
