@@ -241,11 +241,11 @@ int main(int argc, char* argv[]){
     std::cout<<"Efficiency Y: "<<numY/denY<<" den:"<<denXY<<std::endl;
     std::cout<<"Efficiency XY: "<<numXY/denXY<<" den:"<<denXY<<std::endl;
 
-    // in efficiency.txt file write run,numX,denX,numY,denY,numXY,denXY
-    std::ofstream outfile;
-    outfile.open("efficiency.txt");
-    outfile << run << "," << numX << "," << denX << "," << numY << "," << denY << "," << numXY << "," << denXY << std::endl;
-    outfile.close();
+    // // in efficiency.txt file write run,numX,denX,numY,denY,numXY,denXY
+    // std::ofstream outfile;
+    // outfile.open("efficiency.txt");
+    // outfile << run << "," << numX << "," << denX << "," << numY << "," << denY << "," << numXY << "," << denXY << std::endl;
+    // outfile.close();
 
     fMM->Close();
     fbanco->Close();
