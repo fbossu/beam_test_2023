@@ -102,7 +102,9 @@ void reco( TChain *nt, DreamTable det) {
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
 
     nt->GetEntry(iev);
+    std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl;
 
+    if( iev>10 ) break;
     // add empty events for those that have been lost
     while( tmp_evId < eventId ){
       out_timestamp = -1;
