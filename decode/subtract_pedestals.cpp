@@ -84,41 +84,43 @@ void subtract_pedestals(const char* input_data_file_name, const char* input_ped_
     TFile fout(output_file_name, "recreate");
     TTree* nt = new TTree("nt", "nt");
 
+    std::vector<uint16_t> new_sample;
+    std::vector<uint16_t> new_channel;
+    std::vector<uint16_t> new_amplitude;
     nt->Branch("eventId", &event_id);
     nt->Branch("timestamp", &timestamp);
     nt->Branch("delta_timestamp", &delta_timestamp);
     nt->Branch("ftst", &fine_timestamp);
-    nt->Branch("sample", &sample);
-    nt->Branch("channel", &channel);
-    nt->Branch("amplitude", &amplitude);
+    nt->Branch("sample", &new_sample);
+    nt->Branch("channel", &new_channel);
+    nt->Branch("amplitude", &new_amplitude);
 
     // Loop over data tree entries and filter based on pedestal mean + 3 sigma
     int n_entries = input_tree->GetEntries();
     for (int i = 0; i < n_entries; ++i) {
         input_tree->GetEntry(i);
 
-        std::vector<uint16_t> filtered_sample;
-        std::vector<uint16_t> filtered_channel;
-        std::vector<uint16_t> filtered_amplitude;
+        new_sample.clear();
+        new_channel.clear();
+        new_amplitude.clear();
 
         for (size_t j = 0; j < sample->size(); ++j) {
             uint16_t ch = (*channel)[j];
             double mean = pedestal_params[ch].first;
             double sigma = pedestal_params[ch].second;
-            if ((*amplitude)[j] > mean + 3 * sigma) {
-                filtered_sample.push_back((*sample)[j]);
-                filtered_channel.push_back((*channel)[j]);
-                filtered_amplitude.push_back((*amplitude)[j] - mean);
+            //if ((*amplitude)[j] > mean + 3 * sigma) {  // For now just save all
+            new_sample.push_back((*sample)[j]);
+            new_channel.push_back((*channel)[j]);
+            if ((*amplitude)[j] > mean) {
+                new_amplitude.push_back((*amplitude)[j] - mean);
+            } else {
+                new_amplitude.push_back(0);
             }
+            // new_amplitude.push_back((*amplitude)[j] - mean);
+            //}
         }
 
-        if (!filtered_sample.empty()) {
-            // Assign stack-allocated vectors to the pointer vectors
-            sample->swap(filtered_sample);
-            channel->swap(filtered_channel);
-            amplitude->swap(filtered_amplitude);
-            nt->Fill();
-        }
+        nt->Fill();
     }
 
     fout.Write();
