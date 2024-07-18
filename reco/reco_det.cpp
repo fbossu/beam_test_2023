@@ -102,7 +102,9 @@ void reco( TChain *nt, DreamTable det) {
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
 
     nt->GetEntry(iev);
+    std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl;
 
+    if( iev>10 ) break;
     // add empty events for those that have been lost
     while( tmp_evId < eventId ){
       out_timestamp = -1;
@@ -278,7 +280,7 @@ int main( int argc, char **argv ){
   }
   DreamTable det;
 
-  det = DreamTable(basedir + "../map/inter_map.txt", 0, 1, 2, 3);
+  det = DreamTable(basedir + "../map/strip_map.txt", 5, 6, 7, 8);
   det.setInversion(false, false, false, false);
 
   reco( ch, det );
