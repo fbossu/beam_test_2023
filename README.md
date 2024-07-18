@@ -11,6 +11,17 @@ make
 ```
 Outputs decoded file ftest.root, where each event has sample,channel,amplitude vectors of the same size. 
 
+## Decoding Non-Zero Suppressed fdf
+
+```
+cd decode
+make
+./decode data_file.fdf out_data.root
+./decode pedestal_file.fdf out_pedestal.root
+./subtract_pedestals out_data.root out_pedestal.root out_ped_sub.root
+```
+Given a data fdf (data_file.fdf) and pedestal fdf (pedestal_file.fdf), decode both. Then subtract pedestals (no common noise subtraction currently impelemented) and output a pedestal subtracted root file.
+
 ## FEU reconstruction
 
 ```
