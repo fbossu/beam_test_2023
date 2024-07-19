@@ -185,7 +185,6 @@ void reco( TChain *nt, DreamTable det) {
       float x0 = (float) (sm.second - 1.);
       float x1 = (float) (sm.second) ;
       float x2 = (float) (sm.second + 1.);
-      if(amp.size()>5) std::cout<<"c "<<amp.size()<<std::endl;
       float y0 = (float) (amp.at( sm.second - 1 ));
       float y1 = (float) (amp.at( sm.second  ));
       float y2 = (float) (amp.at( sm.second + 1 ));
@@ -281,7 +280,7 @@ int main( int argc, char **argv ){
   }
   DreamTable det;
 
-  det = DreamTable(basedir + "../map/asa_map.txt", 0, 1, 2, 3);
+  det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
   det.setInversion(false, false, false, false);
 
   reco( ch, det );
