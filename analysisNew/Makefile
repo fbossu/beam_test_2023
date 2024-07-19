@@ -26,4 +26,4 @@ spectreP2: spectreP2.cpp ../reco/definitions.h
 	g++ -o spectreP2 spectreP2.cpp ../reco/Dict.cxx $(ROOT)
 
 hitmap: hitmap.cpp analysis.h
-	g++ -o hitmap hitmap.cpp $(DT) $(ROOT)
+	g++ -o hitmap hitmap.cpp ../reco/Dict.cxx $(DT) $(ROOT)
