@@ -18,7 +18,7 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
-bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>400; }
+bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>50; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
