@@ -281,7 +281,7 @@ int main( int argc, char **argv ){
   }
   DreamTable det;
 
-  det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
+  det = DreamTable(basedir + "../map/asa_map.txt", 0, 1, 2, 3);
   det.setInversion(false, false, false, false);
 
   reco( ch, det );
