@@ -40,13 +40,13 @@ int main(int argc, char const *argv[])
   if(detName.find("strip") != std::string::npos){
     det = StripTable(basedir+"../map/strip_map.txt");
   }
-  else if(detName.find("asa") != std::string::npos){
+  if(detName.find("asa") != std::string::npos){
     det = StripTable(basedir+"../map/asa_map.txt");
   }
-  else if(detName.find("inter") != std::string::npos){
+  if(detName.find("inter") != std::string::npos){
     det = StripTable(basedir+"../map/inter_map.txt");
   }
-  else {
+  if(detName.find("strip") == std::string::npos && detName.find("asa") == std::string::npos && detName.find("inter") == std::string::npos){
     std::cerr<<"Detector not found"<<std::endl;
     return 1;
   }
