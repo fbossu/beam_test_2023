@@ -37,16 +37,16 @@ int main(int argc, char const *argv[])
   }
 
   StripTable det;
-  if(detName.find("strip") != std::string::npos){
+  if(detName.find("strip") != std::string::npos && detName.find("asa") == std::string::npos){
     det = StripTable(basedir+"../map/strip_map.txt");
   }
-  if(detName.find("asa") != std::string::npos){
+  else if(detName.find("asa") != std::string::npos){
     det = StripTable(basedir+"../map/asa_map.txt");
   }
-  if(detName.find("inter") != std::string::npos){
+  else if(detName.find("inter") != std::string::npos){
     det = StripTable(basedir+"../map/inter_map.txt");
   }
-  if(detName.find("strip") == std::string::npos && detName.find("asa") == std::string::npos && detName.find("inter") == std::string::npos){
+  else{
     std::cerr<<"Detector not found"<<std::endl;
     return 1;
   }
