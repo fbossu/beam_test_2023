@@ -153,7 +153,7 @@ int main(int argc, char const *argv[])
   c2->Print(Form("gerberMap_%s.png", detName.c_str()));
 
   std::ofstream outfile;
-  outfile.open(Form("%s_table.txt", detName.c_str()));
+  outfile.open(Form("table_%s.txt", detName.c_str()));
   outfile<<"#run\tzone\tgain"<<std::endl;
   outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
   outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
