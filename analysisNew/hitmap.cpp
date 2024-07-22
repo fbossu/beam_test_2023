@@ -121,6 +121,7 @@ int main(int argc, char const *argv[])
     auto maxY = maxSizeClY(*clusters);
   
     if(maxX && maxY){
+      if(maxX->size < 2 || maxY->size < 2) continue;
       std::vector<hit> hitX = getHits(&(*hits), maxX->id);
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
       h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
@@ -158,7 +159,7 @@ int main(int argc, char const *argv[])
   outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
   outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
 
-  TFile* f = new TFile(Form("hist_%s.root", detName.c_str()), "RECREATE");
+  TFile* f = new TFile(Form("hist_size2_%s.root", detName.c_str()), "RECREATE");
   f->cd();
   h2strip->Write();
   h2gerber->Write();
