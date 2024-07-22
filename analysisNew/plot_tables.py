@@ -39,7 +39,7 @@ def parse_file(file_path, msc):
                 i += 1
                 line = lines[i].strip()
                 values = line.split('\t')
-                rescorr = sqrt(float(values[4])**2 - msc**2)
+                rescorr = sqrt(float(values[3])**2 - msc**2)
                 Ydata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, 0))
                 # Ydata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, resErr(float(values[4]), msc)))
             i += 1
@@ -57,7 +57,7 @@ GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, 0)
 # GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, listmsc[0])
 
 # file_pathInter = './interFEU1Inv/interFEU1_table_res.txt'
-file_pathInter = './testBench/urw_inter_table_res.txt'
+file_pathInter = './testBench/urw_inter_table.txt'
 GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, 0)
 # GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, listmsc[1])
 
