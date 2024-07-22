@@ -154,12 +154,12 @@ int main(int argc, char const *argv[])
   c2->Print(Form("gerberMap_%s.png", detName.c_str()));
 
   std::ofstream outfile;
-  outfile.open(Form("table_%s.txt", detName.c_str()));
+  outfile.open(Form("table_cl1cut_%s.txt", detName.c_str()));
   outfile<<"#run\tzone\tgain"<<std::endl;
   outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
   outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
 
-  TFile* f = new TFile(Form("hist_size2_%s.root", detName.c_str()), "RECREATE");
+  TFile* f = new TFile(Form("hist_cl1cut_%s.root", detName.c_str()), "RECREATE");
   f->cd();
   h2strip->Write();
   h2gerber->Write();
