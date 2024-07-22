@@ -8,6 +8,7 @@
 #include "TTreeReader.h"
 #include "TStyle.h"
 #include "TLegend.h"
+#include "TParameter.h"
 #include <map>
 
 #include "../reco/definitions.h"
@@ -47,6 +48,16 @@ struct hist{
     f->cd();
     f->mkdir(name.c_str());
     f->cd(name.c_str());
+
+    TParameter<Double_t> pitchXParam("pitchX", pitchX);
+    pitchXParam.Write();
+    TParameter<Double_t> interXParam("interX", interX);
+    interXParam.Write();
+    TParameter<Double_t> pitchYParam("pitchY", pitchY);
+    pitchYParam.Write();
+    TParameter<Double_t> interYParam("interY", interY);
+    interYParam.Write();
+
     clsizeX->Write();
     ampFracX->Write();
     maxAmpX->Write();
