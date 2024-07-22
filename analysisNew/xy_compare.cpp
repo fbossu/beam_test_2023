@@ -116,7 +116,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, 64);
             double res = detPos[1] - tr.y0 - tr.my*detPos[2];
             if(abs(res)<5.){
-                ampX = totMaxAmp(*hits, maxX->id);
+                ampX = totMaxAmp(&(*hits), maxX->id);
                 Xclsize.push_back(maxX->size);
             }
             else maxX = nullptr;
@@ -126,7 +126,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
             std::vector<double> detPos = det.pos3D(64, maxY->stripCentroid);
             double res = detPos[0] - tr.x0 - tr.mx*detPos[2];
             if(abs(res)<5.){
-                ampY = totMaxAmp(*hits, maxY->id);
+                ampY = totMaxAmp(&(*hits), maxY->id);
                 Yclsize.push_back(maxY->size);
             }
             else maxY = nullptr;

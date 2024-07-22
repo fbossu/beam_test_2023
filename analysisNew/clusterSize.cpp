@@ -44,11 +44,12 @@ int totAmp (std::vector<hit> hits, int clId){
   return tot;
 }
 
-int totMaxAmp (std::vector<hit> hits, int clId){
+int totMaxAmp (std::vector<hit> *hits, int clId){
   int tot = 0;
-  for(auto h : hits){
-    if(h.clusterId == clId){
-      tot += h.maxamp-256;
+  for(auto h = hits->begin(); h < hits->end(); h++){
+    if(h->clusterId == clId){
+      // tot += h->maxamp-256;
+      tot += h->maxamp-256;
     }
   }
   return tot;

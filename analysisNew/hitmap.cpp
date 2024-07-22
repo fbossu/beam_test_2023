@@ -8,11 +8,45 @@
 #include "TTreeReader.h"
 #include "TStyle.h"
 #include "TLegend.h"
+#include <map>
 
 #include "../reco/definitions.h"
 #include "../map/StripTable.h"
 #include "analysis.h"
 #include "../style_sheet.h"
+
+struct hist{
+  std::string name;
+  TH1F *clsizeX, *ampFracX, *clsizeY, *ampFracY;
+  hist() = default;
+  hist(std::string name){
+    this->name = name;
+    clsizeX = new TH1F(Form("clsizeX_%s", name.c_str()), Form("Cluster size X %s", name.c_str()), 11, -0.5, 10.5);
+    ampFracX = new TH1F(Form("ampFracX_%s", name.c_str()), Form("Amplitude fraction X %s", name.c_str()), 100, 0, 1);
+    clsizeY = new TH1F(Form("clsizeY_%s", name.c_str()), Form("Cluster size Y %s", name.c_str()), 11, -0.5, 10.5);
+    ampFracY = new TH1F(Form("ampFracY_%s", name.c_str()), Form("Amplitude fraction Y %s", name.c_str()), 100, 0, 1);
+  }
+  double pitchX = 0, interX = 0;
+  double pitchY = 0, interY = 0;
+  void fillCl(std::shared_ptr<cluster> clX, std::shared_ptr<cluster> clY){
+    clsizeX->Fill(clX->size);
+    clsizeY->Fill(clY->size);
+  }
+  void fillAmpFrac(double totAmpX, double totAmpY){
+    ampFracX->Fill(totAmpX/(totAmpX+totAmpY));
+    ampFracY->Fill(totAmpY/(totAmpX+totAmpY));
+  }
+
+  void save(TFile* f){
+    f->cd();
+    f->mkdir(name.c_str());
+    f->cd(name.c_str());
+    clsizeX->Write();
+    ampFracX->Write();  
+    clsizeY->Write();
+    ampFracY->Write();
+  }
+};
 
 int main(int argc, char const *argv[])
 {
@@ -55,9 +89,11 @@ int main(int argc, char const *argv[])
   TTreeReaderValue< std::vector<cluster> > clusters( reader, "clusters");
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
 
-  TH2F* h2strip = new TH2F("h2test", "strip number test", 129, -0.5, 128.5, 129, -0.5, 128.5);
+  TH2F* h2strip = new TH2F("h2test", "strip number test", 200, -0.5, 128.5, 200, -0.5, 128.5);
   TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -120, 20, 200, -20, 120);
   TH1F* h1amp = new TH1F("hmaxamp", "maxamp per event", 500, 0, 500);
+
+  std::map<int, hist> histMap;
 
   std::cout<<"Nb triggers "<<chain->GetEntries()<<std::endl;
   while( reader.Next()){
@@ -67,10 +103,21 @@ int main(int argc, char const *argv[])
     std::sort(hits->begin(), hits->end(), [](hit a, hit b){return a.maxamp > b.maxamp;});
     h1amp->Fill(hits->at(0).maxamp);
     if(maxX && maxY){
-      auto hitX = getHits(*hits, maxX->id);
-      auto hitY = getHits(*hits, maxY->id);
-      h2strip->Fill(hitY[0].strip, hitX[0].strip);
+      h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
       h2gerber->Fill(det.posY(maxX->stripCentroid)[0], det.posX(maxY->stripCentroid)[1]);
+      double ampY = totMaxAmp(&(*hits), maxY->id);
+      double ampX = totMaxAmp(&(*hits), maxX->id);
+      
+      int zone = det.zone(maxX->stripCentroid, maxY->stripCentroid);
+      if(histMap.find(zone) == histMap.end()){
+        histMap[zone] = hist(Form("zone_%d", zone));
+        histMap[zone].pitchX = det.pitchX(maxX->stripCentroid);
+        histMap[zone].interX = det.interX(maxX->stripCentroid);
+        histMap[zone].pitchY = det.pitchY(maxY->stripCentroid);
+        histMap[zone].interY = det.interY(maxY->stripCentroid, maxX->stripCentroid);
+      }
+      histMap[zone].fillCl(maxX, maxY);
+      histMap[zone].fillAmpFrac(ampX, ampY);
     }
   }
 
@@ -88,6 +135,16 @@ int main(int argc, char const *argv[])
   h1amp->Draw();
   gPad->SetLogy();
   c3->Print(Form("maxamp_%s.png", detName.c_str()));
+
+  TFile* f = new TFile(Form("hist_%s.root", detName.c_str()), "RECREATE");
+  f->cd();
+  h2strip->Write();
+  h2gerber->Write();
+  h1amp->Write();
+  for(auto& it : histMap){
+    it.second.save(f);
+  }
+  f->Close();
 
   // clusterSizeRegion(chain, detName, det);
   //clusterSizeLims(chain, detName, det, {80, 90}, {90, 100});
