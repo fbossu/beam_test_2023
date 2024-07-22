@@ -126,8 +126,8 @@ int main(int argc, char const *argv[])
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
       h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
       h2gerber->Fill(det.posY(maxX->stripCentroid)[0], det.posX(maxY->stripCentroid)[1]);
-      double ampY = totMaxAmp(&hitX, maxX->id);
-      double ampX = totMaxAmp(&hitY, maxY->id);
+      double ampX = totMaxAmp(&hitX, maxX->id);
+      double ampY = totMaxAmp(&hitY, maxY->id);
       
       int zone = det.zone(maxX->stripCentroid, maxY->stripCentroid);
       if(histMap.find(zone) == histMap.end()){
