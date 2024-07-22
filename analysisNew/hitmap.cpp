@@ -152,14 +152,26 @@ int main(int argc, char const *argv[])
   // gPad->SetLogz();
   c2->Print(Form("gerberMap_%s.png", detName.c_str()));
 
+  std::ofstream outfile;
+  outfile.open(Form("%s_table.txt", detName.c_str()));
+  outfile<<"#run\tzone\tgain"<<std::endl;
+  outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
+  outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
+
   TFile* f = new TFile(Form("hist_%s.root", detName.c_str()), "RECREATE");
   f->cd();
   h2strip->Write();
-  h2gerber->Write();;
+  h2gerber->Write();
   for(auto& it : histMap){
+    outfile<<"testBench"<<"\t"<<it.first<<"\t"<<"1"<<std::endl;
+    outfile<<"\t\t"<<it.second.pitchX<<"\t"<<it.second.interX<<"\t"
+          <<it.second.clsizeX->GetMean()<<"\t"<<it.second.ampFracX->GetMean()<<"\t"<<0.<<std::endl;
+    outfile<<"\t\t"<<it.second.pitchY<<"\t"<<it.second.interY<<"\t"
+          <<it.second.clsizeY->GetMean()<<"\t"<<it.second.ampFracY->GetMean()<<std::endl; 
     it.second.save(f);
   }
   f->Close();
+  outfile.close();
 
   // clusterSizeRegion(chain, detName, det);
   //clusterSizeLims(chain, detName, det, {80, 90}, {90, 100});
