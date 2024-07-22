@@ -167,7 +167,7 @@ int main(int argc, char const *argv[])
     outfile<<"\t\t"<<it.second.pitchX<<"\t"<<it.second.interX<<"\t"
           <<it.second.clsizeX->GetMean()<<"\t"<<it.second.ampFracX->GetMean()<<"\t"<<0.<<std::endl;
     outfile<<"\t\t"<<it.second.pitchY<<"\t"<<it.second.interY<<"\t"
-          <<it.second.clsizeY->GetMean()<<"\t"<<it.second.ampFracY->GetMean()<<std::endl; 
+          <<it.second.clsizeY->GetMean()<<"\t"<<it.second.ampFracY->GetMean()<<"\t"<<0.<<std::endl; 
     it.second.save(f);
   }
   f->Close();

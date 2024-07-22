@@ -34,12 +34,14 @@ def parse_file(file_path, msc):
                 line = lines[i].strip()
                 values = line.split('\t')
                 rescorr = sqrt(float(values[4])**2 - msc**2)
-                Xdata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, resErr(float(values[4]), msc)))
+                # Xdata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, resErr(float(values[4]), msc)))
+                Xdata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, 0))
                 i += 1
                 line = lines[i].strip()
                 values = line.split('\t')
                 rescorr = sqrt(float(values[4])**2 - msc**2)
-                Ydata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, resErr(float(values[4]), msc)))
+                Ydata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, 0))
+                # Ydata.append((float(values[0]), float(values[1]), float(values[2]), float(values[3]), rescorr, resErr(float(values[4]), msc)))
             i += 1
     return Gdata, Xdata, Ydata
 
@@ -49,19 +51,22 @@ plt.rcParams.update({'lines.markersize': 26})
 # listmsc = [0.101, 0.212, 0.364, 0.549, 0.766]
 listmsc = [0.101, 0.197, 0.323, 0.461, 0.600]
 
-file_pathStrip = './stripFEU1Inv/stripFEU1_table_res.txt'
+# file_pathStrip = './stripFEU1Inv/stripFEU1_table_res.txt'
+file_pathStrip = './testBench/urw_strip_table.txt'
 GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, 0)
 # GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, listmsc[0])
 
-file_pathInter = './interFEU1Inv/interFEU1_table_res.txt'
+# file_pathInter = './interFEU1Inv/interFEU1_table_res.txt'
+file_pathInter = './testBench/urw_inter_table_res.txt'
 GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, 0)
 # GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, listmsc[1])
 
-file_pathPlein = './asaFEU2Inv/asaFEU2_table_res.txt'
+# file_pathPlein = './asaFEU2Inv/asaFEU2_table_res.txt'
+file_pathPlein = './testBench/asa_plein_table.txt'
 GdataPlein, XdataPlein, YdataPlein = parse_file(file_pathPlein, 0)
 # GdataPlein, XdataPlein, YdataPlein = parse_file(file_pathPlein, listmsc[2])
 
-file_pathAsa = './asaFEU4Inv/asaFEU4_table_res.txt'
+file_pathAsa = './testBench/asa_strip1_table.txt'
 GdataAsa, XdataAsa, YdataAsa = parse_file(file_pathAsa, 0)
 # GdataAsa, XdataAsa, YdataAsa = parse_file(file_pathAsa, listmsc[4])
 
@@ -236,13 +241,13 @@ def plotPitchAsa(XdataStrip, YdataStrip, XdataPlein, YdataPlein, val, yTitle, gr
     # plt.show()
     fig.savefig(graphName)
 
-plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, 4, 'Residues', 'Residues_vs_Pitch.png')
-plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, 2, 'Cluster size', 'clsize_vs_Pitch.png')
-plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, 3, 'Amplitude fraction', 'amp_vs_Pitch.png')
+plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, 4, 'Residues', './testBench/Residues_vs_Pitch.png')
+plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, 2, 'Cluster size', './testBench/clsize_vs_Pitch.png')
+plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, 3, 'Amplitude fraction', './testBench/amp_vs_Pitch.png')
 
-plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 4, 'Residues', 'Residues_vs_Pitch_Asa.png')
-plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 2, 'Cluster size', 'clsize_vs_Pitch_Asa.png')
-plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 3, 'Amplitude fraction', 'amp_vs_Pitch_Asa.png')
+plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 4, 'Residues', './testBench/Residues_vs_Pitch_Asa.png')
+plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 2, 'Cluster size', './testBench/clsize_vs_Pitch_Asa.png')
+plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 3, 'Amplitude fraction', './testBench/amp_vs_Pitch_Asa.png')
 
 
 #plot gain of all detectors
