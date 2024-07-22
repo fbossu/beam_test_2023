@@ -42,11 +42,11 @@ int main(int argc, char* argv[]) {
         std::shared_ptr<cluster> clY = maxSizeClY(*cls);
         double corr = *ftst*10.;
         if(clX){
-            auto hX = getHits(*hits, clX->id);
+            auto hX = getHits(&(*hits), clX->id);
             if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50+corr);
         }
         if(clY){
-            auto hY = getHits(*hits, clY->id);
+            auto hY = getHits(&(*hits), clY->id);
             if(hY[0].maxamp>400) h_timeofmaxY->Fill(hY[0].timeofmax*50+corr);
         }
         if(!clX && !clY){

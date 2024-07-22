@@ -17,20 +17,26 @@
 
 struct hist{
   std::string name;
-  TH1F *clsizeX, *ampFracX, *clsizeY, *ampFracY;
+  TH1F *clsizeX, *ampFracX, *maxAmpX, *clsizeY, *ampFracY, *maxAmpY;
   hist() = default;
   hist(std::string name){
     this->name = name;
     clsizeX = new TH1F(Form("clsizeX_%s", name.c_str()), Form("Cluster size X %s", name.c_str()), 11, -0.5, 10.5);
     ampFracX = new TH1F(Form("ampFracX_%s", name.c_str()), Form("Amplitude fraction X %s", name.c_str()), 100, 0, 1);
+    maxAmpX = new TH1F(Form("maxAmpX_%s", name.c_str()), Form("Max amplitude X %s", name.c_str()), 500, 0, 600);
     clsizeY = new TH1F(Form("clsizeY_%s", name.c_str()), Form("Cluster size Y %s", name.c_str()), 11, -0.5, 10.5);
     ampFracY = new TH1F(Form("ampFracY_%s", name.c_str()), Form("Amplitude fraction Y %s", name.c_str()), 100, 0, 1);
+    maxAmpY = new TH1F(Form("maxAmpY_%s", name.c_str()), Form("Max amplitude Y %s", name.c_str()), 500, 0, 600);
   }
   double pitchX = 0, interX = 0;
   double pitchY = 0, interY = 0;
   void fillCl(std::shared_ptr<cluster> clX, std::shared_ptr<cluster> clY){
     clsizeX->Fill(clX->size);
     clsizeY->Fill(clY->size);
+  }
+  void fillMaxAmp(double ampX, double ampY){
+    maxAmpX->Fill(ampX);
+    maxAmpY->Fill(ampY);
   }
   void fillAmpFrac(double totAmpX, double totAmpY){
     ampFracX->Fill(totAmpX/(totAmpX+totAmpY));
@@ -42,9 +48,11 @@ struct hist{
     f->mkdir(name.c_str());
     f->cd(name.c_str());
     clsizeX->Write();
-    ampFracX->Write();  
+    ampFracX->Write();
+    maxAmpX->Write();
     clsizeY->Write();
     ampFracY->Write();
+    maxAmpY->Write();
   }
 };
 
@@ -91,7 +99,6 @@ int main(int argc, char const *argv[])
 
   TH2F* h2strip = new TH2F("h2test", "strip number test", 200, -0.5, 128.5, 200, -0.5, 128.5);
   TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -120, 20, 200, -20, 120);
-  TH1F* h1amp = new TH1F("hmaxamp", "maxamp per event", 500, 0, 500);
 
   std::map<int, hist> histMap;
 
@@ -100,13 +107,14 @@ int main(int argc, char const *argv[])
     if(hits->size() == 0) continue;
     auto maxX = maxSizeClX(*clusters);
     auto maxY = maxSizeClY(*clusters);
-    std::sort(hits->begin(), hits->end(), [](hit a, hit b){return a.maxamp > b.maxamp;});
-    h1amp->Fill(hits->at(0).maxamp);
+  
     if(maxX && maxY){
+      std::vector<hit> hitX = getHits(&(*hits), maxX->id);
+      std::vector<hit> hitY = getHits(&(*hits), maxY->id);
       h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
       h2gerber->Fill(det.posY(maxX->stripCentroid)[0], det.posX(maxY->stripCentroid)[1]);
-      double ampY = totMaxAmp(&(*hits), maxY->id);
-      double ampX = totMaxAmp(&(*hits), maxX->id);
+      double ampY = totMaxAmp(&hitX, maxY->id);
+      double ampX = totMaxAmp(&hitY, maxX->id);
       
       int zone = det.zone(maxX->stripCentroid, maxY->stripCentroid);
       if(histMap.find(zone) == histMap.end()){
@@ -118,6 +126,7 @@ int main(int argc, char const *argv[])
       }
       histMap[zone].fillCl(maxX, maxY);
       histMap[zone].fillAmpFrac(ampX, ampY);
+      histMap[zone].fillMaxAmp(hitX[0].maxamp, hitY[0].maxamp);
     }
   }
 
@@ -131,16 +140,10 @@ int main(int argc, char const *argv[])
   // gPad->SetLogz();
   c2->Print(Form("gerberMap_%s.png", detName.c_str()));
 
-  TCanvas *c3 = new TCanvas("c3", "c3", 1200, 800);
-  h1amp->Draw();
-  gPad->SetLogy();
-  c3->Print(Form("maxamp_%s.png", detName.c_str()));
-
   TFile* f = new TFile(Form("hist_%s.root", detName.c_str()), "RECREATE");
   f->cd();
   h2strip->Write();
-  h2gerber->Write();
-  h1amp->Write();
+  h2gerber->Write();;
   for(auto& it : histMap){
     it.second.save(f);
   }

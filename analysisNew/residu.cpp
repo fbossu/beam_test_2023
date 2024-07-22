@@ -124,8 +124,8 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
     if(maxX && maxY){
       // if(maxY->size != 3) continue;
       n++; stX += maxX->stripCentroid; stY += maxY->stripCentroid;
-      auto hitsX = getHits(*hits, maxX->id);
-      auto hitsY = getHits(*hits, maxY->id);
+      auto hitsX = getHits(&(*hits), maxX->id);
+      auto hitsY = getHits(&(*hits), maxY->id);
       if(hitsX.size() == 0 or hitsY.size() == 0){
               std::cout<<"aaaaaaaahhhhhhhhhhhhhhhhhhhh"<<std::endl;
         continue;

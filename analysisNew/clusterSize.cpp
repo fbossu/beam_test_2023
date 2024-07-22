@@ -25,9 +25,9 @@ std::shared_ptr<cluster> maxSizeClY(std::vector<cluster> cls){
   return std::make_shared<cluster>(*maxElement);
 }
 
-std::vector<hit> getHits(std::vector<hit> hits, int clId){
+std::vector<hit> getHits(std::vector<hit> *hits, int clId){
   std::vector<hit> h;
-  std::copy_if (hits.begin(), hits.end(), std::back_inserter(h),
+  std::copy_if (hits->begin(), hits->end(), std::back_inserter(h),
                 [clId](const hit& h){return h.clusterId==clId;} );
   std::sort (h.begin(), h.end(),
                 [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
@@ -584,8 +584,8 @@ void clusterSizeFile(std::string fname, std::string detname, StripTable det, int
     std::shared_ptr<cluster> clX = maxSizeClX(*cls);
     std::shared_ptr<cluster> clY = maxSizeClY(*cls);
 
-    if(clX) hX = getHits(*hits, clX->id);
-    if(clY) hY = getHits(*hits, clY->id);
+    if(clX) hX = getHits(&(*hits), clX->id);
+    if(clY) hY = getHits(&(*hits), clY->id);
 
     if( hX.size() > 0 ){
       hcentroidX->Fill(clX->stripCentroid);
