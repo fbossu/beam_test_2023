@@ -49,7 +49,7 @@ int totMaxAmp (std::vector<hit> *hits, int clId){
   for(auto h = hits->begin(); h < hits->end(); h++){
     if(h->clusterId == clId){
       // tot += h->maxamp-256;
-      tot += h->maxamp-256;
+      tot += h->maxamp;
     }
   }
   return tot;
