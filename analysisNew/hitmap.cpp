@@ -18,16 +18,17 @@
 
 struct hist{
   std::string name;
-  TH1F *clsizeX, *ampFracX, *maxAmpX, *clsizeY, *ampFracY, *maxAmpY;
+  TH1F *ampFracX, *ampFracY;
+  TH1I *clsizeX, *maxAmpX, *clsizeY, *maxAmpY;
   hist() = default;
   hist(std::string name){
     this->name = name;
-    clsizeX = new TH1F(Form("clsizeX_%s", name.c_str()), Form("Cluster size X %s", name.c_str()), 11, -0.5, 10.5);
+    clsizeX = new TH1I(Form("clsizeX_%s", name.c_str()), Form("Cluster size X %s", name.c_str()), 10, 0, 10);
     ampFracX = new TH1F(Form("ampFracX_%s", name.c_str()), Form("Amplitude fraction X %s", name.c_str()), 100, 0, 1);
-    maxAmpX = new TH1F(Form("maxAmpX_%s", name.c_str()), Form("Max amplitude X %s", name.c_str()), 500, 0, 600);
-    clsizeY = new TH1F(Form("clsizeY_%s", name.c_str()), Form("Cluster size Y %s", name.c_str()), 11, -0.5, 10.5);
+    maxAmpX = new TH1I(Form("maxAmpX_%s", name.c_str()), Form("Max amplitude X %s", name.c_str()), 600, 0, 600);
+    clsizeY = new TH1I(Form("clsizeY_%s", name.c_str()), Form("Cluster size Y %s", name.c_str()), 10, 0, 10);
     ampFracY = new TH1F(Form("ampFracY_%s", name.c_str()), Form("Amplitude fraction Y %s", name.c_str()), 100, 0, 1);
-    maxAmpY = new TH1F(Form("maxAmpY_%s", name.c_str()), Form("Max amplitude Y %s", name.c_str()), 500, 0, 600);
+    maxAmpY = new TH1I(Form("maxAmpY_%s", name.c_str()), Form("Max amplitude Y %s", name.c_str()), 600, 0, 600);
   }
   double pitchX = 0, interX = 0;
   double pitchY = 0, interY = 0;
@@ -124,8 +125,8 @@ int main(int argc, char const *argv[])
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
       h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
       h2gerber->Fill(det.posY(maxX->stripCentroid)[0], det.posX(maxY->stripCentroid)[1]);
-      double ampY = totMaxAmp(&hitX, maxY->id);
-      double ampX = totMaxAmp(&hitY, maxX->id);
+      double ampY = totMaxAmp(&hitX, maxX->id);
+      double ampX = totMaxAmp(&hitY, maxY->id);
       
       int zone = det.zone(maxX->stripCentroid, maxY->stripCentroid);
       if(histMap.find(zone) == histMap.end()){
