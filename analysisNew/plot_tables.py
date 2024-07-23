@@ -57,7 +57,7 @@ GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, 0)
 # GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, listmsc[0])
 
 # file_pathInter = './interFEU1Inv/interFEU1_table_res.txt'
-file_pathInter = './testBench/cl1cut/table_cl1cut_urw_inter.txt'
+file_pathInter = './testBench/table_urw_inter.txt'
 GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, 0)
 # GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, listmsc[1])
 
@@ -315,7 +315,7 @@ plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 3, 'Amplitude fraction'
 # plotInter(XdataInter, YdataInter, 2, 'Cluster size', './testBench/clsize_vs_inter_Inter.png')
 # plotInter(XdataInter, YdataInter, 3, 'Amplitude fraction', './testBench/amp_vs_inter_Inter.png')
 
-plotInter(XdataInter, YdataInter, 2, 'Cluster size', './testBench/cl1cut/clsize_vs_inter_Inter.png')
+plotInter(XdataInter, YdataInter, 2, 'Cluster size', './testBench/clsize_vs_inter_Inter.png')
 plotInter(XdataInter, YdataInter, 3, 'Amplitude fraction', './testBench/cl1cut/amp_vs_inter_Inter.png')
 
 
