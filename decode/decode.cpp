@@ -145,13 +145,13 @@ int main( int argc, const char **argv) {
           fine_timestamp = get_fine_timestamp( data );
         }
         else if( iFeuH == 4 ){
-          eventID  += get_Event_ID( data )<<12;
+          eventID  += (uint64_t)get_Event_ID( data )<<12;
         }
         else if( iFeuH == 5 ){
-          timestamp +=  get_timestamp( data )<<12;
+          timestamp +=  (uint64_t)get_timestamp( data )<<12;
         }
         else if( iFeuH == 6 ){
-          timestamp +=  get_timestamp( data )<<24;
+          timestamp +=  (uint64_t)get_timestamp( data )<<24;
         }
         else if( iFeuH == 7 ){
           timestamp +=  (uint64_t)get_timestamp( data )<<36;
