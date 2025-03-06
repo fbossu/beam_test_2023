@@ -81,6 +81,8 @@ void DetectorTable::buildTable(){
 		// inter = std::stod(finter);
 
 		int GBchannel = cnt*64 + ch;
+		// std::cout<<line<<std::endl;
+		// std::cout<<"GBchannel: "<<GBchannel<<" st:"<<stripNb<<std::endl;
 
 		std::string n;
 		std::istringstream sinter(finter);

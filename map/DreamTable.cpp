@@ -17,7 +17,7 @@ void DreamTable::setInversion(bool iC0, bool iC1, bool iC2, bool iC3){
 
 bool DreamTable::isConnected(int ch){
 	int dream = ch/64;
-	return ( std::find(dreamConnect.begin(), dreamConnect.end(), dream) != dreamConnect.end() );
+	return ( std::find(dreamConnect.begin(), dreamConnect.end(), dream) != dreamConnect.end() && std::find(offChannel.begin(), offChannel.end(), ch) == offChannel.end());
 }
 
 int DreamTable::toGB(int ch){

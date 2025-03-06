@@ -1,6 +1,6 @@
-all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence
+all: clusterSize.o clusterSizeAsa clusterSizeStrip clusterSizeInter correlation residu banco_coincidence xy_compare deltaT_samplemax waveform amplitude efficiency
 
-ROOT = $(shell root-config --cflags) $(shell root-config --libs )
+ROOT = $(shell root-config --cflags) $(shell root-config --libs ) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
 
 clusterSize.o: clusterSize.cpp clusterSize.h
@@ -23,11 +23,28 @@ clusterSizeInter: clusterSizeInter.cpp ../reco/definitions.h ../reco/linkdef.h $
 
 correlation: correlation.cpp
 # 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
-	g++ correlation.cpp ../reco/Dict.cxx -o corelation $(DT) $(ROOT)
+	g++ correlation.cpp ../reco/Dict.cxx -o correlation $(DT) $(ROOT)
 
-residu: residu.cpp
+residu: residu.cpp ../map/DetectorTable.o ../map/StripTable.o
 # 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
 	g++ residu.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o residu $(DT) $(ROOT)
 
 banco_coincidence: banco_coincidence.cpp
 	g++ banco_coincidence.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o banco_coincidence $(DT) $(ROOT)
+
+xy_compare: xy_compare.cpp clusterSize.cpp
+	g++ xy_compare.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o xy_compare $(DT) $(ROOT)
+
+deltaT_samplemax: deltaT_samplemax.cpp clusterSize.cpp
+	g++ deltaT_samplemax.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o deltaT_samplemax $(DT) $(ROOT)
+
+waveform: waveform.cpp clusterSize.cpp
+	g++ waveform.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o waveform $(DT) $(ROOT)
+
+amplitude: amplitude.cpp ../map/DetectorTable.o ../map/StripTable.o
+# 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
+	g++ amplitude.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o amplitude $(DT) $(ROOT)
+
+efficiency: efficiency.cpp ../map/DetectorTable.o ../map/StripTable.o
+# 	rootcling -f ../reco/Dict.cxx ../reco/definitions.h ../reco/linkdef.h
+	g++ efficiency.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx -o efficiency $(DT) $(ROOT)

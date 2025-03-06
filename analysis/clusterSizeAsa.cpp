@@ -21,6 +21,9 @@ int main(int argc, char const *argv[])
   basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
   std::cout << basedir << std::endl;
 
+  std::vector<int> zoneRuns = {16, 13, 5, 2};
+  StripTable det(basedir+"../map/asa_map.txt");
+
   TChain* chain = new TChain("events");
   std::string detName = "test";
   for( int i = 1; i < argc; i++) {
@@ -35,10 +38,20 @@ int main(int argc, char const *argv[])
       detName = argv[i];
     }
   }
-  
-  StripTable det(basedir+"../map/asa_map.txt");
+  // clusterSizeRegion(chain, detName, det);
 
-  clusterSizeRegion(chain, detName, det);
+  // for( int i = 2; i < argc; i++) {
+  //   std::string fname = argv[i];
+  //   int pos = std::stoi( fname.substr(fname.find("POS")+3, fname.find("POS")+5) );
+  //   if(std::find(zoneRuns.begin(), zoneRuns.end(), pos) != zoneRuns.end()){
+  //     // clusterSizeLims(chain, detName, det, fname);
+  //     clSize_Amp(fname, detName, det); 
+  //   }
+  // }
+  
+  
+
+  // clusterSizeRegion(chain, detName, det);
   clusterSizeLims(chain, detName, det, {2, 16}, {15, 25});
   clusterSizeLims(chain, detName, det, {37, 52}, {50, 65});
   clusterSizeLims(chain, detName, det, {70, 90}, {65, 85});

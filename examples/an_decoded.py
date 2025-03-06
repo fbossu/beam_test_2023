@@ -41,13 +41,14 @@ for i in range(8):
     isample = awk.flatten(sample[ idream ]).to_numpy()
     
     ax = fig.add_subplot(241+i)
-    h = ax.hist2d( isample, iampl, bins=[maxsample+1,1000], range=[[0,maxsample+1],[0,4000]], cmin=1, norm = mpl.colors.LogNorm()  )
+    h = ax.hist2d( isample, iampl, bins=[maxsample+1,1000], range=[[0,maxsample+1],[0,2000]], cmin=1, norm = mpl.colors.LogNorm()  )
     ax.set_ylabel("amplitude")
     ax.set_xlabel("sample")
     ax.set_title( "Dream {}".format(1+i), fontdict={ 'color' : '#f01010'} )
 plt.tight_layout()
-fig.savefig( "amp_"+fname[:-4] + "png" )
-#plt.show()
+#fig.savefig( "amp_"+fname[:-4] + "png" )
+
+plt.show()
 
 
 
