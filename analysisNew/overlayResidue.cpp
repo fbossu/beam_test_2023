@@ -16,6 +16,8 @@ void plotResGeant(std::string fnamegeant, std::string fnameMM, std::string det, 
     hgeant->SetMarkerSize(0.5);
     hgeant->SetMarkerColor(kBlue);
     hgeant->GetXaxis()->SetTitle("residue [mm]");
+    hgeant->GetYaxis()->SetTitle("counts");
+    hgeant->GetYaxis()->SetTitleOffset(0.7);
 
     TNtupleD* nt = (TNtupleD*) fmm->Get("nt");
     std::cout<<nt->GetEntries()<<std::endl;
@@ -56,7 +58,7 @@ void plotResGeant(std::string fnamegeant, std::string fnameMM, std::string det, 
     leg->Draw();
     // fitG->Draw("same");
     fitM->Draw("same");
-    gPad->SetLeftMargin(0.08);
+    gPad->SetLeftMargin(0.1);
     gPad->SetRightMargin(0.03);
     c->SaveAs(Form("overlayResidue%s.png", det.c_str()));
 }
@@ -141,14 +143,14 @@ int main(int argc, char* argv[]) {
     plotResGeant("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "asaFEU2_POS05_z3_residues_residueFile.root", "D3", "Layer2/resYLayer2");
     plotResGeant("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "asaFEU4_POS05_z3_residues_residueFile.root", "D4", "Layer4/resYLayer4");
 
-    plotRes("stripFEU1_POS08_z6_residues_residueFile.root", "D1");
-    plotRes("interFEU1_POS13_z1_residues_residueFile.root", "D2");
-    plotRes("asaFEU2_POS05_z3_residues_residueFile.root", "D3");
-    plotRes("asaFEU4_POS05_z3_residues_residueFile.root", "D4");
+    // plotRes("stripFEU1_POS08_z6_residues_residueFile.root", "D1");
+    // plotRes("interFEU1_POS13_z1_residues_residueFile.root", "D2");
+    // plotRes("asaFEU2_POS05_z3_residues_residueFile.root", "D3");
+    // plotRes("asaFEU4_POS05_z3_residues_residueFile.root", "D4");
 
-    plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer0/resYLayer0", "D1");
-    plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer1/resYLayer1", "D2");
-    plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer2/resYLayer2", "D3");
-    plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer4/resYLayer4", "D4");
+    // plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer0/resYLayer0", "D1");
+    // plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer1/resYLayer1", "D2");
+    // plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer2/resYLayer2", "D3");
+    // plotG4("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "Layer4/resYLayer4", "D4");
     return 0;
 }

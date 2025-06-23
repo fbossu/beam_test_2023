@@ -29,6 +29,9 @@ def parse_file(file_path, msc):
             
             if line and not line.startswith('#'):
                 values = line.split('\t')
+                if int(values[1]) < 0 :
+                    i += 3
+                    continue
                 Gdata.append((values[0], values[1], values[2]))
                 i += 1
                 line = lines[i].strip()
@@ -57,7 +60,7 @@ GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, 0)
 # GdataStrip, XdataStrip, YdataStrip = parse_file(file_pathStrip, listmsc[0])
 
 # file_pathInter = './interFEU1Inv/interFEU1_table_res.txt'
-file_pathInter = './testBench/table_urw_inter.txt'
+file_pathInter = './testBench/cl1cut/table_cl1cut_urw_inter.txt'
 GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, 0)
 # GdataInter, XdataInter, YdataInter = parse_file(file_pathInter, listmsc[1])
 
@@ -66,8 +69,11 @@ file_pathPlein = './testBench/table_asa_plein.txt'
 GdataPlein, XdataPlein, YdataPlein = parse_file(file_pathPlein, 0)
 # GdataPlein, XdataPlein, YdataPlein = parse_file(file_pathPlein, listmsc[2])
 
-file_pathAsa = './testBench/table_asa_strip1.txt'
+file_pathAsa = './testBench/cl1cut/table_cl1cut_asa_strip1.txt'
 GdataAsa, XdataAsa, YdataAsa = parse_file(file_pathAsa, 0)
+
+file_pathAsa2 = './testBench/cl1cut/table_cl1cut_asa_strip2.txt'
+GdataAsa2, XdataAsa2, YdataAsa2 = parse_file(file_pathAsa2, 0)
 # GdataAsa, XdataAsa, YdataAsa = parse_file(file_pathAsa, listmsc[4])
 
 
@@ -241,7 +247,65 @@ def plotPitchAsa(XdataStrip, YdataStrip, XdataPlein, YdataPlein, val, yTitle, gr
     # plt.show()
     fig.savefig(graphName)
 
+def plotPitchAsaSingle(XdataStrip, YdataStrip, val, yTitle, graphName):
+    fig = plt.figure( figsize=(10, 8) )
+    fig.subplots_adjust(left=0.135, right=0.98, bottom=0.11, top=0.88)
+    ax1 = fig.add_subplot(111)
 
+    Xtick_locations = [0.8, 1., 1.5, 2.]
+    Xtick_labels = [0.8, 1., 1.5, 2.]
+
+    ax1.set_xticks(Xtick_locations)
+    ax1.set_xticklabels(Xtick_labels)
+
+    # plt.plot([x[0] for x in XdataStrip], [x[4] for x in XdataStrip], 'b.', label='stripFEU1 Xstrips, inter = 0.1 ', markersize=15)
+    # plt.annotate(f'{[x[0] for x in YdataStrip]}', ([x[0] for x in XdataStrip], [x[4] for x in XdataStrip]))
+    # plt.plot([x[0] for x in YdataStrip], [x[4] for x in YdataStrip], 'r.', label='stripFEU1 Ystrips, inter = 0.75', markersize=15)
+    # plt.plot([x[0] for x in YdataInter], [x[4] for x in XdataInter], 'b^', label='interFEU1 Xstrips, inter = 0.1 ', markersize=15)
+    # plt.plot([x[0] for x in YdataInter], [x[4] for x in YdataInter], 'r^', label='interFEU1 Ystrips, inter = 0.5 ', markersize=15)
+    for i, x in enumerate(XdataStrip):
+        if val==40:
+            plt.errorbar(x[0], x[val], xerr=0.0, yerr=x[5], fmt='k.', markersize=15, capsize=5)
+        else :
+            plt.plot(x[0], x[val], 'k.', markersize=15)
+        # plt.annotate(f'{YdataStrip[i][0]}', (x[0], x[4]))
+
+    for i, x in enumerate(YdataStrip):
+        if val==40:
+            plt.errorbar(x[0], x[val], xerr=0.0, yerr=x[5], fmt='m.', markersize=15, capsize=5)
+        else :
+            plt.plot(x[0], x[val], 'm.', markersize=15)
+
+    # Define the line styles
+    line_styles = [Line2D([0], [0], color='k', lw=0, linestyle='-', marker='.', markersize=15),
+                Line2D([0], [0], color='m', lw=0, linestyle='-', marker='.', markersize=15)]
+
+    # Define the labels
+    labels = ['X layer', 'Y layer']
+
+    # Create the legend
+    plt.legend(handles=line_styles, labels=labels, borderaxespad=0.07, fontsize=20)
+
+    ax1.set_xlim(0.5, 2.2)
+    ax1.set_xlabel('Pitch [mm]')
+    ax1.xaxis.grid(True)
+    for side in ['bottom', 'right', 'top', 'left']:
+        ax1.spines[side].set_linewidth(2)
+    
+    # ax1.yaxis.set_major_locator(MaxNLocator(nbins=10))
+    if(val==2) : ax1.set_ylim(1.15, 3.1)
+    if(val==3) : ax1.set_ylim(0.3, 0.7)
+
+    if val == 4:
+        ax1.set_ylabel(yTitle+' [mm]')
+    else :
+        ax1.set_ylabel(yTitle)
+    ax1.text(0.5, 0.5, 'Preliminary', fontsize=80, color='gray', ha='center', va='center', alpha=0.15, rotation=-30, transform=ax1.transAxes)
+    # fig.legend()
+    plt.title(yTitle+' vs Pitch', loc='center')
+    # fig.suptitle(yTitle+' vs Pitch', x=0.51, y=0.98)
+    # plt.show()
+    fig.savefig(graphName)
 
 def plotInter(XdataInter, YdataInter, val, yTitle, graphName):
     fig = plt.figure( figsize=(10, 8) )
@@ -309,14 +373,24 @@ def plotInter(XdataInter, YdataInter, val, yTitle, graphName):
 # plotPitch(XdataStrip, YdataStrip, XdataInter, YdataInter, 3, 'Amplitude fraction', './testBench/amp_vs_Pitch.png')
 
 # plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 4, 'Residues', './testBench/Residues_vs_Pitch_Asa.png')
-plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 2, 'Cluster size', './testBench/clsize_vs_Pitch_Asa.png')
-plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 3, 'Amplitude fraction', './testBench/amp_vs_Pitch_Asa.png')
+# plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 2, 'Cluster size', './testBench/clsize_vs_Pitch_Asa.png')
+# plotPitchAsa(XdataAsa, YdataAsa, XdataPlein, YdataPlein, 3, 'Amplitude fraction', './testBench/amp_vs_Pitch_Asa.png')
+
 
 # plotInter(XdataInter, YdataInter, 2, 'Cluster size', './testBench/clsize_vs_inter_Inter.png')
 # plotInter(XdataInter, YdataInter, 3, 'Amplitude fraction', './testBench/amp_vs_inter_Inter.png')
 
-plotInter(XdataInter, YdataInter, 2, 'Cluster size', './testBench/clsize_vs_inter_Inter.png')
+plotInter(XdataInter, YdataInter, 2, 'Cluster size', './testBench/cl1cut/clsize_vs_inter_Inter.png')
 plotInter(XdataInter, YdataInter, 3, 'Amplitude fraction', './testBench/cl1cut/amp_vs_inter_Inter.png')
+
+plotPitchAsaSingle(XdataAsa, YdataAsa, 2, 'Cluster size', './testBench/cl1cut/asa_strip1_clsize_vs_Pitch_Asa.png')
+plotPitchAsaSingle(XdataAsa, YdataAsa, 3, 'Amplitude fraction', './testBench/cl1cut/asa_strip1_amp_vs_Pitch_Asa.png')
+
+plotPitchAsaSingle(XdataAsa2, YdataAsa2, 2, 'Cluster size', './testBench/cl1cut/asa_strip2_clsize_vs_Pitch_Asa.png')
+plotPitchAsaSingle(XdataAsa2, YdataAsa2, 3, 'Amplitude fraction', './testBench/cl1cut/asa_strip2_amp_vs_Pitch_Asa.png')
+
+plotPitchAsaSingle(XdataPlein, YdataPlein, 2, 'Cluster size', './testBench/asa_plein_clsize_vs_Pitch_Asa.png')
+plotPitchAsaSingle(XdataPlein, YdataPlein, 3, 'Amplitude fraction', './testBench/asa_plein_amp_vs_Pitch_Asa.png')
 
 
 #plot gain of all detectors
