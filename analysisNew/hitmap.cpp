@@ -125,7 +125,8 @@ int main(int argc, char const *argv[])
       std::vector<hit> hitX = getHits(&(*hits), maxX->id);
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
       h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
-      h2gerber->Fill(det.posX(maxY->stripCentroid)[1], det.posY(maxX->stripCentroid)[0]);
+      // h2gerber->Fill(det.posX(maxY->stripCentroid)[1], det.posY(maxX->stripCentroid)[0]);
+      h2gerber->Fill(det.posY(maxX->stripCentroid)[0], det.posX(maxY->stripCentroid)[1]);
       double ampX = totMaxAmp(&hitX, maxX->id);
       double ampY = totMaxAmp(&hitY, maxY->id);
       
