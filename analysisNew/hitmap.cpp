@@ -110,8 +110,7 @@ int main(int argc, char const *argv[])
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
 
   TH2F* h2strip = new TH2F("h2test", "strip number test", 200, -0.5, 128.5, 200, -0.5, 128.5);
-  // TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -20, 120, 200, -120, 20);
-  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -120, 20, 200, -20, 120);
+  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -20, 120, 200, -120, 20);
 
   std::map<int, hist> histMap;
 
@@ -126,8 +125,7 @@ int main(int argc, char const *argv[])
       std::vector<hit> hitX = getHits(&(*hits), maxX->id);
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
       h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
-      // h2gerber->Fill(det.posX(maxY->stripCentroid)[1], det.posY(maxX->stripCentroid)[0]);
-      h2gerber->Fill(det.posY(maxX->stripCentroid)[0], det.posX(maxY->stripCentroid)[1]);
+      h2gerber->Fill(det.posX(maxY->stripCentroid)[1], det.posY(maxX->stripCentroid)[0]);
       double ampX = totMaxAmp(&hitX, maxX->id);
       double ampY = totMaxAmp(&hitY, maxY->id);
       
