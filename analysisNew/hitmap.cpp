@@ -125,8 +125,6 @@ int main(int argc, char const *argv[])
       // if(maxX->size < 2 || maxY->size < 2) continue;
       std::vector<hit> hitX = getHits(&(*hits), maxX->id);
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
-        // std::vector<double> pos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
-      // h2gerber->Fill(pos[0], pos[1]);
       // h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
       h2gerber->Fill(det.posY(maxY->stripCentroid)[0], det.posX(maxX->stripCentroid)[1]);
       double ampX = totMaxAmp(&hitX, maxX->id);
@@ -155,7 +153,7 @@ int main(int argc, char const *argv[])
   h2gerber->Draw("colz");
   h2gerber->GetXaxis()->SetTitle("x position [mm]");
   h2gerber->GetYaxis()->SetTitle("y position [mm]");
-  h2gerber->SetTitle("D3 cluster map");
+  h2gerber->SetTitle("D4 cluster map");
   gPad->SetLogz();
   c2->SetRightMargin(0.15);
   c2->Print(Form("gerberMap_%s.png", detName.c_str()));
