@@ -154,7 +154,7 @@ int main(int argc, char const *argv[])
   h2gerber->GetYaxis()->SetTitle("y position [mm]");
   h2gerber->SetTitle("D1 cluster map");
   gPad->SetLogz();
-  c2->SetPadRightMargin(0.15);
+  c2->SetRightMargin(0.15);
   c2->Print(Form("gerberMap_%s.png", detName.c_str()));
 
   // std::ofstream outfile;
