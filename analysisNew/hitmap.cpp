@@ -110,7 +110,8 @@ int main(int argc, char const *argv[])
   TTreeReaderValue< std::vector<hit> > hits( reader, "hits");
 
   TH2F* h2strip = new TH2F("h2test", "strip number test", 200, -0.5, 128.5, 200, -0.5, 128.5);
-  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -20, 120, 200, -120, 20);
+  // TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -20, 120, 200, -120, 20);
+  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 300, -120, 20, 300, -20, 120);
 
   std::map<int, hist> histMap;
 
@@ -124,8 +125,10 @@ int main(int argc, char const *argv[])
       // if(maxX->size < 2 || maxY->size < 2) continue;
       std::vector<hit> hitX = getHits(&(*hits), maxX->id);
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
-      h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
-      h2gerber->Fill(det.posX(maxY->stripCentroid)[1], det.posY(maxX->stripCentroid)[0]);
+        std::vector<double> pos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+      h2gerber->Fill(pos[0], pos[1]);
+      // h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
+      // h2gerber->Fill(det.posX(maxY->stripCentroid)[1], det.posY(maxX->stripCentroid)[0]);
       double ampX = totMaxAmp(&hitX, maxX->id);
       double ampY = totMaxAmp(&hitY, maxY->id);
       
@@ -148,7 +151,7 @@ int main(int argc, char const *argv[])
   // // gPad->SetLogz();
   // c->Print(Form("stripMap_%s.png", detName.c_str()));
 
-  TCanvas *c2 = new TCanvas("c2", "c2", 1000, 1000);
+  TCanvas *c2 = new TCanvas("c2", "c2", 1200, 1200);
   h2gerber->Draw("colz");
   h2gerber->GetXaxis()->SetTitle("x position [mm]");
   h2gerber->GetYaxis()->SetTitle("y position [mm]");
