@@ -18,7 +18,7 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
-bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>50; }
+bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>350; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
@@ -41,9 +41,9 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   for( auto h : hitcl ){
     // if( h->axis != axis ) std::cout << "ERROR: hits in the same cluster have different axis" << endl;
     h->clusterId = clId;
-    centroidNum += h->channel * (h->maxamp);
-    stripCentroidNum += h->strip * (h->maxamp);
-    centroidDen += h->maxamp;
+    centroidNum += h->channel * (h->maxamp-300);
+    stripCentroidNum += h->strip * (h->maxamp-300);
+    centroidDen += h->maxamp-300;
   }
   cluster cl;
   cl.id = clId;
