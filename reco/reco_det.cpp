@@ -18,7 +18,7 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
-bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>350; }
+bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>450; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
@@ -281,7 +281,7 @@ int main( int argc, char **argv ){
   DreamTable det;
 
   det = DreamTable(basedir + "../map/inter_map.txt", 1, 2, 3, 4);
-  det.setInversion(false, false, false, false);
+  det.setInversion(true, true, true, true);
 
   reco( ch, det );
 
