@@ -70,24 +70,24 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     StripTable det(detMap);
-
-    std::ofstream outfile;
-    outfile.open(Form("%s_table_res.txt", detName.c_str()));
-    outfile<<"#run\tzone\tgain"<<std::endl;
-    outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
-    outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
-
+    
     std::vector<double> xyAll = xy_compareNoBanco(fnameMM, det, -10, Form("%s_zone%d_xy_maxamp.png", detName.c_str(), -10));
 
-    for(int i=0; i<4; i++){
-        std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, i, Form("%s_zone%d_xy_maxamp.png", detName.c_str(), i));
-        std::cout << "clSize X: " << xyout[1] << ", clSize Y: " << xyout[2] << std::endl;
-        std::cout << "ampFrac X: " << xyout[3] << ", ampFrac Y: " << xyout[4] << std::endl;
-        outfile<<Form("POS0%d",i)<<"\t"<<i<<"\t"<<xyout[0]<<std::endl;
-        outfile<<"\t\t"<<det.pitchXzone(i)<<"\t"<<det.interXzone(i)<<"\t"<<xyout[1]<<"\t"<<xyout[3]<<"\t"<<-1<<std::endl;
-        outfile<<"\t\t"<<det.pitchYzone(i)<<"\t"<<det.interYzone(i)<<"\t"<<xyout[2]<<"\t"<<xyout[4]<<"\t"<<-1<<std::endl; 
-    }
-    outfile.close();  
+    // std::ofstream outfile;
+    // outfile.open(Form("%s_table_res.txt", detName.c_str()));
+    // outfile<<"#run\tzone\tgain"<<std::endl;
+    // outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
+    // outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
+
+    // for(int i=0; i<4; i++){
+    //     std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, i, Form("%s_zone%d_xy_maxamp.png", detName.c_str(), i));
+    //     std::cout << "clSize X: " << xyout[1] << ", clSize Y: " << xyout[2] << std::endl;
+    //     std::cout << "ampFrac X: " << xyout[3] << ", ampFrac Y: " << xyout[4] << std::endl;
+    //     outfile<<Form("POS0%d",i)<<"\t"<<i<<"\t"<<xyout[0]<<std::endl;
+    //     outfile<<"\t\t"<<det.pitchXzone(i)<<"\t"<<det.interXzone(i)<<"\t"<<xyout[1]<<"\t"<<xyout[3]<<"\t"<<-1<<std::endl;
+    //     outfile<<"\t\t"<<det.pitchYzone(i)<<"\t"<<det.interYzone(i)<<"\t"<<xyout[2]<<"\t"<<xyout[4]<<"\t"<<-1<<std::endl; 
+    // }
+    // outfile.close();  
     
     return 0;
 }
