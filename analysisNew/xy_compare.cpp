@@ -243,25 +243,15 @@ std::vector<double> xy_compareNoBanco(std::string fname, StripTable det, int zon
         std::shared_ptr<cluster> maxY = maxSizeClY(*cls);
 
         int ampX=0, ampY=0;
-        if(maxX) {
-            nX++;
-            std::vector<double> detPos = det.pos3D(maxX->stripCentroid, 64);
-            ampX = totMaxAmp(&(*hits), maxX->id);
-            Xclsize.push_back(maxX->size);
-        }
-        if(maxY) {
-            nY++;
-            std::vector<double> detPos = det.pos3D(64, maxY->stripCentroid);
-            double res = detPos[0] - tr.x0 - tr.mx*detPos[2];
-            if(abs(res)<5.){
-                ampY = totMaxAmp(&(*hits), maxY->id);
-                Yclsize.push_back(maxY->size);
-            }
-            else maxY = nullptr;
-        }
 
         if(maxX && maxY){
             if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
+            std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+            ampX = totMaxAmp(&(*hits), maxX->id);
+            Xclsize.push_back(maxX->size);
+            ampY = totMaxAmp(&(*hits), maxY->id);
+            Yclsize.push_back(maxY->size);
+
             gainNum += ampX;
             gainNum += ampY;
             gainDen ++;
