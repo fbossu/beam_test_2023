@@ -77,6 +77,8 @@ int main(int argc, char* argv[]) {
     outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
 
+    std::vector<double> xyAll = xy_compareNoBanco(fnameMM, det, -10, Form("%s_zone%d_xy_maxamp.png", detName.c_str(), -10));
+
     for(int i=0; i<4; i++){
         std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, i, Form("%s_zone%d_xy_maxamp.png", detName.c_str(), i));
         std::cout << "clSize X: " << xyout[1] << ", clSize Y: " << xyout[2] << std::endl;

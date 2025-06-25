@@ -218,7 +218,7 @@ std::vector<double> xy_compareNoBanco(std::string fname, StripTable det, int zon
     h2clsize->SetXTitle("cluster size y direction strips");
     h2clsize->SetYTitle("cluster size x direction strips");
 
-    TH2F *ampXY = new TH2F("ampXY", "Amplitude X vs Y", 700, 0, 7500, 700, 0, 7500.);
+    TH2F *ampXY = new TH2F("ampXY", "Amplitude X vs Y", 1000, 0, 3000, 1000, 0, 3000.);
     ampXY->SetXTitle("amplitude Y direction strips [ADC]");
     ampXY->SetYTitle("amplitude X direction strips [ADC]");
 
@@ -245,7 +245,7 @@ std::vector<double> xy_compareNoBanco(std::string fname, StripTable det, int zon
         int ampX=0, ampY=0;
 
         if(maxX && maxY){
-            if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
+            if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone && zone != -10) continue;
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
             ampX = totMaxAmp(&(*hits), maxX->id);
             Xclsize.push_back(maxX->size);
