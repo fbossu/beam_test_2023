@@ -280,7 +280,7 @@ int main( int argc, char **argv ){
   }
   DreamTable det;
 
-  det = DreamTable(basedir + "../map/inter_map.txt", 1, 2, 3, 74);
+  det = DreamTable(basedir + "../map/inter_map.txt", 1, 2, 3, 4);
   det.setInversion(false, false, false, false);
 
   reco( ch, det );
