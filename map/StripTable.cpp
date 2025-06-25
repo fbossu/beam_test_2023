@@ -157,18 +157,22 @@ std::string StripTable::zoneLabel(int z){
 }
 
 float StripTable::pitchXzone(int zone) {
+	if (zone < 0 || zone >= zonePitch.size()) return -1;
     return zonePitch[zone][0];
 }
 
 float StripTable::pitchYzone(int zone) {
+	if (zone < 0 || zone >= zonePitch.size()) return -1;
     return zonePitch[zone][1];
 }
 
 float StripTable::interXzone(int zone) {
+	if (zone < 0 || zone >= zonePitch.size()) return -1;
     return zoneInter[zone][0];
 }
 
 float StripTable::interYzone(int zone) {
+	if (zone < 0 || zone >= zonePitch.size()) return -1;
     return zoneInter[zone][1];
 }
 
