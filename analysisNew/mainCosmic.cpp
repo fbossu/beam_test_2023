@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     }
     StripTable det(detMap);
 
-    std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, 2, "interCosmic_z4_xy_maxamp.png");
+    std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, 4, "interCosmic_z4_xy_maxamp.png");
 
     std::cout << "clSize X: " << xyout[1] << ", clSize Y: " << xyout[2] << std::endl;
     std::cout << "ampFrac X: " << xyout[3] << ", ampFrac Y: " << xyout[4] << std::endl;
