@@ -81,6 +81,7 @@ int main(int argc, char* argv[]) {
     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
 
     for(int i=1; i<2; i++){
+        std::cout<<i<<std::endl;
         // std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, i, Form("%s_zone%d_xy_maxamp_POS6_Xcut.png", detName.c_str(), i));
         std::vector<double> xyout = xy_compare(fnameBanco, fnameMM, det, i, Form("%s_zone%d_xy_maxamp_POS13_Xcut.png", detName.c_str(), i));
         std::cout << "clSize X: " << xyout[1] << ", clSize Y: " << xyout[2] << std::endl;
