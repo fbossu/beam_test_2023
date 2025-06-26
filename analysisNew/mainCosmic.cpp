@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
 
     for(int i=0; i<4; i++){
-        std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, i, Form("%s_zone%d_xy_maxamp_th350.png", detName.c_str(), i));
+        std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, i, Form("%s_zone%d_xy_maxamp_th400_Xcut.png", detName.c_str(), i));
         std::cout << "clSize X: " << xyout[1] << ", clSize Y: " << xyout[2] << std::endl;
         std::cout << "ampFrac X: " << xyout[3] << ", ampFrac Y: " << xyout[4] << std::endl;
         outfile<<Form("POS0%d",i)<<"\t"<<i<<"\t"<<xyout[0]<<std::endl;
