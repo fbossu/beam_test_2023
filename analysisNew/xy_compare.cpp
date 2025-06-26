@@ -133,7 +133,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         }
 
         if(maxX && maxY){
-            // if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
+            if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
             gainNum += ampX;
             gainNum += ampY;
             gainDen ++;
