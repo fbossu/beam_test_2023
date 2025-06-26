@@ -265,7 +265,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         double res = sqrt(pow(detPos[1] - tr.y0 - tr.my*detPos[2], 2) + pow(detPos[0] - tr.x0 - tr.mx*detPos[2], 2));
         if(abs(res) > 5.) continue;
         // if(detPos[0]<-76) continue; // POS11
-        if(detPos[1]<41 || detPos[1]>43) continue; // POS06
+        if(detPos[1]>43) continue; // POS06
         
         ampX = totMaxAmp(&(*hits), maxX->id);
         Xclsize.push_back(maxX->size);
