@@ -247,7 +247,7 @@ std::vector<double> xy_compareNoBanco(std::string fname, StripTable det, int zon
         if(maxX && maxY){
             if(det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone && zone > -1) continue;
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
-            if(detPos[1]>12 && detPos[1]<20) continue;
+            if(detPos[1]>44) continue;
             ampX = totMaxAmp(&(*hits), maxX->id);
             Xclsize.push_back(maxX->size);
             ampY = totMaxAmp(&(*hits), maxY->id);
