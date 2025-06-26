@@ -125,7 +125,7 @@ int main(int argc, char const *argv[])
       // if(maxX->size < 2 || maxY->size < 2) continue;
       std::vector<hit> hitX = getHits(&(*hits), maxX->id);
       std::vector<hit> hitY = getHits(&(*hits), maxY->id);
-      // h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
+      h2strip->Fill(maxY->stripCentroid, maxX->stripCentroid);
       h2gerber->Fill(det.posY(maxY->stripCentroid)[0], det.posX(maxX->stripCentroid)[1]);
       double ampX = totMaxAmp(&hitX, maxX->id);
       double ampY = totMaxAmp(&hitY, maxY->id);
@@ -144,10 +144,10 @@ int main(int argc, char const *argv[])
     }
   }
 
-  // TCanvas *c = new TCanvas("c", "c", 1000, 1000);
-  // h2strip->Draw("colz");
-  // // gPad->SetLogz();
-  // c->Print(Form("stripMap_%s.png", detName.c_str()));
+  TCanvas *c = new TCanvas("c", "c", 1000, 1000);
+  h2strip->Draw("colz");
+  // gPad->SetLogz();
+  c->Print(Form("stripMap_%s.png", detName.c_str()));
 
   TCanvas *c2 = new TCanvas("c2", "c2", 1200, 1200);
   h2gerber->Draw("colz");
