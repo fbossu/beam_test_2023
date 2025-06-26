@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
 
     for(int i=1; i<2; i++){
-        std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + zoneRuns[it->first] + ".txt";
+        std::string alignName = "../map/alignFiles/interFEU1_POS13.txt";
         if(!det.SetAlignFile(alignName)) continue;
         // std::vector<double> xyout = xy_compareNoBanco(fnameMM, det, i, Form("%s_zone%d_xy_maxamp_POS6_Xcut.png", detName.c_str(), i));
         std::vector<double> xyout = xy_compare(fnameBanco, fnameMM, det, i, Form("%s_zone%d_xy_maxamp_POS13_Xcut.png", detName.c_str(), i));
