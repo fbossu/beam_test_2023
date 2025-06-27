@@ -260,7 +260,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
                        [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
 
         int ampX=0, ampY=0;
-        if(maxX==nullptr || maxY==nullptr) continue;
+        if(maxX==nullptr || maxY==nullptr || det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
         std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
         double res = sqrt(pow(detPos[1] - tr.y0 - tr.my*detPos[2], 2) + pow(detPos[0] - tr.x0 - tr.mx*detPos[2], 2));
         if(abs(res) > 5.) continue;
