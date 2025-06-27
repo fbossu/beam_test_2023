@@ -131,6 +131,13 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
         continue;
       }
 
+      double yGerber = det.posX(maxX->stripCentroid)[1];
+      double xGerber = det.posY(maxY->stripCentroid)[0];
+      // if(xGerber<-76) continue; // POS11
+      if(yGerber>43) continue; // POS06
+      // if(yGerber<18) continue; // asaFEU2
+      // if(yGerber > 15 || xGerber > -75) continue; // asaFEU4 POS02
+
       std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
       // detPos = rotation(detPos[0], detPos[1], detPos[2]);
       double xdet = detPos[0];
