@@ -264,8 +264,8 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
         double res = sqrt(pow(detPos[1] - tr.y0 - tr.my*detPos[2], 2) + pow(detPos[0] - tr.x0 - tr.mx*detPos[2], 2));
         if(abs(res) > 5.) continue;
-        double yGerber = det.posX(maxX->stripCentroid);
-        double xGerber = det.posY(maxY->stripCentroid);
+        double yGerber = det.posX(maxX->stripCentroid)[1];
+        double xGerber = det.posY(maxY->stripCentroid)[0];
         // if(xGerber<-76) continue; // POS11
         // if(yGerber>43) continue; // POS06
         // if(yGerber>12) continue; // asaFEU2
