@@ -137,7 +137,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
       // if(yGerber>43) continue; // POS06
       // if(yGerber<18) continue; // asaFEU2
       // if(yGerber > 15 || xGerber > -75) continue; // asaFEU4 POS02
-      if(yGerber<100) continue; // stripFEU1 5mm x region
+      // if(yGerber<100) continue; // stripFEU1 5mm x region
 
       std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
       // detPos = rotation(detPos[0], detPos[1], detPos[2]);
