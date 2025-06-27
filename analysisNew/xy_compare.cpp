@@ -267,8 +267,8 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         double yGerber = det.posX(maxX->stripCentroid)[1];
         double xGerber = det.posY(maxY->stripCentroid)[0];
         // if(xGerber<-76) continue; // POS11
-        // if(yGerber>43) continue; // POS06
-        if(yGerber<18) continue; // asaFEU2
+        if(yGerber>43) continue; // POS06
+        // if(yGerber<18) continue; // asaFEU2
         // if(yGerber > 15 || xGerber > -75) continue; // asaFEU4 POS02
         
         ampX = totMaxAmp(&(*hits), maxX->id);
