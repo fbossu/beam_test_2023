@@ -137,8 +137,8 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
             std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
             double res = sqrt(pow(detPos[1] - tr.y0 - tr.my*detPos[2], 2) + pow(detPos[0] - tr.x0 - tr.mx*detPos[2], 2));
             if(abs(res) > 5.) continue;
-            ampX = totMaxAmp(&(*hits), maxX->id);
-            ampY = totMaxAmp(&(*hits), maxY->id);
+            // ampX = totMaxAmp(&(*hits), maxX->id);
+            // ampY = totMaxAmp(&(*hits), maxY->id);
             gainNum += ampX;
             gainNum += ampY;
             gainDen ++;
