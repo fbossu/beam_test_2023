@@ -263,7 +263,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         if(maxX==nullptr || maxY==nullptr || det.zone(maxX->stripCentroid, maxY->stripCentroid) != zone) continue;
         std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
         double res = sqrt(pow(detPos[1] - tr.y0 - tr.my*detPos[2], 2) + pow(detPos[0] - tr.x0 - tr.mx*detPos[2], 2));
-        if(abs(res) > 5.) continue;
+        if(abs(res) > 2.) continue;
         double yGerber = det.posX(maxX->stripCentroid)[1];
         double xGerber = det.posY(maxY->stripCentroid)[0];
         // if(xGerber<-75) continue; // POS11
