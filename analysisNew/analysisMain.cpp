@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
     std::map<int, std::vector<std::string>> files = parseFiles(zoneRuns, argc, argv);
 
     std::ofstream outfile;
-    outfile.open(Form("%s_table_res.txt", detName.c_str()));
+    outfile.open(Form("%s_table_res_clas2.txt", detName.c_str()));
     outfile<<"#run\tzone\tgain"<<std::endl;
     outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
     outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
     StripTable det(detMap);
 
     for(auto it = files.begin(); it != files.end(); it++){
-        std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + zoneRuns[it->first] + "_cls2.txt";
+        std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + zoneRuns[it->first] + ".txt";
         if(!det.SetAlignFile(alignName)) continue;
         std::cout<<"Zone "<<it->first<<" fMM "<<it->second[1]<<" fBanco "<<it->second[0]<<std::endl;
         std::vector<double> xyout = xy_compare(it->second[0], it->second[1], det, it->first, Form("%s_%s_z%d_xy_maxamp.png", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
