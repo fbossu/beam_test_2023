@@ -277,12 +277,13 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         double resX = detPos[0] - tr.x0 - tr.mx*detPos[2];
         double resY = detPos[1] - tr.y0 - tr.my*detPos[2];
         if(abs(resX) > 5. && abs(resY) > 5.) continue;
+        if(maxX->size < 2 || maxY->size < 2) continue;
         
         double yGerber = det.posX(maxX->stripCentroid)[1];
         double xGerber = det.posY(maxY->stripCentroid)[0];
         // if(xGerber<-75) continue; // POS11
         // if(yGerber>44) continue; // POS06
-        if(yGerber<-48) continue; // POS12
+        // if(yGerber<-48) continue; // POS12
         // if(yGerber<18) continue; // asaFEU2
         // if(yGerber > 15 || xGerber > -75) continue; // asaFEU4 POS02
         // if(yGerber<100) continue; // stripFEU1 5mm x region
