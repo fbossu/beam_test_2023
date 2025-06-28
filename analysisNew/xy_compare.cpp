@@ -295,8 +295,10 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         gainNum += ampX;
         gainNum += ampY;
         gainDen ++;
-        double Xfrac = (double) ampX/(ampX+ampY);
-        double Yfrac = (double) ampY/(ampX+ampY);
+        // double Xfrac = (double) ampX/(ampX+ampY);
+        // double Yfrac = (double) ampY/(ampX+ampY);
+        double Xfrac = (double) ampX;
+        double Yfrac = (double) ampY;
         XampF.push_back(Xfrac);
         YampF.push_back(Yfrac);
         h2clsize->Fill(maxY->size, maxX->size);
