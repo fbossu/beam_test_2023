@@ -18,16 +18,21 @@ void defStyle(){
     gStyle->SetTextFont(43);
     gStyle->SetTextSize(25);
 
-    // Set the font and size for all axis labels
-    gStyle->SetLabelFont(43, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
-    gStyle->SetLabelSize(25, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
+// Set the font and size for all axis labels
+    TGaxis::SetMaxDigits(3);
+    gStyle->SetLabelFont(42, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
+    gStyle->SetLabelSize(0.05, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
 
     // Set the font and size for all axis titles
-    gStyle->SetTitleFont(43, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
-    gStyle->SetTitleSize(25, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleFont(42, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleSize(0.06, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleOffset(0.8, "X"); // Set the offset of the x-axis title
+    gStyle->SetTitleOffset(1., "Y"); // Set the offset of the y-axis title
 
-    gStyle->SetTitleFont(43,"T"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
-    gStyle->SetTitleSize(25,"T"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+    gStyle->SetTitleH(0.08);
+	  gStyle->SetTitleW(1.);
+    gStyle->SetTitleX(0.53);
+    gStyle->SetTitleY(0.98);
 
   // gROOT->SetStyle("myStyle");
   // gROOT->ForceStyle();
@@ -42,7 +47,8 @@ void defStyle(){
     gStyle->SetLineWidth(2);
     gStyle->SetFrameLineWidth(2);
     // gStyle->SetFuncWidth(2);
-    gStyle->SetHistLineWidth(1);
+    gStyle->SetHistLineWidth(2);
+    gROOT->ForceStyle();
 }
 
 std::map<int, std::vector<std::string>> parseFiles(std::map<int, std::string> zoneRuns, int argc, char* argv[]){
