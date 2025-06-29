@@ -252,16 +252,16 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   hx->Draw();
   // gPad->SetLogy();
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
-  latex.DrawLatexNDC(0.72, 0.8, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
 
   // label = "inter: " + std::to_string(Xinter).substr(0, 5);
   // latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
 
   label = "#mu_{X}: " + std::to_string(fitFuncX->GetParameter(1)).substr(0, 5);
-  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
 
-  label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5) + "#pm " + std::to_string(fitFuncX->GetParError(2)).substr(0, 6);
-  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
+  label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5); // + "#pm " + std::to_string(fitFuncX->GetParError(2)).substr(0, 6);
+  latex.DrawLatexNDC(0.65, 0.72, (label).c_str());
 
   c->cd(2);
   hy->Draw();
@@ -275,7 +275,7 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   label = "#mu_{Y}: " + std::to_string(fitFuncY->GetParameter(1)).substr(0, 5);
   latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
 
-  label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5)+ "#pm " + std::to_string(fitFuncY->GetParError(2)).substr(0, 6);
+  label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5); // + "#pm " + std::to_string(fitFuncY->GetParError(2)).substr(0, 6);
   latex.DrawLatexNDC(0.65, 0.72, (label).c_str());
   
   c->cd(3);
