@@ -199,10 +199,12 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
 
-  TH1F* hx = new TH1F("hx", "Residue X strips (track - centroid)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
-  hx->GetXaxis()->SetTitle("residue on y axis (mm)");
-  TH1F* hy = new TH1F("hy", "Residue Y strips (track - centroid)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
-  hy->GetXaxis()->SetTitle("residue on x axis (mm)");
+  TH1F* hx = new TH1F("hx", "Residue X strips (track - detector)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
+  hx->GetXaxis()->SetTitle("residue [mm]");
+  hx->GetYaxis()->SetTitle("counts");
+  TH1F* hy = new TH1F("hy", "Residue Y strips (track - detector)", 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
+  hy->GetXaxis()->SetTitle("residue [mm]");
+  hy->GetYaxis()->SetTitle("counts");
   // nt->Draw("yres>>hx");
   // nt->Draw("xres>>hy");
   nt->Draw(Form("cos(%f)*yres+sin(%f)*ydet>>hx", angleX, angleX));
@@ -219,12 +221,12 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   hy->Fit(fitFuncY, "R");
 
   TH2F* h2x = new TH2F("h2x", "Residue X strips vs y pos", 300, meanydet-4, meanydet+4, 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
-  h2x->GetXaxis()->SetTitle("position y axis (mm)");
-  h2x->GetYaxis()->SetTitle("residue (mm)");
+  h2x->GetXaxis()->SetTitle("position y axis [mm]");
+  h2x->GetYaxis()->SetTitle("residue [mm]");
 
   TH2F* h2y = new TH2F("h2y", "Residue Y strips vs x pos", 300, meanxdet-4, meanxdet+4, 300, meanresx-1.5*avg_std, meanresx+1.5*avg_std);
-  h2y->GetXaxis()->SetTitle("position x axis (mm)");
-  h2y->GetYaxis()->SetTitle("residue (mm)");
+  h2y->GetXaxis()->SetTitle("position x axis [mm]");
+  h2y->GetYaxis()->SetTitle("residue [mm]");
   // nt->Draw("yres:ydet>>h2x");
   // nt->Draw("xres:xdet>>h2y");
   nt->Draw(Form("cos(%f)*yres+sin(%f)*ydet:-sin(%f)*yres+cos(%f)*ydet>>h2x",angleX,angleX,angleX,angleX));
@@ -522,8 +524,8 @@ void plotResidueClsize(std::string resName, std::string graphname){
   TF1* fitFuncX[3];
   TF1* fitFuncY[3];
 
-  THStack* hsx = new THStack("hsx", "residu X strips (track - centroid)");
-  THStack* hsy = new THStack("hsy", "residu Y strips (track - centroid)");
+  THStack* hsx = new THStack("hsx", "residu X strips (track - detector)");
+  THStack* hsy = new THStack("hsy", "residu Y strips (track - detector)");
 
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
@@ -531,11 +533,11 @@ void plotResidueClsize(std::string resName, std::string graphname){
   std::vector<int> color = {kBlue, kRed, kViolet, kOrange-3};
 
   for(int i=0; i<N; i++){
-    hx[i] = new TH1F(Form("hx_%d",i), "residu X strips (track - centroid)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
-    hx[i]->GetXaxis()->SetTitle("residue on y axis (mm)");
+    hx[i] = new TH1F(Form("hx_%d",i), "residu X strips (track - detector)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    hx[i]->GetXaxis()->SetTitle("residue on y axis [mm]");
     hx[i]->SetLineColor(color[i]);
-    hy[i] = new TH1F(Form("hy_%d",i), "residu Y strips (track - centroid)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
-    hy[i]->GetXaxis()->SetTitle("residue on x axis (mm)");
+    hy[i] = new TH1F(Form("hy_%d",i), "residu Y strips (track - detector)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    hy[i]->GetXaxis()->SetTitle("residue on x axis [mm]");
     hy[i]->SetLineColor(color[i]);
     nt->Draw(Form("yres>>hx_%d",i), Form("Xclsize==%d",i+1));
     nt->Draw(Form("xres>>hy_%d",i), Form("Yclsize==%d",i+1));
@@ -555,13 +557,13 @@ void plotResidueClsize(std::string resName, std::string graphname){
     hsy->Add(hy[i]);
 
     h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
-    h2x[i]->GetXaxis()->SetTitle("position y axis (mm)");
-    h2x[i]->GetYaxis()->SetTitle("residue (mm)");
+    h2x[i]->GetXaxis()->SetTitle("position y axis [mm]");
+    h2x[i]->GetYaxis()->SetTitle("residue [mm]");
     h2x[i]->SetMarkerColor(color[i]);
 
     h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
-    h2y[i]->GetXaxis()->SetTitle("position x axis (mm)");
-    h2y[i]->GetYaxis()->SetTitle("residue (mm)");
+    h2y[i]->GetXaxis()->SetTitle("position x axis [mm]");
+    h2y[i]->GetYaxis()->SetTitle("residue [mm]");
     h2y[i]->SetMarkerColor(color[i]);
 
     nt->Draw(Form("yres:ydet>>h2x_%d",i), Form("Xclsize==%d",i+1));
@@ -591,6 +593,8 @@ void plotResidueClsize(std::string resName, std::string graphname){
   c->Divide(2,2);
   c->cd(1);
   hsx->Draw("nostack");
+  hsx->GetXaxis()->SetTitle("residue [mm]");
+  hsx->GetYaxis()->SetTitle("counts");
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
   latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
 
@@ -606,6 +610,8 @@ void plotResidueClsize(std::string resName, std::string graphname){
 
   c->cd(2);
   hsy->Draw("nostack");
+  hsy->GetXaxis()->SetTitle("residue [mm]");
+  hsy->GetYaxis()->SetTitle("counts");
 
   label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
   latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
