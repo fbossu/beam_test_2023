@@ -297,14 +297,14 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         if(abs(resX) > 5. && abs(resY) > 5.) continue;
         // if(maxX->size < 2 || maxY->size < 2) continue;
         if(maxX->size == 3){
-            auto hits = getHits(*hits, maxX->id);
-            hclX_center->Fill(hits[0].timeofmax);
-            hclX_3->Fill(hits[2].timeofmax);
+            auto clHits = getHits(&(*hits), maxX->id);
+            hclX_center->Fill(clHits[0].timeofmax);
+            hclX_3->Fill(clHits[2].timeofmax);
         }
         if(maxY->size == 3){
-            auto hits = getHits(*hits, maxY->id);
-            hclY_center->Fill(hits[0].timeofmax);
-            hclY_3->Fill(hits[2].timeofmax);
+            auto clHits = getHits(&(*hits), maxY->id);
+            hclY_center->Fill(clHits[0].timeofmax);
+            hclY_3->Fill(clHits[2].timeofmax);
         }
         
         double yGerber = det.posX(maxX->stripCentroid)[1];
