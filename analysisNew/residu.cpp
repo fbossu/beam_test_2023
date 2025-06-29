@@ -254,13 +254,14 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
   latex.DrawLatexNDC(0.72, 0.8, (label).c_str());
 
-  label = "inter: " + std::to_string(Xinter).substr(0, 5);
-  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
+  // label = "inter: " + std::to_string(Xinter).substr(0, 5);
+  // latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
+
   label = "#mu_{X}: " + std::to_string(fitFuncX->GetParameter(1)).substr(0, 5);
-  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
 
   label = "#sigma_{X}: " + std::to_string(fitFuncX->GetParameter(2)).substr(0, 5) + "#pm " + std::to_string(fitFuncX->GetParError(2)).substr(0, 6);
-  latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
+  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
 
   c->cd(2);
   hy->Draw();
@@ -293,7 +294,7 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   pry->Draw("same");
   gPad->SetLogz();
   label = "slope="+ std::to_string(fpoly->GetParameter(1)).substr(0, 5);
-  latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
+  // latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
 
   c->Print(graphname.c_str(), "png");
   res->Close();
@@ -593,13 +594,13 @@ void plotResidueClsize(std::string resName, std::string graphname){
   label = "pitch: " + std::to_string(Xpitch).substr(0, 5);
   latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
 
-  label = "inter: " + std::to_string(Xinter).substr(0, 5);
-  latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
+  // label = "inter: " + std::to_string(Xinter).substr(0, 5);
+  // latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
 
   for(int i=0; i<N; i++){
     latex.SetTextColor(color[i]);
     label = Form("size%d: #sigma_{X}=%.3f", i+1, fitFuncX[i]->GetParameter(2));
-    latex.DrawLatexNDC(0.65, 0.72-i*0.04, (label).c_str());
+    latex.DrawLatexNDC(0.65, 0.76-i*0.04, (label).c_str());
     latex.SetTextColor(kBlack);
   }
 
@@ -609,13 +610,13 @@ void plotResidueClsize(std::string resName, std::string graphname){
   label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
   latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
 
-  label = "inter: " + std::to_string(Yinter).substr(0, 5);
-  latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
+  // label = "inter: " + std::to_string(Yinter).substr(0, 5);
+  // latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
 
   for(int i=0; i<N; i++){
     latex.SetTextColor(color[i]);
     label = Form("size%d: #sigma_{Y}=%.3f", i+1, fitFuncY[i]->GetParameter(2));
-    latex.DrawLatexNDC(0.65, 0.72-i*0.04, (label).c_str());
+    latex.DrawLatexNDC(0.65, 0.77-i*0.04, (label).c_str());
     latex.SetTextColor(kBlack);
   }
 
