@@ -385,12 +385,12 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
     tex2->DrawLatexNDC(0.8, 0.2, Form("y pitch: %.2f mm", det.pitchYzone(zone)));
     c2->SaveAs(Form("%s_ampXY.png", graphName.substr(0,graphName.size()-5).c_str()));
 
-    TCanvas* c3 = new TCanvas("c3", "c3", 1600, 1200);
+    TCanvas* c3 = new TCanvas("c3", "c3", 1600, 800);
     c3->Divide(2,1);
     c3->cd(1);
     hclX_center->Draw();
     hclX_3->Draw("same");
-    TLegend* leg2 = new TLegend(0.8, 0.7, 0.95, 0.85);
+    TLegend* leg2 = new TLegend(0.75, 0.7, 1., 0.85);
     leg2->AddEntry(hclX_center, "center strip", "l");
     leg2->AddEntry(hclX_3, "3rd strip", "l");
     leg2->Draw();
