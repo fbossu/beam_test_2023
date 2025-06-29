@@ -266,16 +266,16 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   hy->Draw();
   // gPad->SetLogy();
   label = "pitch: " + std::to_string(Ypitch).substr(0, 5);
-  latex.DrawLatexNDC(0.72, 0.8, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.8, (label).c_str());
 
-  label = "inter: " + std::to_string(Yinter).substr(0, 5);
-  latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
+  // label = "inter: " + std::to_string(Yinter).substr(0, 5);
+  // latex.DrawLatexNDC(0.72, 0.76, (label).c_str());
 
   label = "#mu_{Y}: " + std::to_string(fitFuncY->GetParameter(1)).substr(0, 5);
-  latex.DrawLatexNDC(0.72, 0.72, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.76, (label).c_str());
 
   label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5)+ "#pm " + std::to_string(fitFuncY->GetParError(2)).substr(0, 6);
-  latex.DrawLatexNDC(0.72, 0.68, (label).c_str());
+  latex.DrawLatexNDC(0.65, 0.72, (label).c_str());
   
   c->cd(3);
   TF1 *fpol1 = new TF1("pol1", "pol1", meanydet-1.5, meanydet+1.5);
@@ -284,7 +284,7 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   prx->Draw("same");
   gPad->SetLogz();
   label = "slope="+ std::to_string(fpol1->GetParameter(1)).substr(0, 5);
-  latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
+  // latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
 
   c->cd(4);
   TF1 *fpoly = new TF1("poly", "pol1", meanxdet-1.5, meanxdet+1.5);
