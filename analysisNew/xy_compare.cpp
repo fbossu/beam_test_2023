@@ -233,6 +233,24 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
     ampXY->SetXTitle("amplitude Y direction strips [ADC]");
     ampXY->SetYTitle("amplitude X direction strips [ADC]");
 
+    TH1F *hclX_center = new TH1F("hclX_center", "Time of maximum X strips", 30, 0, 16);
+    hclX_center->SetXTitle("time sample of maximum");
+    hclX_center->SetYTitle("counts");
+    hclX_center->SetLineColor(kBlue);
+    TH1F *hclX_3 = new TH1F("hclX_3", "Time of maximum X strips", 30, 0, 16);
+    hclX_3->SetXTitle("time sample of maximum");
+    hclX_3->SetYTitle("counts");
+    hclX_3->SetLineColor(kRed);
+
+    TH1F *hclY_center = new TH1F("hclY_center", "Time of maximum Y strips", 30, 0, 16);
+    hclY_center->SetXTitle("time sample of maximum");
+    hclY_center->SetYTitle("counts");
+    hclY_center->SetLineColor(kBlue);
+    TH1F *hclY_3 = new TH1F("hclY_3", "Time of maximum Y strips", 30, 0, 16);
+    hclY_3->SetXTitle("time sample of maximum");
+    hclY_3->SetYTitle("counts");
+    hclY_3->SetLineColor(kRed);
+
     TFile* file = TFile::Open(fname.c_str(), "read");
     if (!file) {
         std::cerr << "Error: could not open input file " << fname << std::endl;
@@ -277,7 +295,17 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         double resX = detPos[0] - tr.x0 - tr.mx*detPos[2];
         double resY = detPos[1] - tr.y0 - tr.my*detPos[2];
         if(abs(resX) > 5. && abs(resY) > 5.) continue;
-        if(maxX->size < 2 || maxY->size < 2) continue;
+        // if(maxX->size < 2 || maxY->size < 2) continue;
+        if(maxX->size == 3){
+            auto hits = getHits(*hits, maxX->id);
+            hclX_center->Fill(hits[0].timeofmax);
+            hclX_3->Fill(hits[2].timeofmax);
+        }
+        if(maxY->size == 3){
+            auto hits = getHits(*hits, maxY->id);
+            hclY_center->Fill(hits[0].timeofmax);
+            hclY_3->Fill(hits[2].timeofmax);
+        }
         
         double yGerber = det.posX(maxX->stripCentroid)[1];
         double xGerber = det.posY(maxY->stripCentroid)[0];
@@ -356,6 +384,20 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
     tex2->DrawLatexNDC(0.8, 0.25, Form("x pitch: %.2f mm", det.pitchXzone(zone)));
     tex2->DrawLatexNDC(0.8, 0.2, Form("y pitch: %.2f mm", det.pitchYzone(zone)));
     c2->SaveAs(Form("%s_ampXY.png", graphName.substr(0,graphName.size()-5).c_str()));
+
+    TCanvas* c3 = new TCanvas("c3", "c3", 1600, 1200);
+    c3->Divide(2,1);
+    c3->cd(1);
+    hclX_center->Draw();
+    hclX_3->Draw("same");
+    TLegend* leg2 = new TLegend(0.8, 0.7, 0.95, 0.85);
+    leg2->AddEntry(hclX_center, "center strip", "l");
+    leg2->AddEntry(hclX_3, "3rd strip", "l");
+    leg2->Draw();
+    c3->cd(2);
+    hclY_center->Draw();
+    hclY_3->Draw("same");
+    c3->SaveAs(Form("%s_timeOfMax.png", graphName.substr(0,graphName.size()-5).c_str()));
 
     return {gainNum/gainDen, mean(Xclsize), mean(Yclsize), mean(XampF), mean(YampF)};
 }
