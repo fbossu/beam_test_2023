@@ -524,8 +524,8 @@ void plotResidueClsize(std::string resName, std::string graphname){
   TF1* fitFuncX[3];
   TF1* fitFuncY[3];
 
-  THStack* hsx = new THStack("hsx", "residu X strips (track - detector)");
-  THStack* hsy = new THStack("hsy", "residu Y strips (track - detector)");
+  THStack* hsx = new THStack("hsx", "Residue X strips (track - detector)");
+  THStack* hsy = new THStack("hsy", "Residue Y strips (track - detector)");
 
   // gStyle->SetTextFont(43); // Set the font to Helvetica
   // gStyle->SetTextSize(20); // Set the font size to 0.05
@@ -533,10 +533,10 @@ void plotResidueClsize(std::string resName, std::string graphname){
   std::vector<int> color = {kBlue, kRed, kViolet, kOrange-3};
 
   for(int i=0; i<N; i++){
-    hx[i] = new TH1F(Form("hx_%d",i), "residu X strips (track - detector)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    hx[i] = new TH1F(Form("hx_%d",i), "Residue X strips (track - detector)", 300, meanresy-1.5*stdy, meanresy+1.5*stdy);
     hx[i]->GetXaxis()->SetTitle("residue on y axis [mm]");
     hx[i]->SetLineColor(color[i]);
-    hy[i] = new TH1F(Form("hy_%d",i), "residu Y strips (track - detector)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    hy[i] = new TH1F(Form("hy_%d",i), "Residue Y strips (track - detector)", 300, meanresx-1.5*stdx, meanresx+1.5*stdx);
     hy[i]->GetXaxis()->SetTitle("residue on x axis [mm]");
     hy[i]->SetLineColor(color[i]);
     nt->Draw(Form("yres>>hx_%d",i), Form("Xclsize==%d",i+1));
@@ -556,12 +556,12 @@ void plotResidueClsize(std::string resName, std::string graphname){
     hy[i]->Fit(fitFuncY[i], "R");
     hsy->Add(hy[i]);
 
-    h2x[i] = new TH2F(Form("h2x_%d",i), "residu X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
+    h2x[i] = new TH2F(Form("h2x_%d",i), "Residue X strips vs y pos", 300, meanydet-3, meanydet+3, 200, meanresy-1.5*stdy, meanresy+1.5*stdy);
     h2x[i]->GetXaxis()->SetTitle("position y axis [mm]");
     h2x[i]->GetYaxis()->SetTitle("residue [mm]");
     h2x[i]->SetMarkerColor(color[i]);
 
-    h2y[i] = new TH2F(Form("h2y_%d",i), "residu Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
+    h2y[i] = new TH2F(Form("h2y_%d",i), "Residue Y strips vs x pos", 300, meanxdet-3, meanxdet+3, 200, meanresx-1.5*stdx, meanresx+1.5*stdx);
     h2y[i]->GetXaxis()->SetTitle("position x axis [mm]");
     h2y[i]->GetYaxis()->SetTitle("residue [mm]");
     h2y[i]->SetMarkerColor(color[i]);
