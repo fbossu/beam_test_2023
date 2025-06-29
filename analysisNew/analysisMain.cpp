@@ -7,6 +7,8 @@
 #include "../banco/definition_banco.h"
 #include "../map/StripTable.h"
 #include "TLatex.h"
+#include "TROOT.h"
+#include "TGaxis.h"
 
 #include "analysis.h"
 
