@@ -32,7 +32,7 @@ void defStyle(){
     gStyle->SetTitleOffset(1., "Y"); // Set the offset of the y-axis title
 
     gStyle->SetTitleH(0.08);
-	  gStyle->SetTitleW(1.);
+	gStyle->SetTitleW(1.);
     gStyle->SetTitleX(0.53);
     gStyle->SetTitleY(0.98);
 

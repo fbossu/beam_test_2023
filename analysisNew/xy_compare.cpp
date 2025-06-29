@@ -233,20 +233,20 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
     ampXY->SetXTitle("amplitude Y direction strips [ADC]");
     ampXY->SetYTitle("amplitude X direction strips [ADC]");
 
-    TH1F *hclX_center = new TH1F("hclX_center", "Time of maximum X strips", 30, 0, 16);
+    TH1F *hclX_center = new TH1F("hclX_center", "X strips", 30, 0, 16);
     hclX_center->SetXTitle("time sample of maximum");
     hclX_center->SetYTitle("counts");
     hclX_center->SetLineColor(kBlue);
-    TH1F *hclX_3 = new TH1F("hclX_3", "Time of maximum X strips", 30, 0, 16);
+    TH1F *hclX_3 = new TH1F("hclX_3", "X strips", 30, 0, 16);
     hclX_3->SetXTitle("time sample of maximum");
     hclX_3->SetYTitle("counts");
     hclX_3->SetLineColor(kRed);
 
-    TH1F *hclY_center = new TH1F("hclY_center", "Time of maximum Y strips", 30, 0, 16);
+    TH1F *hclY_center = new TH1F("hclY_center", "Y strips", 30, 0, 16);
     hclY_center->SetXTitle("time sample of maximum");
     hclY_center->SetYTitle("counts");
     hclY_center->SetLineColor(kBlue);
-    TH1F *hclY_3 = new TH1F("hclY_3", "Time of maximum Y strips", 30, 0, 16);
+    TH1F *hclY_3 = new TH1F("hclY_3", "Y strips", 30, 0, 16);
     hclY_3->SetXTitle("time sample of maximum");
     hclY_3->SetYTitle("counts");
     hclY_3->SetLineColor(kRed);
