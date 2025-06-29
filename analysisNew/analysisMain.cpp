@@ -31,7 +31,7 @@ void defStyle(){
     gStyle->SetTitleOffset(0.8, "X"); // Set the offset of the x-axis title
     gStyle->SetTitleOffset(1., "Y"); // Set the offset of the y-axis title
 
-    gStyle->SetTitleH(0.08);
+    gStyle->SetTitleH(0.07);
 	gStyle->SetTitleW(1.);
     gStyle->SetTitleX(0.53);
     gStyle->SetTitleY(0.98);
@@ -41,7 +41,7 @@ void defStyle(){
     // gStyle->SetPalette(kTemperatureMap);
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
-    gStyle->SetPadTopMargin(0.07);
+    gStyle->SetPadTopMargin(0.09);
     gStyle->SetPadBottomMargin(0.12);
     gStyle->SetPadLeftMargin(0.12);
     gStyle->SetPadRightMargin(0.12);

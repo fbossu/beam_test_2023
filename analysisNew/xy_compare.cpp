@@ -390,9 +390,9 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
     c3->cd(1);
     hclX_center->Draw();
     hclX_3->Draw("same");
-    TLegend* leg2 = new TLegend(0.75, 0.7, 1., 0.85);
-    leg2->AddEntry(hclX_center, "center strip", "l");
-    leg2->AddEntry(hclX_3, "3rd strip", "l");
+    TLegend* leg2 = new TLegend(0.7, 0.7, 1., 0.85);
+    leg2->AddEntry(hclX_center, "leading strip", "l");
+    leg2->AddEntry(hclX_3, "trailing strip", "l");
     leg2->Draw();
     c3->cd(2);
     hclY_center->Draw();
