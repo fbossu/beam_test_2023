@@ -669,10 +669,21 @@ int main(int argc, char const *argv[])
 { 
   defStyle();
   std::string fname = argv[1];
-  plotTracks(fname);
-  // std::vector<double> r = plot_all(fname, 1., 0.25, 0.2, 0.8);
+  // plotTracks(fname);
+
+  std::vector<double> r = plot_all(fname, 1., 0.25, 0.1, 0.4);
+  std::ofstream outfile;
+  outfile.open("Layer0_SimuTable_test.txt");
+  outfile<<"#run\tzone\tgain"<<std::endl;
+  outfile<<"#\t\tXpitch\tXinter\tXclsize\tXampF\tXres"<<std::endl;
+  outfile<<"#\t\tYpitch\tYinter\tYclsize\tYampF\tYres"<<std::endl;
+  outfile<<"simu"<<"\t"<<"-1"<<"\t"<<"0"<<std::endl;
+  outfile<<"\t\t"<<1<<"\t"<<0.25<<"\t"<<r[0]<<"\t"<<-1.<<"\t"<<r[1]<<std::endl;
+  outfile<<"\t\t"<<1<<"\t"<<0.25<<"\t"<<r[2]<<"\t"<<-1.<<"\t"<<r[3]<<std::endl;
+  outfile.close();
+  
   // std::cout<<"clsizex=<<r[0]<<", resx="<<r[1]<<", clsizey="<<r[2]<<", resy="<<r[3]<<std::endl;
-  std::vector<double> r = plot_all(fname, 0., 0., 0., 0.);
+  // std::vector<double> r = plot_all(fname, 0., 0., 0., 0.);
   // std::vector<double> pitch = {0.5, 1., 1.5};       // mm
   // std::vector<double> inter =  {0.25, 0.5};         // fraction of pitch
   // std::vector<double> thRatio = {0.1};
