@@ -172,13 +172,13 @@ std::vector<double> timeRes(std::string fnameBanco, std::string fname, StripTabl
     h_timeofmaxX->Draw();
     h_timeofmaxX->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxX->GetYaxis()->SetTitle("counts");
-    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", fx->GetParameter(2), fx->GetParError(2)));
+    l->DrawLatexNDC(0.5, 0.85, Form("#sigma_{X} = %.2f #pm %.2f ns", fx->GetParameter(2), fx->GetParError(2)));
     c->cd(2);
     h_timeofmaxY->Fit(fy, "R");
     h_timeofmaxY->Draw();
     h_timeofmaxY->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxY->GetYaxis()->SetTitle("counts");
-    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", fy->GetParameter(2), fy->GetParError(2)));
+    l->DrawLatexNDC(0.5, 0.85, Form("#sigma_{Y} = %.2f #pm %.2f ns", fy->GetParameter(2), fy->GetParError(2)));
     c->SaveAs((graphName).c_str());
 
 
