@@ -157,8 +157,8 @@ int main(int argc, char* argv[]) {
     }
 
     // fit each histogram with a gaussian centered around 4
-    TF1 *fx = new TF1("fx", "gaus", h_timeofmaxX->GetMean() - 50, h_timeofmaxX->GetMean() + 50);
-    TF1 *fy = new TF1("fy", "gaus", h_timeofmaxY->GetMean() - 50, h_timeofmaxY->GetMean() + 50);
+    TF1 *fx = new TF1("fx", "gaus", h_timeofmaxX->GetMean() - 30, h_timeofmaxX->GetMean() + 30);
+    TF1 *fy = new TF1("fy", "gaus", h_timeofmaxY->GetMean() - 30, h_timeofmaxY->GetMean() + 30);
 
     // gStyle->SetOptFit(1111);
     TLatex *l = new TLatex();
