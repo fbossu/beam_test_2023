@@ -96,6 +96,7 @@ int main(int argc, char* argv[]) {
     std::string run;
     if(fname.find("POS")!=std::string::npos) run = fname.substr(fname.find("POS"), 5);
     std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
+    std::cout << "Using alignment file: " << alignName << std::endl;
     basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
     det.SetAlignFile(alignName);
 
