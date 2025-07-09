@@ -94,10 +94,10 @@ int main(int argc, char* argv[]) {
 
     StripTable det(detMap);
     std::string run;
+    basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
     if(fname.find("POS")!=std::string::npos) run = fname.substr(fname.find("POS"), 5);
     std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
     std::cout << "Using alignment file: " << alignName << std::endl;
-    basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
     det.SetAlignFile(alignName);
 
     TTreeReader reader("events", file);
