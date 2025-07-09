@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
     TTreeReader readerBanco("events", fileBanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 200, 100., 350);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "timeofmax Y", 200, 100., 350);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "Time of max X", 200, 100., 350);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "Time of max Y", 200, 100., 350);
     
     while (reader.Next()) {
         bool isBanco = readerBanco.Next();
@@ -168,15 +168,15 @@ int main(int argc, char* argv[]) {
     c->cd(1);
     h_timeofmaxX->Fit(f, "R");
     h_timeofmaxX->Draw();
-    h_timeofmaxX->GetXaxis()->SetTitle("Time of max [ns]");
-    h_timeofmaxX->GetYaxis()->SetTitle("Counts");
-    l->DrawLatexNDC(0.65, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    h_timeofmaxX->GetXaxis()->SetTitle("time of max [ns]");
+    h_timeofmaxX->GetYaxis()->SetTitle("counts");
+    l->DrawLatexNDC(0.55, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->cd(2);
     h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
-    h_timeofmaxY->GetXaxis()->SetTitle("Time of max [ns]");
-    h_timeofmaxY->GetYaxis()->SetTitle("Counts");
-    l->DrawLatexNDC(0.65, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    h_timeofmaxY->GetXaxis()->SetTitle("time of max [ns]");
+    h_timeofmaxY->GetYaxis()->SetTitle("counts");
+    l->DrawLatexNDC(0.55, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->SaveAs((detName + "_timeofmaxCorr.png").c_str());
 
 
