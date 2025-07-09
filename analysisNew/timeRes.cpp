@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
     TTreeReader readerBanco("events", fileBanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 200, 100., 400);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "timeofmax Y", 200, 100., 400);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 200, 100., 350);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "timeofmax Y", 200, 100., 350);
     
     while (reader.Next()) {
         bool isBanco = readerBanco.Next();
@@ -156,18 +156,23 @@ int main(int argc, char* argv[]) {
     }
 
     // fit each histogram with a gaussian centered around 4
-    TF1 *f = new TF1("f", "gaus", 100, 350);
+    TF1 *f = new TF1("f", "gaus", 170, 230);
     f->SetParameter(1, 250);
 
-    gStyle->SetOptFit(1111);
+    // gStyle->SetOptFit(1111);
+    TLatex *l = new TLatex();
+    l->SetTextSize(0.04);
+    l->SetTextFont(42);
     TCanvas *c = new TCanvas("c", "c", 1600, 800);
     c->Divide(2, 1);
     c->cd(1);
     h_timeofmaxX->Fit(f, "R");
     h_timeofmaxX->Draw();
+    l->DrawLatexNDC(0.8, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->cd(2);
     h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
+    l->DrawLatexNDC(0.8, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->SaveAs((detName + "_timeofmaxCorr.png").c_str());
 
 
