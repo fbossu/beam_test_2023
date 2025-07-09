@@ -143,8 +143,8 @@ int main(int argc, char* argv[]) {
         
         std::vector<double> tRes = timeRes(it->second[0], it->second[1], det, it->first, Form("%s_%s_z%d_timeRes.png", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
         outfile<<it->second[0].substr(it->second[0].find("POS"), 5)<<"\t"<<it->first<<std::endl;
-        outfile<<"\t\t"<<tRes[0]<<std::endl;
-        outfile<<"\t\t"<<tRes[1]<<std::endl; 
+        outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<tRes[0]<<std::endl;
+        outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<tRes[1]<<std::endl;   
     }
 
     // outfile.close();
