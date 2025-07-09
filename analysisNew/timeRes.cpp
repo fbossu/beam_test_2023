@@ -12,6 +12,7 @@
 #include "TF1.h"
 #include "TProfile.h"
 #include "TGraphErrors.h"
+#include "TGaxis.h"
 
 void defStyle(){
   // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
