@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
         std::shared_ptr<cluster> clY = maxSizeClY(*cls);
         double corr = *ftst*10.;
         if(clX && clY){
-            if(clX->size<2 || clY->size<2) continue;
+            // if(clX->size<2 || clY->size<2) continue;
             std::vector<double> detPos = det.pos3D(clX->stripCentroid, clY->stripCentroid);
             double resX = detPos[0] - tr.x0 - tr.mx*detPos[2];
             double resY = detPos[1] - tr.y0 - tr.my*detPos[2];
