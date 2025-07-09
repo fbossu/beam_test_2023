@@ -168,11 +168,15 @@ int main(int argc, char* argv[]) {
     c->cd(1);
     h_timeofmaxX->Fit(f, "R");
     h_timeofmaxX->Draw();
-    l->DrawLatexNDC(0.8, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    h_timeofmaxX->GetXaxis()->SetTitle("Time of max [ns]");
+    h_timeofmaxX->GetYaxis()->SetTitle("Counts");
+    l->DrawLatexNDC(0.65, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->cd(2);
     h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
-    l->DrawLatexNDC(0.8, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    h_timeofmaxY->GetXaxis()->SetTitle("Time of max [ns]");
+    h_timeofmaxY->GetYaxis()->SetTitle("Counts");
+    l->DrawLatexNDC(0.65, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->SaveAs((detName + "_timeofmaxCorr.png").c_str());
 
 
