@@ -17,7 +17,7 @@ analysisMain: analysisMain.cpp analysis.h residu.o xy_compare.o clusterSize.o ti
 	g++ -o analysisMain analysisMain.cpp residu.o xy_compare.o timeRes.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
 
 timeRes.o: timeRes.cpp residu.o xy_compare.o clusterSize.o
-	g++ -c timeRes timeRes.cpp residu.o xy_compare.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
+	g++ -c timeRes.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
 
 overlayResidue: overlayResidue.cpp analysis.h
 	g++ -o overlayResidue overlayResidue.cpp $(DT) $(ROOT)
