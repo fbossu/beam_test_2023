@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
     }
     defStyle();
 
+    std::string basedir = argv[0];
     std::string detName = argv[1];
     std::string fnameBanco = argv[2];
     std::string fname = argv[3];
@@ -75,12 +76,34 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    std::string detMap;
+    if (detName.find("strip") != std::string::npos){
+        detMap = "../map/strip_map.txt";
+    }
+    else if (detName.find("inter") != std::string::npos){
+        detMap = "../map/inter_map.txt";
+    }
+    else if (detName.find("asa") != std::string::npos){
+        detMap = "../map/asa_map.txt";
+    }
+    else {
+        std::cerr << "Error: detector name not recognized" << std::endl;
+        return 1;
+    }
+
+    StripTable det(detMap);
+    std::string run;
+    if(fname.find("POS")!=std::string::npos) run = fname.substr(fname.find("POS"), 5);
+    std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
+    basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
+    det.SetAlignFile(alignName);
+
     TTreeReader reader("events", file);
     TTreeReaderValue<std::vector<cluster>> cls(reader, "clusters");
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
     TTreeReaderValue<uint16_t> ftst(reader, "ftst");
 
-    TTreeReader readerBanco("events", fnamebanco);
+    TTreeReader readerBanco("events", fnameBanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
     TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 80, 0., 500);
