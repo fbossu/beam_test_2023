@@ -13,6 +13,8 @@
 #include "TProfile.h"
 #include "TGraphErrors.h"
 #include "TGaxis.h"
+#include "TLatex.h"
+#include "TROOT.h"
 
 void defStyle(){
   // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
