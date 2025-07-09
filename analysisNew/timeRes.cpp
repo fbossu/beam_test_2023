@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
     TTreeReaderValue<uint16_t> ftst(reader, "ftst");
 
-    TTreeReader readerBanco("events", filebanco);
+    TTreeReader readerBanco("events", fnamebanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
     TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 80, 0., 500);
