@@ -170,13 +170,13 @@ int main(int argc, char* argv[]) {
     h_timeofmaxX->Draw();
     h_timeofmaxX->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxX->GetYaxis()->SetTitle("counts");
-    l->DrawLatexNDC(0.55, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->cd(2);
     h_timeofmaxY->Fit(f, "R");
     h_timeofmaxY->Draw();
     h_timeofmaxY->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxY->GetYaxis()->SetTitle("counts");
-    l->DrawLatexNDC(0.55, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
     c->SaveAs((detName + "_timeofmaxCorr.png").c_str());
 
 
