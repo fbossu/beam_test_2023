@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
     TTreeReader readerBanco("events", fileBanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 80, 0., 500);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "timeofmax Y", 80, 0., 500);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 200, 100., 400);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "timeofmax Y", 200, 100., 400);
     
     while (reader.Next()) {
         bool isBanco = readerBanco.Next();
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
     f->SetParameter(1, 250);
 
     gStyle->SetOptFit(1111);
-    TCanvas *c = new TCanvas("c", "c", 1600, 1200);
+    TCanvas *c = new TCanvas("c", "c", 1600, 800);
     c->Divide(2, 1);
     c->cd(1);
     h_timeofmaxX->Fit(f, "R");
