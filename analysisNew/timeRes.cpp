@@ -157,8 +157,8 @@ int main(int argc, char* argv[]) {
     }
 
     // fit each histogram with a gaussian centered around 4
-    TF1 *f = new TF1("f", "gaus", 170, 230);
-    f->SetParameter(1, 250);
+    TF1 *fx = new TF1("fx", "gaus", h_timeofmaxX->GetMean() - 50, h_timeofmaxX->GetMean() + 50);
+    TF1 *fy = new TF1("fy", "gaus", h_timeofmaxY->GetMean() - 50, h_timeofmaxY->GetMean() + 50);
 
     // gStyle->SetOptFit(1111);
     TLatex *l = new TLatex();
@@ -167,17 +167,17 @@ int main(int argc, char* argv[]) {
     TCanvas *c = new TCanvas("c", "c", 1600, 800);
     c->Divide(2, 1);
     c->cd(1);
-    h_timeofmaxX->Fit(f, "R");
+    h_timeofmaxX->Fit(fx, "R");
     h_timeofmaxX->Draw();
     h_timeofmaxX->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxX->GetYaxis()->SetTitle("counts");
-    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{X} = %.2f #pm %.2f ns", fx->GetParameter(2), fx->GetParError(2)));
     c->cd(2);
-    h_timeofmaxY->Fit(f, "R");
+    h_timeofmaxY->Fit(fy, "R");
     h_timeofmaxY->Draw();
     h_timeofmaxY->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxY->GetYaxis()->SetTitle("counts");
-    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", f->GetParameter(2), f->GetParError(2)));
+    l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", fy->GetParameter(2), fy->GetParError(2)));
     c->SaveAs((detName + "_timeofmaxCorr.png").c_str());
 
 
