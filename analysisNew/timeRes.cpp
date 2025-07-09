@@ -71,6 +71,7 @@ int main(int argc, char* argv[]) {
     std::string fname = argv[3];
 
     TFile* file = TFile::Open(fname.c_str(), "read");
+    TFile* fileBanco = TFile::Open(fnameBanco.c_str(), "read");
     if (!file) {
         std::cerr << "Error: could not open input file " << fname << std::endl;
         return 1;
@@ -103,7 +104,7 @@ int main(int argc, char* argv[]) {
     TTreeReaderValue<std::vector<hit>> hits(reader, "hits");
     TTreeReaderValue<uint16_t> ftst(reader, "ftst");
 
-    TTreeReader readerBanco("events", fnameBanco);
+    TTreeReader readerBanco("events", fileBanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
     TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "timeofmax X", 80, 0., 500);
