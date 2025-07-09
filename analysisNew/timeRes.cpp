@@ -16,89 +16,90 @@
 #include "TLatex.h"
 #include "TROOT.h"
 
-void defStyle(){
-  // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
-  // myStyle = gROOT->GetStyle("Default");
-  // TStyle* myStyle = new TStyle("Plain","Default Style");
-    gStyle->SetName("myStyle");
-    gStyle->SetTextFont(43);
-    gStyle->SetTextSize(25);
+// void defStyle(){
+//   // myStyle = (TStyle*)gStyle->Clone(); // copy the default style
+//   // myStyle = gROOT->GetStyle("Default");
+//   // TStyle* myStyle = new TStyle("Plain","Default Style");
+//     gStyle->SetName("myStyle");
+//     gStyle->SetTextFont(43);
+//     gStyle->SetTextSize(25);
 
-// Set the font and size for all axis labels
-    TGaxis::SetMaxDigits(3);
-    gStyle->SetLabelFont(42, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
-    gStyle->SetLabelSize(0.05, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
+// // Set the font and size for all axis labels
+//     TGaxis::SetMaxDigits(3);
+//     gStyle->SetLabelFont(42, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
+//     gStyle->SetLabelSize(0.05, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
 
-    // Set the font and size for all axis titles
-    gStyle->SetTitleFont(42, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
-    gStyle->SetTitleSize(0.06, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
-    gStyle->SetTitleOffset(0.8, "X"); // Set the offset of the x-axis title
-    gStyle->SetTitleOffset(1., "Y"); // Set the offset of the y-axis title
+//     // Set the font and size for all axis titles
+//     gStyle->SetTitleFont(42, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
+//     gStyle->SetTitleSize(0.06, "XYZ"); // Set the font size for the titles of the x-axis, y-axis, and z-axis
+//     gStyle->SetTitleOffset(0.8, "X"); // Set the offset of the x-axis title
+//     gStyle->SetTitleOffset(1., "Y"); // Set the offset of the y-axis title
 
-    gStyle->SetTitleH(0.07);
-	gStyle->SetTitleW(1.);
-    gStyle->SetTitleX(0.53);
-    gStyle->SetTitleY(0.98);
+//     gStyle->SetTitleH(0.07);
+// 	gStyle->SetTitleW(1.);
+//     gStyle->SetTitleX(0.53);
+//     gStyle->SetTitleY(0.98);
 
-  // gROOT->SetStyle("myStyle");
-  // gROOT->ForceStyle();
-    // gStyle->SetPalette(kTemperatureMap);
-    gStyle->SetOptStat(0);
-    gStyle->SetOptFit(0);
-    gStyle->SetPadTopMargin(0.09);
-    gStyle->SetPadBottomMargin(0.12);
-    gStyle->SetPadLeftMargin(0.12);
-    gStyle->SetPadRightMargin(0.12);
+//   // gROOT->SetStyle("myStyle");
+//   // gROOT->ForceStyle();
+//     // gStyle->SetPalette(kTemperatureMap);
+//     gStyle->SetOptStat(0);
+//     gStyle->SetOptFit(0);
+//     gStyle->SetPadTopMargin(0.09);
+//     gStyle->SetPadBottomMargin(0.12);
+//     gStyle->SetPadLeftMargin(0.12);
+//     gStyle->SetPadRightMargin(0.12);
 
-    gStyle->SetLineWidth(2);
-    gStyle->SetFrameLineWidth(2);
-    // gStyle->SetFuncWidth(2);
-    gStyle->SetHistLineWidth(2);
-    gROOT->ForceStyle();
-}
+//     gStyle->SetLineWidth(2);
+//     gStyle->SetFrameLineWidth(2);
+//     // gStyle->SetFuncWidth(2);
+//     gStyle->SetHistLineWidth(2);
+//     gROOT->ForceStyle();
+// }
 
-int main(int argc, char* argv[]) {
+// int main(int argc, char* argv[]) {
     
-    if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << "<detector name> <banco file> <input file>" << std::endl;
-        return 1;
-    }
-    defStyle();
+    // if (argc < 3) {
+        // std::cerr << "Usage: " << argv[0] << "<detector name> <banco file> <input file>" << std::endl;
+        // return 1;
+    // }
+    // defStyle();
+// 
+    // std::string basedir = argv[0];
+    // std::string detName = argv[1];
+    // std::string fnameBanco = argv[2];
+    // std::string fname = argv[3];
 
-    std::string basedir = argv[0];
-    std::string detName = argv[1];
-    std::string fnameBanco = argv[2];
-    std::string fname = argv[3];
-
+std::vector<double> timeRes(std::string fnameBanco, std::string fname, StripTable det, int zone, std::string graphName){
     TFile* file = TFile::Open(fname.c_str(), "read");
     TFile* fileBanco = TFile::Open(fnameBanco.c_str(), "read");
     if (!file) {
         std::cerr << "Error: could not open input file " << fname << std::endl;
-        return 1;
+        // return 1;
     }
 
-    std::string detMap;
-    if (detName.find("strip") != std::string::npos){
-        detMap = "../map/strip_map.txt";
-    }
-    else if (detName.find("inter") != std::string::npos){
-        detMap = "../map/inter_map.txt";
-    }
-    else if (detName.find("asa") != std::string::npos){
-        detMap = "../map/asa_map.txt";
-    }
-    else {
-        std::cerr << "Error: detector name not recognized" << std::endl;
-        return 1;
-    }
+    // std::string detMap;
+    // if (detName.find("strip") != std::string::npos){
+    //     detMap = "../map/strip_map.txt";
+    // }
+    // else if (detName.find("inter") != std::string::npos){
+    //     detMap = "../map/inter_map.txt";
+    // }
+    // else if (detName.find("asa") != std::string::npos){
+    //     detMap = "../map/asa_map.txt";
+    // }
+    // else {
+    //     std::cerr << "Error: detector name not recognized" << std::endl;
+    //     return 1;
+    // }
 
-    StripTable det(detMap);
-    std::string run;
-    basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
-    if(fname.find("POS")!=std::string::npos) run = fname.substr(fname.find("POS"), 5);
-    std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
-    std::cout << "Using alignment file: " << alignName << std::endl;
-    det.SetAlignFile(alignName);
+    // StripTable det(detMap);
+    // std::string run;
+    // basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
+    // if(fname.find("POS")!=std::string::npos) run = fname.substr(fname.find("POS"), 5);
+    // std::string alignName = basedir + "../map/alignFiles/" + detName + "_" + run + ".txt";
+    // std::cout << "Using alignment file: " << alignName << std::endl;
+    // det.SetAlignFile(alignName);
 
     TTreeReader reader("events", file);
     TTreeReaderValue<std::vector<cluster>> cls(reader, "clusters");
@@ -178,7 +179,7 @@ int main(int argc, char* argv[]) {
     h_timeofmaxY->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxY->GetYaxis()->SetTitle("counts");
     l->DrawLatexNDC(0.5, 0.8, Form("#sigma_{Y} = %.2f #pm %.2f ns", fy->GetParameter(2), fy->GetParError(2)));
-    c->SaveAs((detName + "_timeofmaxCorr.png").c_str());
+    c->SaveAs((graphName).c_str());
 
 
     // plot the relative time diff between P2 detectors on FEU5
@@ -253,5 +254,6 @@ int main(int argc, char* argv[]) {
 //     gr->GetYaxis()->SetTitle("Sigma time of max corrected [ns]");
 //     c6->SaveAs("P2_1_timeofmaxCorr_vs_maxAmp_sigma.png");
         
-    return 0;
+    // return 0;
+    return {fx->GetParameter(2), fy->GetParameter(2)};
 }

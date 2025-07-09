@@ -54,4 +54,7 @@ std::vector<double> ResiduePlotAll(StripTable det, std::string fnameBanco, std::
 std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable det, int zone, std::string graphName);
 std::vector<double> xy_compareNoBanco(std::string fname, StripTable det, int zone, std::string graphName);
 
+// timeRes.cpp functions
+std::vector<double> timeRes(std::string fBanco, std::string fname, StripTable det, int zone, std::string graphName);
+
 #endif
