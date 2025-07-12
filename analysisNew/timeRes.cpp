@@ -109,8 +109,8 @@ std::vector<double> timeRes(std::string fnameBanco, std::string fname, StripTabl
     TTreeReader readerBanco("events", fileBanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "D1", 200, 100., 350);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "D1", 200, 100., 350);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "D4", 200, 100., 350);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "D4", 200, 100., 350);
     
     while (reader.Next()) {
         bool isBanco = readerBanco.Next();
