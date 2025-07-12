@@ -109,8 +109,8 @@ std::vector<double> timeRes(std::string fnameBanco, std::string fname, StripTabl
     TTreeReader readerBanco("events", fileBanco);
     TTreeReaderValue< std::vector<banco::track> > tracks(readerBanco, "tracks");
 
-    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "Time of max X", 200, 100., 350);
-    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "Time of max Y", 200, 100., 350);
+    TH1F *h_timeofmaxX = new TH1F("h_timeofmaxX", "D1", 200, 100., 350);
+    TH1F *h_timeofmaxY = new TH1F("h_timeofmaxY", "D1", 200, 100., 350);
     
     while (reader.Next()) {
         bool isBanco = readerBanco.Next();
@@ -165,21 +165,20 @@ std::vector<double> timeRes(std::string fnameBanco, std::string fname, StripTabl
     TLatex *l = new TLatex();
     l->SetTextSize(0.04);
     l->SetTextFont(42);
-    TCanvas *c = new TCanvas("c", "c", 1600, 800);
-    c->Divide(2, 1);
-    c->cd(1);
+    TCanvas *c = new TCanvas("c", "c", 1000, 800);
     h_timeofmaxX->Fit(fx, "R");
     h_timeofmaxX->Draw();
     h_timeofmaxX->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxX->GetYaxis()->SetTitle("counts");
     l->DrawLatexNDC(0.5, 0.85, Form("#sigma_{X} = %.2f #pm %.2f ns", fx->GetParameter(2), fx->GetParError(2)));
-    c->cd(2);
+    c->SaveAs(("X_" + graphName).c_str());
+    TCanvas *c2 = new TCanvas("c2", "c2", 1000, 800);
     h_timeofmaxY->Fit(fy, "R");
     h_timeofmaxY->Draw();
     h_timeofmaxY->GetXaxis()->SetTitle("time of max [ns]");
     h_timeofmaxY->GetYaxis()->SetTitle("counts");
     l->DrawLatexNDC(0.5, 0.85, Form("#sigma_{Y} = %.2f #pm %.2f ns", fy->GetParameter(2), fy->GetParError(2)));
-    c->SaveAs((graphName).c_str());
+    c2->SaveAs(("Y_" + graphName).c_str());
 
 
     // plot the relative time diff between P2 detectors on FEU5
