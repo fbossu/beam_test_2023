@@ -130,7 +130,7 @@ std::vector<double> timeRes(std::string fnameBanco, std::string fname, StripTabl
             std::vector<double> detPos = det.pos3D(clX->stripCentroid, clY->stripCentroid);
             double resX = detPos[0] - tr.x0 - tr.mx*detPos[2];
             double resY = detPos[1] - tr.y0 - tr.my*detPos[2];
-            if(abs(resX) > 5. && abs(resY) > 5.) continue;
+            if(abs(resX) > 5. && abs(resY) > 1.) continue;
 
             auto hX = getHits(&(*hits), clX->id);
             if(hX[0].maxamp>400) h_timeofmaxX->Fill(hX[0].timeofmax*50+corr);
