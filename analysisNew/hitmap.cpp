@@ -111,7 +111,7 @@ int main(int argc, char const *argv[])
 
   TH2F* h2strip = new TH2F("h2test", "strip number test", 200, -0.5, 128.5, 200, -0.5, 128.5);
   // TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -20, 120, 200, -120, 20);
-  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 300, -120, 20, 300, -20, 120);
+  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 500, -120, 20, 500, -20, 120);
 
   std::map<int, hist> histMap;
 
@@ -153,7 +153,7 @@ int main(int argc, char const *argv[])
   h2gerber->Draw("colz");
   h2gerber->GetXaxis()->SetTitle("x position [mm]");
   h2gerber->GetYaxis()->SetTitle("y position [mm]");
-  h2gerber->SetTitle("D4 cluster map");
+  h2gerber->SetTitle("D3 cluster map");
   gPad->SetLogz();
   c2->SetRightMargin(0.15);
   c2->Print(Form("gerberMap_%s.png", detName.c_str()));
