@@ -1,4 +1,4 @@
-all: clusterSize.o xy_compare.o residu.o timeRes.o analysisMain overlayResidue spectreP2 hitmap
+all: hitmap clusterSize.o xy_compare.o residu.o timeRes.o analysisMain overlayResidue spectreP2
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs ) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
