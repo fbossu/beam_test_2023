@@ -134,17 +134,17 @@ int main(int argc, char* argv[]) {
         if(!det.SetAlignFile(alignName)) continue;
         std::cout<<"Zone "<<it->first<<" fMM "<<it->second[1]<<" fBanco "<<it->second[0]<<std::endl;
 
-        // std::vector<double> xyout = xy_compare(it->second[0], it->second[1], det, it->first, Form("%s_%s_z%d_xy_maxamp.png", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
-        // std::vector<double> resXY = ResiduePlotAll(det, it->second[0], it->second[1], Form("%s_%s_z%d_residues", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
-        // clusterSizeFile(it->second[1], detName, det, it->first);
-        // outfile<<it->second[0].substr(it->second[0].find("POS"), 5)<<"\t"<<it->first<<"\t"<<xyout[0]<<std::endl;
-        // outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<xyout[1]<<"\t"<<xyout[3]<<"\t"<<resXY[0]<<std::endl;
-        // outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<xyout[2]<<"\t"<<xyout[4]<<"\t"<<resXY[1]<<std::endl;   
+        std::vector<double> xyout = xy_compare(it->second[0], it->second[1], det, it->first, Form("%s_%s_z%d_xy_maxamp.png", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
+        std::vector<double> resXY = ResiduePlotAll(det, it->second[0], it->second[1], Form("%s_%s_z%d_residues", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
+        clusterSizeFile(it->second[1], detName, det, it->first);
+        outfile<<it->second[0].substr(it->second[0].find("POS"), 5)<<"\t"<<it->first<<"\t"<<xyout[0]<<std::endl;
+        outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<xyout[1]<<"\t"<<xyout[3]<<"\t"<<resXY[0]<<std::endl;
+        outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<xyout[2]<<"\t"<<xyout[4]<<"\t"<<resXY[1]<<std::endl;   
         
-        std::vector<double> tRes = timeRes(it->second[0], it->second[1], det, it->first, Form("%s_%s_z%d_timeRes.png", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
-        outfile<<it->second[0].substr(it->second[0].find("POS"), 5)<<"\t"<<it->first<<std::endl;
-        outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<tRes[0]<<std::endl;
-        outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<tRes[1]<<std::endl;   
+        // std::vector<double> tRes = timeRes(it->second[0], it->second[1], det, it->first, Form("%s_%s_z%d_timeRes.png", detName.c_str(), (zoneRuns[it->first]).c_str(), it->first));
+        // outfile<<it->second[0].substr(it->second[0].find("POS"), 5)<<"\t"<<it->first<<std::endl;
+        // outfile<<"\t\t"<<det.pitchXzone(it->first)<<"\t"<<det.interXzone(it->first)<<"\t"<<tRes[0]<<std::endl;
+        // outfile<<"\t\t"<<det.pitchYzone(it->first)<<"\t"<<det.interYzone(it->first)<<"\t"<<tRes[1]<<std::endl;   
     }
 
     // outfile.close();

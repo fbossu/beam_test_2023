@@ -294,7 +294,7 @@ std::vector<double> xy_compare(std::string fBanco, std::string fname, StripTable
         
         double resX = detPos[0] - tr.x0 - tr.mx*detPos[2];
         double resY = detPos[1] - tr.y0 - tr.my*detPos[2];
-        if(abs(resX) > 5. && abs(resY) > 5.) continue;
+        if(abs(resX) > 2. && abs(resY) > 2.) continue;
         // if(maxX->size < 2 || maxY->size < 2) continue;
         if(maxX->size == 3){
             auto clHits = getHits(&(*hits), maxX->id);
