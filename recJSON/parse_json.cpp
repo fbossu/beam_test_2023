@@ -26,13 +26,23 @@ std::vector<std::string> ParseJson::subRuns(){
 std::vector<std::string> ParseJson::decodeFiles(std::string subRun){
     std::vector<std::string> files;
     std::string path = strJson["run_out_dir"].get<std::string>() + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
-    for (const auto& entry : fs::directory_iterator(path)){
-        if(entry.path().extension() == ".root" && entry.path().filename().string().find("decoded") != std::string::npos && entry.path().filename().string().find("_array_") == std::string::npos){
-            if(entry.path().filename().string().find(printf("_0%d", this->feu())) != std::string::npos){
-                files.push_back(entry.path().string());
+    DIR* dir;
+    struct dirent* entry;
+    if ((dir = opendir(path.c_str())) == nullptr) {
+        std::cerr << "Could not open directory: " << path << std::endl;
+        return files;
+    }
+    while ((entry = readdir(dir)) != nullptr) {
+        if (entry->d_type == DT_REG) {
+            std::string filename = entry->d_name;
+            if (filename.find("decoded") != std::string::npos && filename.find("_array_") == std::string::npos) {
+                if (filename.find(printf("_0%d", this->feu())) != std::string::npos) {
+                    files.push_back(path + filename);
+                }
             }
         }
     }
+    closedir(dir);
     return files;
 }
 

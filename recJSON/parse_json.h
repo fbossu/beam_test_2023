@@ -5,10 +5,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <dirent.h>
 #include <nlohmann/json.hpp>
-#include <filesystem>
 
-namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 class ParseJson {
