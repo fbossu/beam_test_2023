@@ -280,6 +280,10 @@ int main( int argc, char **argv ){
   // }
   ParseJson pj(argv[1], argv[2]);
   std::vector<std::string> subRuns = pj.subRuns();
+  if(subRuns.size() == 0){
+    std::cerr << "No subruns found in JSON file " << argv[1] << std::endl;
+    return 1;
+  }
   std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
   for(auto f : decodedFiles){
     ch->Add(f.c_str());
