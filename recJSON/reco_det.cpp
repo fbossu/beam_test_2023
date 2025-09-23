@@ -2,7 +2,7 @@
 #include "TChain.h"
 #include "TTree.h"
 #include "TInterpreter.h"
-#include "definitions.h"
+#include "../reco/definitions.h"
 
 #include <vector>
 #include <string>
@@ -11,7 +11,7 @@
 #include <iomanip>
 
 #include "../map/DreamTable.h"
-#include "../recJSON/parse_json.h"
+#include "parse_json.h"
 
 using namespace std;
 
@@ -278,7 +278,7 @@ int main( int argc, char **argv ){
   for( int i = 3; i < argc; i++){
     ch->Add( argv[i] );
   }
-  ParseJson pj(argv[1], argv[2])
+  ParseJson pj(argv[1], argv[2]);
   DreamTable det;
 
   det = DreamTable(basedir + "../map/inter_map.txt", pj.x1Feu(), pj.x2Feu(), pj.y1Feu(), pj.y2Feu());
