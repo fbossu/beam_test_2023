@@ -26,6 +26,11 @@ std::vector<std::string> ParseJson::subRuns(){
 std::vector<std::string> ParseJson::decodeFiles(std::string subRun){
     std::vector<std::string> files;
     std::string path = strJson["run_out_dir"].get<std::string>() + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
+    
+    std::ostringstream oss;
+    oss << "_0" << this->feu() << "_";
+    std::string feuTag = oss.str();
+
     DIR* dir;
     struct dirent* entry;
     if ((dir = opendir(path.c_str())) == nullptr) {
@@ -36,7 +41,7 @@ std::vector<std::string> ParseJson::decodeFiles(std::string subRun){
         if (entry->d_type == DT_REG) {
             std::string filename = entry->d_name;
             if (filename.find("decoded") != std::string::npos && filename.find("_array_") == std::string::npos) {
-                if (filename.find(printf("_0%d", this->feu())) != std::string::npos) {
+                if (filename.find(feuTag) != std::string::npos) {
                     files.push_back(path + filename);
                 }
             }
