@@ -284,6 +284,11 @@ int main( int argc, char **argv ){
     std::cerr << "No subruns found in JSON file " << argv[1] << std::endl;
     return 1;
   }
+
+  std::cout << "Found " << subRuns.size() << " subruns in JSON file " << argv[1] << std::endl;
+  for(auto sr : subRuns){
+    std::cout << "Subrun: " << sr << std::endl;
+  }
   std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
   for(auto f : decodedFiles){
     ch->Add(f.c_str());
