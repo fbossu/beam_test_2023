@@ -4,8 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <nlohmann/json.hpp>
+#include <filesystem>
 
+namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 class ParseJson {
@@ -14,14 +17,16 @@ class ParseJson {
         ~ParseJson()=default;
 
         ParseJson(std::string jsonPath, std::string detName);
-        std::string decodePath();
+        std::vector<std::string> subRuns();
+        std::vector<std::string> decodeFiles(std::string subRun);
         // std::string recoPath(); could be added to json
         // std::string mapPath(); could be added to json
         std::string runName();
-        int x1Feu();
-        int x2Feu();
-        int y1Feu();
-        int y2Feu();
+        int feu();
+        int x1Dream();
+        int x2Dream();
+        int y1Dream();
+        int y2Dream();
 
     private:
         std::string jsonPath, detName;

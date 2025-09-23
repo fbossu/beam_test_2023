@@ -42,9 +42,9 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   for( auto h : hitcl ){
     // if( h->axis != axis ) std::cout << "ERROR: hits in the same cluster have different axis" << endl;
     h->clusterId = clId;
-    centroidNum += h->channel * (h->maxamp-300);
-    stripCentroidNum += h->strip * (h->maxamp-300);
-    centroidDen += h->maxamp-300;
+    centroidNum += h->channel * (h->maxamp-256);
+    stripCentroidNum += h->strip * (h->maxamp-256);
+    centroidDen += h->maxamp-256;
   }
   cluster cl;
   cl.id = clId;
@@ -275,13 +275,19 @@ int main( int argc, char **argv ){
   }
 
   TChain *ch = new TChain("nt");
-  for( int i = 3; i < argc; i++){
-    ch->Add( argv[i] );
-  }
+  // for( int i = 3; i < argc; i++){
+  //   ch->Add( argv[i] );
+  // }
   ParseJson pj(argv[1], argv[2]);
+  std::vector<std::string> subRuns = pj.subRuns();
+  std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
+  for(auto f : decodedFiles){
+    ch->Add(f.c_str());
+    std::cout << "Added file " << f << std::endl;
+  }
   DreamTable det;
 
-  det = DreamTable(basedir + "../map/inter_map.txt", pj.x1Feu(), pj.x2Feu(), pj.y1Feu(), pj.y2Feu());
+  det = DreamTable(basedir + "../map/inter_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
   det.setInversion(false, false, false, false);
   string outFile = "test.root";
 
