@@ -267,17 +267,14 @@ int main( int argc, char **argv ){
 
   string basedir = argv[0];
   basedir = basedir.substr(0, basedir.size()-8);
-  cout << basedir << endl;
+
   if( argc < 2 ) {
-    // cerr << " no file name specified \n";
-    cerr << " At least two arguments need to be specified";
+    cerr << " Usage: " << argv[0] << " <json_file> <detector_name> " << endl;
     return 1;
   }
 
   TChain *ch = new TChain("nt");
-  // for( int i = 3; i < argc; i++){
-  //   ch->Add( argv[i] );
-  // }
+
   ParseJson pj(argv[1], argv[2]);
   std::vector<std::string> subRuns = pj.subRuns();
   if(subRuns.size() == 0){
@@ -297,7 +294,7 @@ int main( int argc, char **argv ){
     std::cout << "Added file " << f << std::endl;
   }
   std::cout << std::endl;
-  std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
+  std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << ", " << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
 
   DreamTable det;
   det = DreamTable(basedir + "../map/inter_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
