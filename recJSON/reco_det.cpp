@@ -282,13 +282,13 @@ int main( int argc, char **argv ){
     return 1;
   }
 
-  std::cout << "Found " << subRuns.size() << " subruns in JSON file " << argv[1] << ":" << std::endl;
+  std::cout << "Found " << subRuns.size() << " subruns in JSON file: " << argv[1] << ":" << std::endl;
   for(auto sr : subRuns){
     std::cout << " "<< sr << ",";
   }
   std::cout << std::endl;
   std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
-  std::cout << "Found " << decodedFiles.size() << " decoded files in subrun " << subRuns[0] << std::endl;
+  std::cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << subRuns[0] << std::endl;
   for(auto f : decodedFiles){
     ch->Add(f.c_str());
     std::cout << "Added file " << f << std::endl;
@@ -300,7 +300,7 @@ int main( int argc, char **argv ){
   det = DreamTable(basedir + "../map/inter_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
   det.setInversion(false, false, false, false);
   string outFile = "test.root";
-
+  std::cout << "Output file: " << outFile << std::endl;
   reco(ch, det, outFile);
 
   return 0;
