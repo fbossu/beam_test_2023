@@ -287,9 +287,10 @@ int main( int argc, char **argv ){
 
   std::cout << "Found " << subRuns.size() << " subruns in JSON file " << argv[1] << std::endl;
   for(auto sr : subRuns){
-    std::cout << "Subrun: " << sr << std::endl;
+    std::cout << "Sub run: " << sr << std::endl;
   }
   std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
+  std::cout << "Found " << decodedFiles.size() << " decoded files in subrun " << subRuns[0] << std::endl;
   for(auto f : decodedFiles){
     ch->Add(f.c_str());
     std::cout << "Added file " << f << std::endl;
