@@ -16,7 +16,7 @@ ParseJson::ParseJson(std::string jsonPath, std::string detName): jsonPath(jsonPa
 // list of subruns
 std::vector<std::string> ParseJson::subRuns(){
     std::vector<std::string> subruns;
-    for(auto it = strJson["subruns"].begin(); it != strJson["subruns"].end(); ++it){
+    for(auto it = strJson["sub_runs"].begin(); it != strJson["subruns"].end(); ++it){
         subruns.push_back(it.value()["subrun_name"].get<std::string>());
     }
     return subruns;
