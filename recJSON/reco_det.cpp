@@ -116,10 +116,10 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
       tmp_evId++;
     }
 
-    for(auto i : *channel) {
-      std::cout << i << " ";
-    }
-    std::cout << std::endl;
+    // for(auto i : *channel) {
+    //   std::cout << i << " ";
+    // }
+    // std::cout << std::endl;
 
     out_timestamp = timestamp;
     out_delta_timestamp = delta_timestamp;
@@ -295,11 +295,11 @@ int main( int argc, char **argv ){
   std::cout << std::endl;
   std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
   std::cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << subRuns[0] << std::endl;
-  for(auto f : decodedFiles){
-    ch->Add(f.c_str());
-    std::cout << "Added file " << f << std::endl;
-  }
-  // ch->Add("../decode/ftest.root");
+  // for(auto f : decodedFiles){
+    // ch->Add(f.c_str());
+    // std::cout << "Added file " << f << std::endl;
+  // }
+  ch->Add("../decode/ftest.root");
   std::cout << std::endl;
   std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << ", " << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
 
