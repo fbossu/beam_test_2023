@@ -299,7 +299,7 @@ int main( int argc, char **argv ){
   //   ch->Add(f.c_str());
   //   std::cout << "Added file " << f << std::endl;
   // }
-  ch->Add("../decoded/ftest.root");
+  ch->Add("../decode/ftest.root");
   std::cout << std::endl;
   std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << ", " << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
 
