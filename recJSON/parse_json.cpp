@@ -40,7 +40,7 @@ std::vector<std::string> ParseJson::decodeFiles(std::string subRun){
     while ((entry = readdir(dir)) != nullptr) {
         if (entry->d_type == DT_REG) {
             std::string filename = entry->d_name;
-            if (filename.find("decoded") != std::string::npos && filename.find("_array_") == std::string::npos) {
+            if (filename.find("decoded") != std::string::npos && filename.find("_array_") != std::string::npos) {
                 if (filename.find(feuTag) != std::string::npos) {
                     files.push_back(path + filename);
                 }
