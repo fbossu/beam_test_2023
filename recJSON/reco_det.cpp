@@ -100,10 +100,10 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
   // loop over the events
   // --------------------
   std::cout << "Processing " << nt->GetEntries() << " events " << std::endl;
-  for ( int iev=0; iev<nt->GetEntries() ; iev++){
+  for ( int iev=0; iev<nt->GetEntries(); iev++){
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
     nt->GetEntry(iev);
-    // std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl;
+    std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl;
 
     // if( iev>10 ) break;
     // add empty events for those that have been lost
