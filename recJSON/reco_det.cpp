@@ -99,6 +99,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
   uint64_t tmp_evId = 1;
   // loop over the events
   // --------------------
+  std::cout << "Processing " << nt->GetEntries() << " events " << std::endl;
   for ( int iev=0; iev<nt->GetEntries() ; iev++){
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
     nt->GetEntry(iev);
