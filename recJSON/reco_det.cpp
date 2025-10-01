@@ -116,11 +116,11 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
       tmp_evId++;
     }
 
-    for(auto i : channel) {
+    for(auto i : *channel) {
       std::cout << i << " ";
     }
     std::cout << std::endl;
-    
+
     out_timestamp = timestamp;
     out_delta_timestamp = delta_timestamp;
     out_ftst = ftst;
