@@ -188,7 +188,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
     for( auto &sm : sampmax){
       std::cout << sm.first << " " << sm.second << std::endl;
       auto amp = amplitudes[sm.first];
-      std::cout << amp.size() << std::endl;
+      std::cout << "amp size" << amp.size() << std::endl;
       if( sm.second == 0 || sm.second==amp.size()-1 ) { tmax[sm.first] = sm.second; continue; } 
 
       float x0 = (float) (sm.second - 1.);
