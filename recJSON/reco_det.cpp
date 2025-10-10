@@ -59,7 +59,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
 // =====================================================================
 bool JustHits = false;
 // =====================================================================
-void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
+void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSample=16) {
 
   uint64_t eventId;
   uint64_t timestamp;
@@ -145,8 +145,11 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
         std::cout << "Skipping unconnected channel " << jch << std::endl;
         continue;
       }
-         
-      amplitudes[jch].push_back(ampl->at(j));
+
+      if( amplitudes.find( jch ) == amplitudes.end() ){
+        amplitudes[jch] = std::vector<uint16_t>(nbSample, -1);
+      }
+      amplitudes[jch][sample->at(j)] = ampl->at(j);
 
       // find maximum amplitude and its associated sample
       if( maxamp.find( jch ) == maxamp.end() ){
@@ -190,7 +193,6 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
       else flex[a.first] = 999.;
     }
 
-    std::cout << "cc" << std::endl;
     // find the time of max with a parabolic fit of the three bins around the sampmax
     for( auto &sm : sampmax){
       std::cout << sm.first << " " << sm.second << std::endl;
@@ -282,6 +284,7 @@ int main( int argc, char **argv ){
 
   string basedir = argv[0];
   basedir = basedir.substr(0, basedir.size()-8);
+  int nbSample = 32;
 
   if( argc < 2 ) {
     cerr << " Usage: " << argv[0] << " <json_file> <detector_name> " << endl;
@@ -302,19 +305,21 @@ int main( int argc, char **argv ){
     std::cout << " "<< sr << ",";
   }
   std::cout << std::endl;
+
   std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
   std::cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << subRuns[0] << std::endl;
-  // for(auto f : decodedFiles){
-    // ch->Add(f.c_str());
-    // std::cout << "Added file " << f << std::endl;
-  // }
-  ch->Add("../decode/ftest.root");
-  // ch->Add("../../positionCut/dec_POS06_FEU1_strip.root");
+  for(auto f : decodedFiles){
+    ch->Add(f.c_str());
+    std::cout << "Added file " << f << std::endl;
+  }
   std::cout << std::endl;
+
+  // ch->Add("../decode/ftest.root");
+  // ch->Add("../../positionCut/dec_POS06_FEU1_strip.root");
   std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << ", " << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
 
   DreamTable det;
-  det = DreamTable(basedir + "../map/rd542_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
+  det = DreamTable(basedir + "../map/rd542_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream(), nbSample);
   det.setInversion(false, false, false, false);
   string outFile = "test.root";
   std::cout << "Output file: " << outFile << std::endl;
