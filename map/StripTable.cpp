@@ -14,8 +14,15 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 		zonePitch = { {0.5f, 1.f}, {0.5f, 1.5f}, {0.5f, 0.5f}, {1.5f,1.f}, {1.5f, 1.5f}, {1.5f, 0.5f}, {1.f, 1.f}, {1.f, 1.5f}, {1.f, 0.5f} };
 		zoneInter = { {0.1f, 0.75f}, {0.1f, 1.12f}, {0.1f, 0.37f}, {0.1f,0.75f}, {0.1f, 1.12f}, {0.1f, 0.37f}, {0.1f, 0.75f}, {0.1f, 1.12f}, {0.1f, 0.37f} };
 	}
+	else if(idetFile.find("rd542") != std::string::npos){
+		zonePitch = { {1.2f, 1.f} };
+		zoneInter = { {0.125f, 0.7f} };
+	}
 	else{
-		throw std::runtime_error("Error: zones not recognized");
+		// throw std::runtime_error("Error: zones not recognized");
+		std::cout<<"Warning: detector zones not found, setting default pitch and inter values"<<std::endl;
+		zonePitch = { {1.2f, 1.f} };
+		zoneInter = { {0.125f, 0.7f} };
 	}
 }
 
