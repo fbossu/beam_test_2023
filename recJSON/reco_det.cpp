@@ -152,7 +152,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
          sampmax[jch]  = sample->at(j);
       }
     }
-    std::cout << "cc" << std::endl;
+    std::cout << "c" << std::endl;
 
     // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
@@ -184,7 +184,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
       }
       else flex[a.first] = 999.;
     }
-
+    std::cout << "cc" << std::endl;
     // find the time of max with a parabolic fit of the three bins around the sampmax
     for( auto &sm : sampmax){
       auto amp = amplitudes[sm.first];
@@ -201,7 +201,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
                   /(2*(x0*y1 - x0*y2 - x1*y0 + x1*y2 + x2*y0 - x2*y1 ));
       tmax[sm.first] = max;
     }
-
+    std::cout << "ccc" << std::endl;
     // fill a vector of hits
     hits->clear();
     for( auto &m : maxamp ){
