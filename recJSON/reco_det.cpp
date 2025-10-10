@@ -290,9 +290,12 @@ int main( int argc, char **argv ){
     return 1;
   }
 
+  std::string jsonPath = argv[1];
+  std::string detName = argv[2];
+
   TChain *ch = new TChain("nt");
 
-  ParseJson pj(argv[1], argv[2]);
+  ParseJson pj(jsonPath, detName);
   std::vector<std::string> subRuns = pj.subRuns();
   if(subRuns.size() == 0){
     std::cerr << "No subruns found in JSON file " << argv[1] << std::endl;
@@ -320,7 +323,8 @@ int main( int argc, char **argv ){
   DreamTable det;
   det = DreamTable(basedir + "../map/rd542_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
   det.setInversion(false, false, false, false);
-  string outFile = "test.root";
+
+  string outFile = "reco_" + detname + ".root";
   std::cout << "Output file: " << outFile << std::endl;
   reco(ch, det, outFile, nbSample, verbose);
 
