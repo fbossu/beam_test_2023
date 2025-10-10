@@ -19,7 +19,8 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
-bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp > 350; }
+// bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp > 350; }
+bool goodHit( hit &a ) { return true; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
@@ -147,7 +148,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
          
       amplitudes[jch].push_back(ampl->at(j));
 
-      /// find maximum amplitude and its associated sample
+      // find maximum amplitude and its associated sample
       if( maxamp.find( jch ) == maxamp.end() ){
         maxamp[jch] = 0;
       }
@@ -303,11 +304,11 @@ int main( int argc, char **argv ){
   std::cout << std::endl;
   std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
   std::cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << subRuns[0] << std::endl;
-  for(auto f : decodedFiles){
-    ch->Add(f.c_str());
-    std::cout << "Added file " << f << std::endl;
-  }
-  // ch->Add("../decode/ftest.root");
+  // for(auto f : decodedFiles){
+    // ch->Add(f.c_str());
+    // std::cout << "Added file " << f << std::endl;
+  // }
+  ch->Add("../decode/ftest.root");
   // ch->Add("../../positionCut/dec_POS06_FEU1_strip.root");
   std::cout << std::endl;
   std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << ", " << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
