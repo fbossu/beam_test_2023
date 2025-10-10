@@ -147,7 +147,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSa
       }
 
       if( amplitudes.find( jch ) == amplitudes.end() ){
-        amplitudes[jch] = std::vector<uint16_t>(nbSample, -1);
+        amplitudes[jch] = std::vector<uint16_t>(nbSample, 0);
       }
       amplitudes[jch][sample->at(j)] = ampl->at(j);
 
@@ -163,7 +163,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSa
 
     // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
-      std::cout << "channel " << a.first << " has " << a.second.size() << " samples; sampleMax " << sampmax[a.first] << "; ampMax" << maxamp[a.first] << std::endl;
+      std::cout << "channel " << a.first << " has " << a.second.size() << " samples; sampleMax " << sampmax[a.first] << "; ampMax " << maxamp[a.first] << std::endl;
       int dmax = 0;
       uint16_t imax = 0;
       int npos = 0;
