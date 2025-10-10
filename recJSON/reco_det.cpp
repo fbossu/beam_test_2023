@@ -324,7 +324,7 @@ int main( int argc, char **argv ){
   det = DreamTable(basedir + "../map/rd542_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
   det.setInversion(false, false, false, false);
 
-  string outFile = "reco_" + detname + ".root";
+  string outFile = "reco_" + detName + ".root";
   std::cout << "Output file: " << outFile << std::endl;
   reco(ch, det, outFile, nbSample, verbose);
 
