@@ -139,13 +139,13 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
-      std::cout << "channel " << jch << std::endl;
+      std::cout << "channel " << jch << ", sample " << sample->at(j) << std::endl;
       if(!JustHits && !det.isConnected(jch)){
         std::cout << "Skipping unconnected channel " << jch << std::endl;
         continue;
       }
          
-      amplitudes[jch].push_back( ampl->at(j));
+      amplitudes[jch].push_back(ampl->at(j));
 
       /// find maximum amplitude and its associated sample
       if( maxamp.find( jch ) == maxamp.end() ){
