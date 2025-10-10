@@ -139,6 +139,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
+      std::cout << "channel " << jch << std::endl;
       if(!JustHits && !det.isConnected(jch)) continue;
          
       amplitudes[jch].push_back( ampl->at(j));
