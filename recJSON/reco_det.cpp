@@ -59,7 +59,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
 // =====================================================================
 bool JustHits = false;
 // =====================================================================
-void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSample=16) {
+void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSample=16, bool verbose=false) {
 
   uint64_t eventId;
   uint64_t timestamp;
@@ -104,7 +104,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSa
   for ( int iev=0; iev<nt->GetEntries(); iev++){
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
     nt->GetEntry(iev);
-    std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl;
+    if(verbose) { std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl; }
 
     // if( iev>10 ) break;
     // add empty events for those that have been lost
@@ -163,7 +163,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSa
 
     // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
-      std::cout << "     channel " << a.first << " has " << a.second.size() << " samples; sampleMax " << sampmax[a.first] << "; ampMax " << maxamp[a.first] << std::endl;
+      if(verbose) { std::cout << "   channel " << a.first << " has " << a.second.size() << " samples; sampleMax " << sampmax[a.first] << "; ampMax " << maxamp[a.first] << std::endl; }
       int dmax = 0;
       uint16_t imax = 0;
       int npos = 0;
@@ -283,6 +283,7 @@ int main( int argc, char **argv ){
   string basedir = argv[0];
   basedir = basedir.substr(0, basedir.size()-8);
   int nbSample = 32;
+  bool verbose = true;
 
   if( argc < 2 ) {
     cerr << " Usage: " << argv[0] << " <json_file> <detector_name> " << endl;
@@ -321,7 +322,7 @@ int main( int argc, char **argv ){
   det.setInversion(false, false, false, false);
   string outFile = "test.root";
   std::cout << "Output file: " << outFile << std::endl;
-  reco(ch, det, outFile, nbSample);
+  reco(ch, det, outFile, nbSample, verbose);
 
   return 0;
 }

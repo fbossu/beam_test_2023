@@ -91,19 +91,20 @@ int main(int argc, char const *argv[])
   }
 
   StripTable det;
-  if(detName.find("strip") != std::string::npos && detName.find("asa") == std::string::npos){
-    det = StripTable(basedir+"../map/strip_map.txt");
-  }
-  else if(detName.find("asa") != std::string::npos){
-    det = StripTable(basedir+"../map/asa_map.txt");
-  }
-  else if(detName.find("inter") != std::string::npos){
-    det = StripTable(basedir+"../map/inter_map.txt");
-  }
-  else{
-    std::cerr<<"Detector not found"<<std::endl;
-    return 1;
-  }
+  // if(detName.find("strip") != std::string::npos && detName.find("asa") == std::string::npos){
+  //   det = StripTable(basedir+"../map/strip_map.txt");
+  // }
+  // else if(detName.find("asa") != std::string::npos){
+  //   det = StripTable(basedir+"../map/asa_map.txt");
+  // }
+  // else if(detName.find("inter") != std::string::npos){
+  //   det = StripTable(basedir+"../map/inter_map.txt");
+  // }
+  // else{
+  //   std::cerr<<"Detector not found"<<std::endl;
+  //   return 1;
+  // }
+  det = StripTable(basedir + "../map/rd542_map.txt");
 
   TTreeReader reader(chain);
   TTreeReaderValue< std::vector<cluster> > clusters( reader, "clusters");
