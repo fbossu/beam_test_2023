@@ -139,7 +139,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
-      std::cout << "channel " << jch << ", sample " << sample->at(j) << std::endl;
+      // std::cout << "channel " << jch << ", sample " << sample->at(j) << std::endl;
       if(!JustHits && !det.isConnected(jch)){
         std::cout << "Skipping unconnected channel " << jch << std::endl;
         continue;
@@ -159,6 +159,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
 
     // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
+      std::cout << "channel " << a.first << " has " << a.second.size() << " samples " << std::endl;
       int dmax = 0;
       uint16_t imax = 0;
       int npos = 0;
@@ -187,12 +188,13 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
       }
       else flex[a.first] = 999.;
     }
+
     std::cout << "cc" << std::endl;
     // find the time of max with a parabolic fit of the three bins around the sampmax
     for( auto &sm : sampmax){
       std::cout << sm.first << " " << sm.second << std::endl;
       auto amp = amplitudes[sm.first];
-      std::cout << "amp size" << amp.size() << std::endl;
+      std::cout << "amp size " << amp.size() << std::endl;
       if( sm.second == 0 || sm.second==amp.size()-1 ) { tmax[sm.first] = sm.second; continue; } 
 
       float x0 = (float) (sm.second - 1.);
