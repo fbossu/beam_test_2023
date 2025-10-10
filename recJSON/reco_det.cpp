@@ -283,7 +283,7 @@ int main( int argc, char **argv ){
   string basedir = argv[0];
   basedir = basedir.substr(0, basedir.size()-8);
   int nbSample = 32;
-  bool verbose = true;
+  bool verbose = false;
 
   if( argc < 2 ) {
     cerr << " Usage: " << argv[0] << " <json_file> <detector_name> " << endl;
@@ -322,7 +322,7 @@ int main( int argc, char **argv ){
 
   DreamTable det;
   det = DreamTable(basedir + "../map/rd542_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
-  det.setInversion(false, false, false, false);
+  det.setInversion(false, false, false, false); // if connectors are plugged in the wrong direction
 
   string outFile = "reco_" + detName + ".root";
   std::cout << "Output file: " << outFile << std::endl;
