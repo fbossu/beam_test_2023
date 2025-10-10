@@ -140,7 +140,10 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
       std::cout << "channel " << jch << std::endl;
-      if(!JustHits && !det.isConnected(jch)) continue;
+      if(!JustHits && !det.isConnected(jch)){
+        std::cout << "Skipping unconnected channel " << jch << std::endl;
+        continue;
+      }
          
       amplitudes[jch].push_back( ampl->at(j));
 
