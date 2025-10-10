@@ -306,7 +306,7 @@ int main( int argc, char **argv ){
     // std::cout << "Added file " << f << std::endl;
   // }
   // ch->Add("../decode/ftest.root");
-  ch->Add("../../positionCut/dec_POS06_FEU1_inter.root");
+  ch->Add("../../positionCut/dec_POS06_FEU1_strip.root");
   std::cout << std::endl;
   std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << ", " << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
 
