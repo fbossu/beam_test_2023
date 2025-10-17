@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
     double numXY = 0, denXY = 0;
 
     double dtol = 1.5;
-    double sigma = 3;
+    double sigma = 5;
 
     while( MM.Next() ){
         bool isBanco = banco.Next();

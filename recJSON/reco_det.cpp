@@ -2,7 +2,7 @@
 #include "TChain.h"
 #include "TTree.h"
 #include "TInterpreter.h"
-#include "definitions.h"
+#include "../reco/definitions.h"
 
 #include <vector>
 #include <string>
@@ -11,7 +11,7 @@
 #include <iomanip>
 
 #include "../map/DreamTable.h"
-#include "../recJSON/parse_json.h"
+#include "parse_json.h"
 
 using namespace std;
 
@@ -19,7 +19,8 @@ using namespace std;
 // =====================================================================
 bool compareHits( hit &a, hit &b ) { return a.channel < b.channel; }
 
-bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp>350; }
+// bool goodHit( hit &a ) { return a.samplemax > 1 and a.samplemax < 11 and a.maxamp > 350; }
+bool goodHit( hit &a ) { return true; }
 
 void niceBar( int tot, int i, int N=50 ){
   cout << "[ ";
@@ -42,9 +43,9 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   for( auto h : hitcl ){
     // if( h->axis != axis ) std::cout << "ERROR: hits in the same cluster have different axis" << endl;
     h->clusterId = clId;
-    centroidNum += h->channel * (h->maxamp-300);
-    stripCentroidNum += h->strip * (h->maxamp-300);
-    centroidDen += h->maxamp-300;
+    centroidNum += h->channel * (h->maxamp-256);
+    stripCentroidNum += h->strip * (h->maxamp-256);
+    centroidDen += h->maxamp-256;
   }
   cluster cl;
   cl.id = clId;
@@ -58,7 +59,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
 // =====================================================================
 bool JustHits = false;
 // =====================================================================
-void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
+void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSample=16, bool verbose=false) {
 
   uint64_t eventId;
   uint64_t timestamp;
@@ -99,10 +100,11 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
   uint64_t tmp_evId = 1;
   // loop over the events
   // --------------------
-  for ( int iev=0; iev<nt->GetEntries() ; iev++){
+  std::cout << "Processing " << nt->GetEntries() << " events " << std::endl;
+  for ( int iev=0; iev<nt->GetEntries(); iev++){
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
     nt->GetEntry(iev);
-    // std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl;
+    if(verbose) { std::cout << "Event " << eventId << " ampl size " << ampl->size() << " sample size " << sample->size() << " channel size " << channel->size() << std::endl; }
 
     // if( iev>10 ) break;
     // add empty events for those that have been lost
@@ -114,6 +116,11 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
       outnt.Fill();
       tmp_evId++;
     }
+
+    // for(auto i : *channel) {
+    //   std::cout << i << " ";
+    // }
+    // std::cout << std::endl;
 
     out_timestamp = timestamp;
     out_delta_timestamp = delta_timestamp;
@@ -133,11 +140,18 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
     // loop over the fired channels and organize them as hits
     for( uint64_t j=0; j < ampl->size() ; j++ ){
       int jch = channel->at(j);
-      if(!JustHits && !det.isConnected(jch)) continue;
-         
-      amplitudes[jch].push_back( ampl->at(j));
+      // std::cout << "channel " << jch << ", sample " << sample->at(j) << std::endl;
+      if(!JustHits && !det.isConnected(jch)){
+        std::cout << "Skipping unconnected channel " << jch << std::endl;
+        continue;
+      }
 
-      /// find maximum amplitude and its associated sample
+      if( amplitudes.find( jch ) == amplitudes.end() ){
+        amplitudes[jch] = std::vector<uint16_t>(nbSample, 0);
+      }
+      amplitudes[jch][sample->at(j)] = ampl->at(j);
+
+      // find maximum amplitude and its associated sample
       if( maxamp.find( jch ) == maxamp.end() ){
         maxamp[jch] = 0;
       }
@@ -149,6 +163,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root") {
 
     // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
+      if(verbose) { std::cout << "   channel " << a.first << " has " << a.second.size() << " samples; sampleMax " << sampmax[a.first] << "; ampMax " << maxamp[a.first] << std::endl; }
       int dmax = 0;
       uint16_t imax = 0;
       int npos = 0;
@@ -267,25 +282,51 @@ int main( int argc, char **argv ){
 
   string basedir = argv[0];
   basedir = basedir.substr(0, basedir.size()-8);
-  cout << basedir << endl;
+  int nbSample = 32;
+  bool verbose = false;
+
   if( argc < 2 ) {
-    // cerr << " no file name specified \n";
-    cerr << " At least two arguments need to be specified";
+    cerr << " Usage: " << argv[0] << " <json_file> <detector_name> " << endl;
     return 1;
   }
 
+  std::string jsonPath = argv[1];
+  std::string detName = argv[2];
+
   TChain *ch = new TChain("nt");
-  for( int i = 3; i < argc; i++){
-    ch->Add( argv[i] );
+
+  ParseJson pj(jsonPath, detName);
+  std::vector<std::string> subRuns = pj.subRuns();
+  if(subRuns.size() == 0){
+    std::cerr << "No subruns found in JSON file " << argv[1] << std::endl;
+    return 1;
   }
-  ParseJson pj(argv[1], argv[2])
+
+  std::cout << "Found " << subRuns.size() << " subruns in JSON file: " << argv[1] << ":" << std::endl;
+  for(auto sr : subRuns){
+    std::cout << " "<< sr << ",";
+  }
+  std::cout << std::endl;
+
+  std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
+  std::cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << subRuns[0] << std::endl;
+  for(auto f : decodedFiles){
+    ch->Add(f.c_str());
+    std::cout << "Added file " << f << std::endl;
+  }
+  std::cout << std::endl;
+
+  // ch->Add("../decode/ftest.root");
+  // ch->Add("../../positionCut/dec_POS06_FEU1_strip.root");
+  std::cout << "connectors: " << pj.x1Dream() << ", " << pj.x2Dream() << ", " << pj.y1Dream() << ", " << pj.y2Dream() << std::endl;
+
   DreamTable det;
+  det = DreamTable(basedir + "../map/rd542_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
+  det.setInversion(false, false, false, false); // if connectors are plugged in the wrong direction
 
-  det = DreamTable(basedir + "../map/inter_map.txt", pj.x1Feu(), pj.x2Feu(), pj.y1Feu(), pj.y2Feu());
-  det.setInversion(false, false, false, false);
-  string outFile = "test.root";
-
-  reco(ch, det, outFile);
+  string outFile = "reco_" + detName + ".root";
+  std::cout << "Output file: " << outFile << std::endl;
+  reco(ch, det, outFile, nbSample, verbose);
 
   return 0;
 }

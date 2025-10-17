@@ -1,4 +1,4 @@
-all: clusterSize.o xy_compare.o residu.o analysisMain timeRes overlayResidue spectreP2 hitmap
+all: hitmap clusterSize.o xy_compare.o residu.o timeRes.o analysisMain overlayResidue spectreP2
 
 ROOT = $(shell root-config --cflags) $(shell root-config --libs ) -lGenVector
 DT = ../map/DetectorTable.o ../map/StripTable.o clusterSize.o
@@ -13,11 +13,11 @@ residu.o: analysis.h residu.cpp ../map/DetectorTable.o ../map/StripTable.o
 xy_compare.o: analysis.h xy_compare.cpp clusterSize.cpp
 	g++ -c xy_compare.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx $(ROOT)
 
-analysisMain: analysisMain.cpp analysis.h residu.o xy_compare.o clusterSize.o
-	g++ -o analysisMain analysisMain.cpp residu.o xy_compare.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
+analysisMain: analysisMain.cpp analysis.h residu.o xy_compare.o clusterSize.o timeRes.o
+	g++ -o analysisMain analysisMain.cpp residu.o xy_compare.o timeRes.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
 
-timeRes: timeRes.cpp residu.o xy_compare.o clusterSize.o
-	g++ -o timeRes timeRes.cpp residu.o xy_compare.o ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
+timeRes.o: timeRes.cpp residu.o xy_compare.o clusterSize.o
+	g++ -c timeRes.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
 
 overlayResidue: overlayResidue.cpp analysis.h
 	g++ -o overlayResidue overlayResidue.cpp $(DT) $(ROOT)
