@@ -7,6 +7,7 @@
 #include <array>
 using namespace std;
 
+#include <getopt.h>
 #include "TFile.h"
 #include "TTree.h"
 
@@ -34,31 +35,74 @@ void print_data( uint16_t data ){
       cout << endl;
 }
 
-int main( int argc, const char **argv) {
+void print_help(){
+  cout << "\n -------- help -------\n"
+       << " Usage: decode <filename> [options] \n"
+       << " options:\n"
+       << " -h prints this help message\n"
+       << " -n [int] : the max number of events to process\n"
+       << " -o [string] : the output file name\n"
+       << endl;
+}
 
+// ================================================================
+int main( int argc, char *argv[]) {
+
+  int NEVENTS = -1;
+  string outputFileName = "ftest.root";
+  // reading options
+  int opt;
+  while( (opt = getopt(argc, argv, ":n:o:h") ) != -1 ){
+    switch( opt ){
+      case 'n':
+        NEVENTS = atoi(optarg);
+        break;
+      case 'o':
+        outputFileName = optarg;
+        break;
+      case 'h':
+        print_help();
+        exit(0);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // we need at least one argument, i.e. the name of the input fdf file
   if (argc < 2) {
-	cout << "Usage: " << argv[0] << " <filename>" << endl;
+    print_help();
     return 1;
   }
-  cout << argv[1] << endl;
-  ifstream is( argv[1], std::ifstream::binary );
+  string inputFile = "";
+  int ii=0;
+  for ( int j=0; j<argc; j++) {
+    string inst = argv[j];
+    if( inst.find(".fdf") != string::npos ){
+      if( ii==0 ) inputFile = inst;
+      ii++;
+    }
+  }
+  if( ii>1 ) cout << "\n *** WARNING: too many fdf files given, expecting only one. Only the first is considered \n";
+
+  // open and check the input file
+  cout << "\n Reading file: " << inputFile << endl;
+  ifstream is( inputFile.data(), std::ifstream::binary );
   if (!is) {
-	cout << "Cannot open " << argv[1] << endl << "Exiting." << endl;
+	cout << "Cannot open " << inputFile << endl << "Exiting." << endl;
 	return 1;
   }
-
   if (is.peek() == ifstream::traits_type::eof()) {
-      cout << "File is empty " << argv[1] << endl << "Exiting." << endl;
+      cout << "File is empty " << inputFile << endl << "Exiting." << endl;
       return 1;
   }
 
-  string outputFileName = "ftest.root";
-  if (argc == 3) {
-	  outputFileName = argv[2];
-	  if (outputFileName.find(".root") == string::npos) {
-		  outputFileName += ".root";
-	  }
-  }
+  //if (argc == 3) {
+	  //outputFileName = argv[2];
+	  //if (outputFileName.find(".root") == string::npos) {
+		  //outputFileName += ".root";
+	  //}
+  //}
 
   // this is where we store the 2 bytes of each data line
   uint16_t data = 0;
@@ -103,7 +147,7 @@ int main( int argc, const char **argv) {
   // loop over the file
   while( true ){
 
-    //if( i > 600 ) break;
+    if( NEVENTS > 0 and i > NEVENTS ) break;
     //if( i > 574 ) debug = true;
     //if (debug && (i > 0)) break;
 
