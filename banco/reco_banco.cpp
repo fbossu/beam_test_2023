@@ -358,6 +358,18 @@ void recoBanco(std::vector<std::string> fnamesIn){
   fout->Close();
 }
 
+// ------------------------------------------
+void print_help(){
+  std::cout << " help! \n"
+            << " -d [string] sets the basedir, where to find the alignments\n"
+            << " -g [string] sets the geometry/alignement file \n"
+            << " -R [string] sets the global rotation\n"
+            << " -r activates the computation of the residuals\n"
+            << " -m [float] sets the limits for the residuals histograms"
+            << " -n [int] sets the max number of events\n";
+
+}
+// ------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -368,7 +380,7 @@ int main(int argc, char *argv[])
 
   // reading some options
   int opt;
-  while((opt = getopt(argc, argv, "rn:m:d:g:R:")) != -1) { 
+  while((opt = getopt(argc, argv, "hrn:m:d:g:R:")) != -1) { 
     switch(opt) { 
       case 'd':
         basedir = optarg;
@@ -394,6 +406,9 @@ int main(int argc, char *argv[])
         NEVENTS=std::atoi(optarg);
         std::cout << "N Events "<< NEVENTS << std::endl;
         break;
+      case 'h':
+        print_help();
+        return -1;
       default:
       break;
     }
@@ -410,6 +425,7 @@ int main(int argc, char *argv[])
   }
   if( fnames.size() < 3 ) {
     std::cout << "not enough ladder files\n";
+    print_help();
     return -1;
   }
   

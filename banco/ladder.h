@@ -3,6 +3,8 @@
 #include "Math/Rotation3D.h"
 #include "Math/Vector3D.h"
 
+#include <stdint.h>
+
 #include "definition_banco.h"
 
 using namespace ROOT::Math;
@@ -15,6 +17,7 @@ namespace banco {
         pitchx = 0.02924; // mm ; 28 µm
         flipx = false;
         flipy = false;
+        deltasensors = 0.015; // mm ; 15 µm ; distance between chips
       } 
       virtual ~Ladder() {};
       
@@ -36,6 +39,7 @@ namespace banco {
 
     private:
       float pitchx, pitchy;
+      float deltasensors;
       bool flipx, flipy;
       XYZVectorF reference;
       XYZVectorF translation;
