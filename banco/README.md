@@ -24,3 +24,8 @@ for a in *root; do n=$( echo $a | cut -d- -f3); echo $n; PATH/TO/decode_banco $a
 At least, it needs the four ladder decoded root files.
 
 If the geometry files are not in the local directory, then you can specify the directory with the option `-d [path]`. For 2025, the geometry is stored in this repository under `geometrySPS2025`
+
+
+## Plotting
+
+To show some of the histograms that are created during the reconstruction, such as occupancies and residuals, you can use the `plot.C` macro in this folder.
