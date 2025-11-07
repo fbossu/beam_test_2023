@@ -201,8 +201,8 @@ void recoBanco(std::vector<std::string> fnamesIn){
   // histograms
   auto hdir = fout->mkdir("histos");
 
-  axis *acy = createAxis( "centroid y (mm)", 200, 0, 15. ); 
-  axis *acx = createAxis( "centroid x (mm)", 200, 0, 15. );
+  axis *acy = createAxis( "centroid y (mm)", 75, 0, 15. ); 
+  axis *acx = createAxis( "centroid x (mm)", 300, 0, 150. );
 
   axis *arescx = createAxis( "residual x (mm)", 500, -MaxR, MaxR ); 
   axis *arescy = createAxis( "residual y (mm)", 500, -MaxR, MaxR ); 
@@ -365,7 +365,7 @@ void print_help(){
             << " -g [string] sets the geometry/alignement file \n"
             << " -R [string] sets the global rotation\n"
             << " -r activates the computation of the residuals\n"
-            << " -m [float] sets the limits for the residuals histograms"
+            << " -m [float] sets the limits for the residuals histograms\n"
             << " -n [int] sets the max number of events\n";
 
 }

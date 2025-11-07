@@ -1,0 +1,31 @@
+# geometry data for banco ladders
+# for each ladder###
+# line is 1 the coordinate flips:  x y
+# line is 2 the local reference point: x y z
+# line is 3 the translation vector: x y z
+# line is 4 the rotation3d matrix: xx xy xz yx yy yz zx zy zz
+# values are space separated
+
+ladder160
+1 1
+0 0 0
+0. 0 0.0
+1 0 0 0 1 0 0 0 1
+
+ladder163
+1 0
+0 0 0
+0.2 -1.525 -10.6
+1 0 0 0 1 0 0 0 1
+
+ladder157
+1 1
+0 0 0
+-0.1 0.768 -145.0
+1 0 0 0 1 0 0 0 1
+
+ladder162
+1 0
+0 0 0
+0.05 -0.768 -155.6
+1 0 0 0 1 0 0 0 1
