@@ -23,9 +23,16 @@ std::vector<std::string> ParseJson::subRuns(){
 }
 
 // one file for each
-std::vector<std::string> ParseJson::decodeFiles(std::string subRun){
+// one file for each
+std::vector<std::string> ParseJson::decodeFiles(std::string subRun ){
+  return decodeFiles(subRun,"");
+}
+std::vector<std::string> ParseJson::decodeFiles(std::string subRun, std::string basepath = ""){
     std::vector<std::string> files;
     std::string path = strJson["run_out_dir"].get<std::string>() + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
+    if( basepath.size() > 0 ){
+      path = basepath + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
+    }
     
     std::ostringstream oss;
     oss << "_0" << this->feu() << "_";

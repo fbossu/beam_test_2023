@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iomanip>
 
+#include <getopt.h>
 #include "../map/DreamTable.h"
 #include "parse_json.h"
 
@@ -142,7 +143,7 @@ void reco( TChain *nt, DreamTable det, std::string outFile="frec.root", int nbSa
       int jch = channel->at(j);
       // std::cout << "channel " << jch << ", sample " << sample->at(j) << std::endl;
       if(!JustHits && !det.isConnected(jch)){
-        std::cout << "Skipping unconnected channel " << jch << std::endl;
+        if( verbose ) std::cout << "Skipping unconnected channel " << jch << std::endl;
         continue;
       }
 
@@ -282,17 +283,21 @@ int main( int argc, char **argv ){
 
   string basedir = argv[0];
   basedir = basedir.substr(0, basedir.size()-8);
-  int nbSample = 32;
+  int nbSample = 16;
+  //int nbSample = 32;
   bool verbose = false;
 
   if( argc < 2 ) {
-    cerr << " Usage: " << argv[0] << " <json_file> <detector_name> " << endl;
+    cerr << " Usage: " << argv[0] << " <json_file> <detector_name> [<run path>] " << endl;
     return 1;
   }
 
   std::string jsonPath = argv[1];
   std::string detName = argv[2];
+  std::string localName = "";
+  if( argc > 2 ) localName = argv[3]; 
 
+  std::cout << "AAA "<<localName << std::endl;
   TChain *ch = new TChain("nt");
 
   ParseJson pj(jsonPath, detName);
@@ -308,7 +313,7 @@ int main( int argc, char **argv ){
   }
   std::cout << std::endl;
 
-  std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0]);
+  std::vector<std::string> decodedFiles = pj.decodeFiles(subRuns[0], localName);
   std::cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << subRuns[0] << std::endl;
   for(auto f : decodedFiles){
     ch->Add(f.c_str());

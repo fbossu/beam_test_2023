@@ -19,7 +19,8 @@ class ParseJson {
 
         ParseJson(std::string jsonPath, std::string detName);
         std::vector<std::string> subRuns();
-        std::vector<std::string> decodeFiles(std::string subRun);
+        std::vector<std::string> decodeFiles(std::string subRun );
+        std::vector<std::string> decodeFiles(std::string subRun, std::string basepath);
         // std::string recoPath(); could be added to json
         // std::string mapPath(); could be added to json
         std::string runName();
