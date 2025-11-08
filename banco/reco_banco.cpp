@@ -135,6 +135,7 @@ std::string basedir = "";
 std::string geofname = "geometries.txt";
 std::string rotfname = "global_rotation.txt";
 int NEVENTS = -1;
+int SKIPEV  = -1;
 bool DoRES = false;
 float MaxR = 1.;
 
@@ -261,6 +262,8 @@ void recoBanco(std::vector<std::string> fnamesIn){
     i++;
     trEvId = *eventId + 1;
  
+    if( SKIPEV > 0 && i < SKIPEV ) continue;
+
     if( i%1000 == 0 ){
       std::cout << " [ ";
       for( int j=0; j < (float)i/nentries * 50; j++ )
@@ -366,7 +369,8 @@ void print_help(){
             << " -R [string] sets the global rotation\n"
             << " -r activates the computation of the residuals\n"
             << " -m [float] sets the limits for the residuals histograms\n"
-            << " -n [int] sets the max number of events\n";
+            << " -n [int] sets the max number of events\n"
+            << " -s [int] skip s events\n";
 
 }
 // ------------------------------------------
@@ -380,7 +384,7 @@ int main(int argc, char *argv[])
 
   // reading some options
   int opt;
-  while((opt = getopt(argc, argv, "hrn:m:d:g:R:")) != -1) { 
+  while((opt = getopt(argc, argv, "hrn:m:d:g:R:s:")) != -1) { 
     switch(opt) { 
       case 'd':
         basedir = optarg;
@@ -405,6 +409,10 @@ int main(int argc, char *argv[])
       case 'n':
         NEVENTS=std::atoi(optarg);
         std::cout << "N Events "<< NEVENTS << std::endl;
+        break;
+      case 's':
+        SKIPEV=std::atoi(optarg);
+        std::cout << "Skipping "<< SKIPEV <<"  Events " << std::endl;
         break;
       case 'h':
         print_help();
