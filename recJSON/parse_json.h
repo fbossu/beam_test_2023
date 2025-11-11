@@ -19,7 +19,7 @@ class ParseJson {
 
         ParseJson(std::string jsonPath, std::string detName);
         std::vector<std::string> subRuns();
-        std::vector<std::string> decodeFiles(std::string subRun );
+        std::vector<std::string> decodeFiles(std::string subRun);
         std::vector<std::string> decodeFiles(std::string subRun, std::string basepath);
         // std::string recoPath(); could be added to json
         // std::string mapPath(); could be added to json
@@ -29,6 +29,11 @@ class ParseJson {
         int x2Dream();
         int y1Dream();
         int y2Dream();
+	
+	bool x1Inv();	
+	bool x2Inv();	
+	bool y1Inv();	
+	bool y2Inv();	
 
     private:
         std::string jsonPath, detName;

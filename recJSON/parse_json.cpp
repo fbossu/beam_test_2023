@@ -47,7 +47,8 @@ std::vector<std::string> ParseJson::decodeFiles(std::string subRun, std::string 
     while ((entry = readdir(dir)) != nullptr) {
         if (entry->d_type == DT_REG) {
             std::string filename = entry->d_name;
-            if (filename.find("decoded") != std::string::npos && filename.find("_array_") == std::string::npos) {
+            //if (filename.find("decoded") != std::string::npos && filename.find("_array_") == std::string::npos) {
+            if (filename.find("decoded") != std::string::npos && filename.find("_array") == std::string::npos) {
                 if (filename.find(feuTag) != std::string::npos) {
                     files.push_back(path + filename);
                 }
@@ -82,4 +83,20 @@ int ParseJson::y1Dream(){
 
 int ParseJson::y2Dream(){
     return detInfo["dream_feus"]["y_2"][1].get<int>() - 1;
+}
+
+bool ParseJson::x1Inv(){
+    return detInfo["dream_feu_inversion"]["x_1"].get<bool>();
+}
+
+bool ParseJson::x2Inv(){
+    return detInfo["dream_feu_inversion"]["x_2"].get<bool>();
+}
+
+bool ParseJson::y1Inv(){
+    return detInfo["dream_feu_inversion"]["y_1"].get<bool>();
+}
+
+bool ParseJson::y2Inv(){
+    return detInfo["dream_feu_inversion"]["y_2"].get<bool>();
 }
