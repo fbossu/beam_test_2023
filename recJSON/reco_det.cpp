@@ -296,7 +296,8 @@ void print_help(){
             << " -l [string] local run path\n"
             << " -H make only hits\n"
             << " -v verbose\n"
-            << " -S [int] numer of samples\n";
+            << " -S [int] numer of samples\n"
+            << "For Local Usage:  reco_det -l [path to root] -d [path to map file] \n";
 
 }
 // ------------------------------------------
@@ -354,6 +355,22 @@ int main( int argc, char **argv ){
         return 1;
     }
   }
+
+  // local use
+  if( localPath != "" ){
+    DreamTable det;
+    //det = DreamTable( detName, pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
+    det = DreamTable( detName, 4,5,6,7);
+    det.setInversion(true, true, false, false); // if connectors are plugged in the wrong direction
+  
+    string outFile = "reco_" + localPath;
+    cout << "Output file: " << outFile << endl;
+    TChain *ch = new TChain("nt");
+    ch->AddFile(localPath.data());
+    reco(ch, det, outFile, nbSample, verbose);
+    return 0;
+  }
+
   if( jsonPath == "" || detName == ""  ) {
     print_help();
     return 1;
