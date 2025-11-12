@@ -31,13 +31,14 @@ std::vector<std::string> ParseJson::decodeFiles(std::string subRun, std::string 
     std::vector<std::string> files;
     std::string path = strJson["run_out_dir"].get<std::string>() + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
     if( basepath.size() > 0 ){
-      path = basepath + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
+      //path = basepath + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
+      path = basepath + "/" ;
     }
     
     std::ostringstream oss;
     oss << "_0" << this->feu() << "_";
     std::string feuTag = oss.str();
-
+    std::cout << "****  FEU " << this->feu() << std::endl;
     DIR* dir;
     struct dirent* entry;
     if ((dir = opendir(path.c_str())) == nullptr) {

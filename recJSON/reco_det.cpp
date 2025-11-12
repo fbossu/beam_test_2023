@@ -149,7 +149,7 @@ void reco( TChain *nt, DreamTable det, string outFile="frec.root", int nbSample=
       int jch = channel->at(j);
       // cout << "channel " << jch << ", sample " << sample->at(j) << endl;
       if(!JustHits && !det.isConnected(jch)){
-        //cout << "Skipping unconnected channel " << jch << endl;
+        if( verbose )cout << "Skipping unconnected channel " << jch << endl;
         continue;
       }
 
@@ -294,6 +294,8 @@ void print_help(){
             << " -s [int] skip events\n"
             << " -m [string] map file path\n"
             << " -l [string] local run path\n"
+            << " -H make only hits\n"
+            << " -v verbose\n"
             << " -S [int] numer of samples\n";
 
 }
@@ -313,7 +315,7 @@ int main( int argc, char **argv ){
 
 
   int opt;
-  while((opt = getopt(argc, argv, "j:d:n:s:m:S:")) != -1) { 
+  while((opt = getopt(argc, argv, "j:d:n:s:m:vHS:l:")) != -1) { 
     switch(opt) { 
       case 'j':
         jsonPath = optarg;
@@ -330,6 +332,14 @@ int main( int argc, char **argv ){
       case 's':
         NSKIP = atoi(optarg);
         cout << " skip events " <<  NSKIP << endl;
+        break;
+      case 'H':
+        JustHits = true;
+        cout << " hits only " << endl;
+        break;
+      case 'v':
+        verbose = true;
+        cout << " verbose " << endl;
         break;
       case 'S':
         nbSample = atoi(optarg);
@@ -361,7 +371,7 @@ int main( int argc, char **argv ){
   for(auto sr : subRuns){
     cout << " "<< sr << ",";
 
-    vector<string> decodedFiles = pj.decodeFiles( sr );
+    vector<string> decodedFiles = pj.decodeFiles( sr, localPath );
     cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << sr << endl;
     TChain *ch = new TChain("nt");
     for(auto f : decodedFiles){
