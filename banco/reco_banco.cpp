@@ -307,7 +307,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
     // clean events: no more than 1 cluster per ladder
     bool good = true;
     for( auto s : tnames ){
-      if( (*cls[s])->size() != 1 ) good = false;
+      if( (*cls[s])->size() > 1 ) good = false;
     }
     if( ! good ){
       nt->Fill();
@@ -321,13 +321,17 @@ void recoBanco(std::vector<std::string> fnamesIn){
     std::vector<std::string> seeddet;
 
     // loop over the ladders
+    int ncl = 0 ;
     for( auto icl : cls ){
       XYZVector p;
-      geom[icl.first].CentroidToLocal( (*icl.second)->at(0), &p ); // TODO check if there are any cls
+      if( (*icl.second)->size() ==0  ) { ncl++ ; continue; }
+      geom[icl.first].CentroidToLocal( (*icl.second)->at(0), &p ); 
       geom[icl.first].LocalToGlobal(&p);
       seed.push_back(p);
       seeddet.push_back(icl.first);// maybe not useful if detector are ordered
     }
+
+    if( ncl > 1 ) continue; // skip seeds with less three hits
 
     auto track = Fit( seed );
     tracks->push_back(track);
