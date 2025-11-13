@@ -20,6 +20,7 @@ public:
 	bool isEdge(int ch);
 	char axis(int ch);
 	int stripNb(int ch);
+  int getConnectors();
 
 private:
 	std::vector<int> dreamConnect;

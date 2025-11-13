@@ -297,6 +297,7 @@ void print_help(){
             << " -H make only hits\n"
             << " -v verbose\n"
             << " -S [int] numer of samples\n"
+            << " -c [int] dream connectors\n"
             << "For Local Usage:  reco_det -l [path to root] -d [path to map file] \n";
 
 }
@@ -313,10 +314,10 @@ int main( int argc, char **argv ){
   string jsonPath   = "";
   string detName    = "";
   string localPath  = "";
-
+  int connectors=4567;
 
   int opt;
-  while((opt = getopt(argc, argv, "j:d:n:s:m:vHS:l:")) != -1) { 
+  while((opt = getopt(argc, argv, "j:d:n:s:m:vHS:l:c:")) != -1) { 
     switch(opt) { 
       case 'j':
         jsonPath = optarg;
@@ -346,6 +347,10 @@ int main( int argc, char **argv ){
         nbSample = atoi(optarg);
         cout << " number of samples " <<  nbSample << endl;
         break;
+      case 'c':
+        connectors = atoi(optarg);
+        cout << " connectors " <<  connectors << endl;
+        break;
       case 'l':
         localPath = optarg;
         cout << " local run path " <<  localPath << endl;
@@ -359,10 +364,10 @@ int main( int argc, char **argv ){
   // local use
   if( localPath != "" ){
     DreamTable det;
-    //det = DreamTable( detName, pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
-    det = DreamTable( detName, 4,5,6,7);
+    det = DreamTable( detName, connectors/1000, (connectors%1000)/100, (connectors%100)/10, connectors%10  );
     det.setInversion(true, true, false, false); // if connectors are plugged in the wrong direction
   
+    cout << "connectors read " << det.getConnectors() << endl;
     string outFile = "reco_" + localPath;
     cout << "Output file: " << outFile << endl;
     TChain *ch = new TChain("nt");
@@ -400,6 +405,8 @@ int main( int argc, char **argv ){
   
     DreamTable det;
     det = DreamTable(basedir + "../map/rd542_map.txt", pj.x1Dream(), pj.x2Dream(), pj.y1Dream(), pj.y2Dream());
+
+    cout << "connectors read " << det.getConnectors() << endl;
     //det.setInversion(false, false, false, false); // if connectors are plugged in the wrong direction
     cout << "inversions " << pj.x1Inv()<<" "<<pj.x2Inv()<<" "<<pj.y1Inv()<<" "<<pj.y2Inv() << endl;
     det.setInversion(pj.x1Inv(),pj.x2Inv(),pj.y1Inv(),pj.y2Inv()); // if connectors are plugged in the wrong direction

@@ -59,3 +59,14 @@ char DreamTable::axis(int ch){
 	if(GBch<0) return 'o';
 	return mapAxis[GBch];
 }
+
+int DreamTable::getConnectors(){
+  int c=0;
+  for( int i=0;i<dreamConnect.size();i++){
+    int p=1;
+    for( int j=0; j < i; j++ ) p *= 10;
+    c += dreamConnect.at( dreamConnect.size() - 1 - i) * p;
+  }
+  return c;
+}
+
