@@ -321,7 +321,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
     std::vector<std::string> seeddet;
 
     // loop over the ladders
-    int ncl = 0 ;
+    int ncl = 0 ; // counter for ladders without hits
     for( auto icl : cls ){
       XYZVector p;
       if( (*icl.second)->size() ==0  ) { ncl++ ; continue; }
@@ -331,7 +331,12 @@ void recoBanco(std::vector<std::string> fnamesIn){
       seeddet.push_back(icl.first);// maybe not useful if detector are ordered
     }
 
-    if( ncl > 1 ) continue; // skip seeds with less three hits
+    if( ncl > 1 ) good = false; // skip seeds with less three hits
+    if( ! good ){
+      nt->Fill();
+      tracks->clear();
+      continue; 
+    }
 
     auto track = Fit( seed );
     tracks->push_back(track);
