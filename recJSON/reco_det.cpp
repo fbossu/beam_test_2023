@@ -365,7 +365,8 @@ int main( int argc, char **argv ){
   if( localPath != "" ){
     DreamTable det;
     det = DreamTable( detName, connectors/1000, (connectors%1000)/100, (connectors%100)/10, connectors%10  );
-    det.setInversion(true, true, false, false); // if connectors are plugged in the wrong direction
+    det.setInversion(false, false, false, false); // if connectors are plugged in the wrong direction
+                                                  //det.setInversion(true, true, false, false); // if connectors are plugged in the wrong direction
   
     cout << "connectors read " << det.getConnectors() << endl;
     string outFile = "reco_" + localPath;
@@ -408,8 +409,8 @@ int main( int argc, char **argv ){
 
     cout << "connectors read " << det.getConnectors() << endl;
     //det.setInversion(false, false, false, false); // if connectors are plugged in the wrong direction
-    cout << "inversions " << pj.x1Inv()<<" "<<pj.x2Inv()<<" "<<pj.y1Inv()<<" "<<pj.y2Inv() << endl;
-    det.setInversion(pj.x1Inv(),pj.x2Inv(),pj.y1Inv(),pj.y2Inv()); // if connectors are plugged in the wrong direction
+   // cout << "inversions " << pj.x1Inv()<<" "<<pj.x2Inv()<<" "<<pj.y1Inv()<<" "<<pj.y2Inv() << endl;
+  //  det.setInversion(pj.x1Inv(),pj.x2Inv(),pj.y1Inv(),pj.y2Inv()); // if connectors are plugged in the wrong direction
   
     string outFile = "reco_" + detName+"_"+sr+ ".root";
     cout << "Output file: " << outFile << endl;
