@@ -138,6 +138,7 @@ int NEVENTS = -1;
 int SKIPEV  = -1;
 bool DoRES = false;
 float MaxR = 1.;
+int NLADDERS  = 3;
 
 // =================================================================
 
@@ -331,7 +332,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
       seeddet.push_back(icl.first);// maybe not useful if detector are ordered
     }
 
-    if( ncl > 1 ) good = false; // skip seeds with less three hits
+    if( ncl > (4-NLADDERS) ) good = false; // skip seeds with less three hits
     if( ! good ){
       nt->Fill();
       tracks->clear();
@@ -378,6 +379,7 @@ void print_help(){
             << " -R [string] sets the global rotation\n"
             << " -r activates the computation of the residuals\n"
             << " -m [float] sets the limits for the residuals histograms\n"
+            << " -l [int] sets the minimum number of ladders used for tracking\n"
             << " -n [int] sets the max number of events\n"
             << " -s [int] skip s events\n";
 
@@ -393,7 +395,7 @@ int main(int argc, char *argv[])
 
   // reading some options
   int opt;
-  while((opt = getopt(argc, argv, "hrn:m:d:g:R:s:")) != -1) { 
+  while((opt = getopt(argc, argv, "hrn:m:d:g:R:s:l:")) != -1) { 
     switch(opt) { 
       case 'd':
         basedir = optarg;
@@ -422,6 +424,10 @@ int main(int argc, char *argv[])
       case 's':
         SKIPEV=std::atoi(optarg);
         std::cout << "Skipping "<< SKIPEV <<"  Events " << std::endl;
+        break;
+      case 'l':
+        NLADDERS=std::atoi(optarg);
+        std::cout << "N Ladders "<< NLADDERS << std::endl;
         break;
       case 'h':
         print_help();
