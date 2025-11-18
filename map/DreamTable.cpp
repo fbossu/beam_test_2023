@@ -15,6 +15,14 @@ void DreamTable::setInversion(bool iC0, bool iC1, bool iC2, bool iC3){
 	inv[3] = iC3;
 }
 
+void DreamTable::setFlip(bool iC0, bool iC1, bool iC2, bool iC3){
+  // a flip is when a connector is returned, but the cable stayed with the same orientation
+	flip[0] = iC0;
+	flip[1] = iC1;
+	flip[2] = iC2;
+	flip[3] = iC3;
+}
+
 bool DreamTable::isConnected(int ch){
 	int dream = ch/64;
 	return ( std::find(dreamConnect.begin(), dreamConnect.end(), dream) != dreamConnect.end() && std::find(offChannel.begin(), offChannel.end(), ch) == offChannel.end());
@@ -25,12 +33,16 @@ int DreamTable::toGB(int ch){
 	int dreamNb = ch/64;
 	int dreamch = ch%64;
 	int cntNb = std::find(dreamConnect.begin(), dreamConnect.end(), dreamNb) - dreamConnect.begin();
+	if(flip[cntNb]){ // exchange pair and upair channels
+    dreamch = (dreamch%2==0) ? dreamch+1 : dreamch-1;
+  }
 	if(inv[cntNb]){
 		return (cntNb+1)*64 - 1 - dreamch;
 	}
 	else{
 		return cntNb*64 + dreamch;
 	}
+
 }
 
 bool DreamTable::isNeighbour(int ch1, int ch2){
