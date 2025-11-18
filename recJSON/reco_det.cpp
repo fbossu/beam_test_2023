@@ -4,6 +4,7 @@
 #include "TInterpreter.h"
 #include "../reco/definitions.h"
 
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -395,6 +396,7 @@ int main( int argc, char **argv ){
     cout << " "<< sr << ",";
 
     vector<string> decodedFiles = pj.decodeFiles( sr, localPath );
+    sort( decodedFiles.begin(), decodedFiles.end() );
     cout << "Found " << decodedFiles.size() << " decoded files in subrun: " << sr << endl;
     TChain *ch = new TChain("nt");
     for(auto f : decodedFiles){
