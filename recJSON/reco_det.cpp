@@ -61,6 +61,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
 
 // =====================================================================
 bool JustHits = false;
+bool UseFlips = false;
 int NEV=-1;
 int NSKIP=-1;
 // =====================================================================
@@ -297,6 +298,7 @@ void print_help(){
             << " -l [string] local run path\n"
             << " -H make only hits\n"
             << " -v verbose\n"
+            << " -f use flips\n"
             << " -S [int] numer of samples\n"
             << " -c [int] dream connectors\n"
             << "For Local Usage:  reco_det -l [path to root] -d [path to map file] \n";
@@ -318,7 +320,7 @@ int main( int argc, char **argv ){
   int connectors=4567;
 
   int opt;
-  while((opt = getopt(argc, argv, "j:d:n:s:m:vHS:l:c:")) != -1) { 
+  while((opt = getopt(argc, argv, "j:d:n:s:m:vfHS:l:c:")) != -1) { 
     switch(opt) { 
       case 'j':
         jsonPath = optarg;
@@ -356,6 +358,10 @@ int main( int argc, char **argv ){
         localPath = optarg;
         cout << " local run path " <<  localPath << endl;
         break;
+      case 'f':
+        UseFlips = true;
+        cout << " flips " << endl;
+        break;
       default:
         print_help();
         return 1;
@@ -367,7 +373,8 @@ int main( int argc, char **argv ){
     DreamTable det;
     det = DreamTable( detName, connectors/1000, (connectors%1000)/100, (connectors%100)/10, connectors%10  );
     det.setInversion(false, false, false, false); // if cables are plugged in the wrong direction
-    det.setFlip(true, true, false, false); // if connectors are slodered flipped
+    det.setFlip(false, false, false, false); // if connectors are slodered flipped
+    if( UseFlips )det.setFlip(true, true, false, false); // if connectors are slodered flipped
   
     cout << "connectors read " << det.getConnectors() << endl;
     string outFile = "reco_" + localPath;
@@ -412,7 +419,9 @@ int main( int argc, char **argv ){
     cout << "connectors read " << det.getConnectors() << endl;
     //det.setInversion(false, false, false, false); // if connectors are plugged in the wrong direction
     cout << "flips " << pj.x1Inv()<<" "<<pj.x2Inv()<<" "<<pj.y1Inv()<<" "<<pj.y2Inv() << endl;
-    det.setFlip(pj.x1Inv(),pj.x2Inv(),pj.y1Inv(),pj.y2Inv()); // if connectors are plugged in the wrong direction
+    det.setFlip(false, false, false, false); // if connectors are slodered flipped
+    if( UseFlips )
+      det.setFlip(pj.x1Inv(),pj.x2Inv(),pj.y1Inv(),pj.y2Inv()); // if connectors are plugged in the wrong direction
   
     string outFile = "reco_" + detName+"_"+sr+ ".root";
     cout << "Output file: " << outFile << endl;
