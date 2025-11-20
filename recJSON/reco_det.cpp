@@ -397,6 +397,8 @@ int main( int argc, char **argv ){
     return 1;
   }
 
+  nbSample = pj.getNSamples();
+  cout << " Setting the number of samples from JSON file: " << nbSample << endl;
   cout << "Found " << subRuns.size() << " subruns in JSON file: " << argv[1] << ":" << endl;
 
   for(auto sr : subRuns){
