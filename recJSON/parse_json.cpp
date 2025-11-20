@@ -11,6 +11,8 @@ ParseJson::ParseJson(std::string jsonPath, std::string detName): jsonPath(jsonPa
             detInfo = it.value();
         }
     }
+
+    daqInfo = strJson["dream_daq_info"];
 }
 
 // list of subruns
@@ -100,4 +102,8 @@ bool ParseJson::y1Inv(){
 
 bool ParseJson::y2Inv(){
     return detInfo["dream_feu_inversion"]["y_2"].get<bool>();
+}
+
+int ParseJson::getNSamples() {
+    return daqInfo["n_samples_per_waveform"].get<int>();
 }

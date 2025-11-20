@@ -30,14 +30,17 @@ class ParseJson {
         int y1Dream();
         int y2Dream();
 	
-	bool x1Inv();	
-	bool x2Inv();	
-	bool y1Inv();	
-	bool y2Inv();	
+        bool x1Inv();	
+        bool x2Inv();	
+        bool y1Inv();	
+        bool y2Inv();	
+
+        int getNSamples();
+        /*int getNSamples();*/
 
     private:
         std::string jsonPath, detName;
-        json strJson, detInfo;
+        json strJson, detInfo, daqInfo;
 };
 
 #endif
