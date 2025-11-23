@@ -1,4 +1,4 @@
-ROOT = $(shell root-config --cflags) $(shell root-config --libs) -lEG -lRooFitCore -lGenVector
+ROOT = $(shell root-config --cflags) $(shell root-config --libs) -lEG -lGenVector
 JSON = -I /home/fbossu/software/json/include/
 
 all: reco_det
