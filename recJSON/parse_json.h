@@ -37,10 +37,17 @@ class ParseJson {
 
         int getNSamples();
         /*int getNSamples();*/
+       
+        // geometry
+        float getZposition();
+
+        float getBancoYposition(); 
+
 
     private:
         std::string jsonPath, detName;
         json strJson, detInfo, daqInfo;
+        json bench_geometry;
 };
 
 #endif

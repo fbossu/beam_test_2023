@@ -13,6 +13,8 @@ ParseJson::ParseJson(std::string jsonPath, std::string detName): jsonPath(jsonPa
     }
 
     daqInfo = strJson["dream_daq_info"];
+
+    bench_geometry = strJson["bench_geometry"];
 }
 
 // list of subruns
@@ -31,7 +33,8 @@ std::vector<std::string> ParseJson::decodeFiles(std::string subRun ){
 }
 std::vector<std::string> ParseJson::decodeFiles(std::string subRun, std::string basepath = ""){
     std::vector<std::string> files;
-    std::string path = strJson["run_out_dir"].get<std::string>() + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
+    //std::string path = strJson["run_out_dir"].get<std::string>() + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
+    std::string path = strJson["run_out_dir"].get<std::string>() + "/" + subRun + "/" + strJson["decoded_root_inner_dir"].get<std::string>() + "/";
     if( basepath.size() > 0 ){
       //path = basepath + "/" + subRun + "/" + strJson["filtered_root_inner_dir"].get<std::string>() + "/";
       path = basepath + "/" ;
@@ -107,3 +110,12 @@ bool ParseJson::y2Inv(){
 int ParseJson::getNSamples() {
     return daqInfo["n_samples_per_waveform"].get<int>();
 }
+
+float ParseJson::getZposition(){
+  return detInfo["det_center_coords"]["z"].get<float>();
+}
+
+float ParseJson::getBancoYposition(){
+  return bench_geometry["banco_moveable_y_position"].get<float>();
+}
+
