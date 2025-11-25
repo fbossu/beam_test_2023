@@ -40,8 +40,8 @@ banco::track Fit( std::vector<XYZVector> seed, int ignore=-1 ){
     auto p = seed[i];
     grx.SetPoint(i,p.Z(),p.X());
     gry.SetPoint(i,p.Z(),p.Y());
-    grx.SetPointError(i,0,0.028/sqrt(12));
-    gry.SetPointError(i,0,0.028/sqrt(12));
+    grx.SetPointError(i,0,3*0.028/sqrt(12));
+    gry.SetPointError(i,0,3*0.028/sqrt(12));
   }
 
   auto ptrx = grx.Fit("pol1","Q0S");
