@@ -129,8 +129,8 @@ int main(int argc, char* argv[]){
     std::string basedir = argv[0];
     basedir = basedir.substr(0, basedir.find_last_of("/")) + "/";
 
-    if(argc != 4 and argc != 3){
-        std::cerr << "compute efficiency " << argv[0] << " <detName> <banco.root> <mm.root>" << std::endl;
+    if(argc < 3 and argc > 5){
+        std::cerr << "compute efficiency " << argv[0] << " <detName> <banco.root> <mm.root> <banco y>" << std::endl;
         std::cerr << "plot " << argv[0] << " <detName> <efficiency.txt>" << std::endl;
         return 1;
     }
@@ -146,6 +146,9 @@ int main(int argc, char* argv[]){
     std::string fnameBanco = argv[2];
     std::string fnameMM = argv[3];
 
+    float bancoY = 0.;
+    if( argc == 5 ) bancoY = std::atof( argv[4] );
+
     std::string mapName;
     if (detName.find("asa") != std::string::npos) {
         mapName = basedir + "../map/" + "asa_map.txt";
@@ -153,6 +156,8 @@ int main(int argc, char* argv[]){
         mapName = basedir + "../map/" + "strip_map.txt";
     } else if (detName.find("inter") != std::string::npos) {
         mapName = basedir + "../map/" + "inter_map.txt";
+    } else if (detName.find("rd5") != std::string::npos) {
+        mapName = basedir + "../map/" + "rd542_map.txt";
     } else {
         std::cerr << "Invalid detector name" << std::endl;
         return 1;
@@ -168,6 +173,9 @@ int main(int argc, char* argv[]){
         if(nb<13) alignName = basedir + "../map/alignFiles/" + detName + "_" + "HVS" + ".txt";
         else alignName = basedir + "../map/alignFiles/"+ detName + "_" + "HVS2" + ".txt";
     }
+    else if ( detName.find("rd5") != std::string::npos ) {
+      alignName = "alignFiles/" + detName + ".txt";
+    }
     else{
         std::cerr << "Invalid run name" << std::endl;
         return 1;
@@ -175,9 +183,6 @@ int main(int argc, char* argv[]){
 
     StripTable det(mapName, alignName);
     std::cout<<"Detector "<<detName<<" at "<<det.getZpos()<<std::endl;
-    auto posBeam = beamPosition(fnameBanco, det.getZpos(), true);
-    std::cout<<det.getZpos()<<" x: "<<posBeam[0][0]<<" +- "<<posBeam[1][0]<<std::endl;
-    std::cout<<det.getZpos()<<" y: "<<posBeam[0][1]<<" +- "<<posBeam[1][1]<<std::endl;
 
     TFile* fMM = TFile::Open(fnameMM.c_str(), "read");
     TFile* fbanco = TFile::Open(fnameBanco.c_str(), "read");
@@ -189,66 +194,109 @@ int main(int argc, char* argv[]){
     TTreeReaderValue< std::vector<hit> > hits( MM, "hits");
     TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
 
+    TTreeReaderValue< unsigned long > banco_evId( banco, "eventId");
+    TTreeReaderValue< unsigned long > MM_evId( MM, "eventId");
+
     double numX = 0, denX = 0;
     double numY = 0, denY = 0;
     double numXY = 0, denXY = 0;
 
-    double dtol = 1.5;
+    double dtol = 2.5;
     double sigma = 5;
+ 
+    TFile *fout = TFile::Open( ("eff_"+ detName + ".root").c_str(),"recreate");
+    TH2F *hNumX  = new TH2F("hNumX","efficiency X",   100, -30, 210, 100, -30, 210); 
+    TH2F *hNumY  = new TH2F("hNumY","efficiency Y",   100, -30, 210, 100, -30, 210); 
+    TH2F *hNumXY = new TH2F("hNumXY","efficiency XY", 100, -30, 210, 100, -30, 210); 
+    hNumX->SetDirectory(fout);
+    hNumY->SetDirectory(fout);
+    hNumXY->SetDirectory(fout);
+
+    TH2F *hDenXY = new TH2F("hDenXY","efficiency XY", 100, -30, 210, 100, -30, 210); 
+    hDenXY->SetDirectory(fout);
+
 
     while( MM.Next() ){
-        bool isBanco = banco.Next();
-        if(!isBanco){
-            std::cout<<"WARNING: Missing banco event"<<std::endl;
-            continue;
-        }
-        if(tracks->size() == 0 or cls->size() == 0) continue;
+      bool isBanco = banco.Next();
+      if( *MM_evId != *banco_evId ){
+        std::cout << "WARNING: files with different numbers of triggers. MM: " << *MM_evId << "; banco: " << *banco_evId << std::endl;
+        break;
+      }
+      if(!isBanco){
+          std::cout<<"WARNING: Missing banco event"<<std::endl;
+          continue;
+      }
 
-        auto tr = *std::min_element(tracks->begin(), tracks->end(),
-                        [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
-        if(tr.chi2x>1 or tr.chi2y>1) continue;
+      // skip events without tracks 
+      if(tracks->size() == 0 or cls->size() == 0) continue;
 
-        auto maxX = maxSizeClX(*cls);
-        auto maxY = maxSizeClY(*cls);
-        
-        double xreftr = tr.x0 + tr.mx*det.getZpos();
-        double yreftr = tr.y0 + tr.my*det.getZpos();
-        if(abs(yreftr - posBeam[0][1]) < sigma*posBeam[1][1] and abs(xreftr - posBeam[0][0]) < sigma*posBeam[1][0]){
-            denX++;
-            denY++;
-            denXY++;
-        }else continue;
+      // get the best track
+      auto tr = *std::min_element(tracks->begin(), tracks->end(),
+                      [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
+      if(tr.chi2x>3 or tr.chi2y>20) continue;
 
-        if(maxX){
-            std::vector<double> detPos = det.pos3D(maxX->stripCentroid, -1);
-            double ytr = tr.y0 + tr.my*detPos[2];
-            if(abs(detPos[1]-ytr) < dtol) numX++;
-        }
-        if(maxY){
-            std::vector<double> detPos = det.pos3D(-1, maxY->stripCentroid);
-            double xtr = tr.x0 + tr.mx*detPos[2];
-            if(abs(detPos[0]-xtr) < dtol) numY++;
-        }
-        if(maxX && maxY){
-            std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
-            double xtr = tr.x0 + tr.mx*detPos[2];
-            double ytr = tr.y0 + tr.my*detPos[2];
-            if(abs(detPos[0]-xtr) < dtol and abs(detPos[1]-ytr) < dtol) numXY++;
-        }
+      // find the clusters with the largest size. TODO is this needed? how to check on cluster quality?
+      auto maxX = maxSizeClX(*cls);
+      auto maxY = maxSizeClY(*cls);
+      
+      double xreftr = tr.x0 + tr.mx*det.getZpos();
+      double yreftr = tr.y0 + tr.my*det.getZpos() + bancoY; // taking in consideration the shift of banco
+
+      // at this point here we have a good track;
+      denX++;
+      denY++;
+      denXY++;
+
+      hDenXY->Fill( xreftr, yreftr );
+
+      if(maxX){
+          std::vector<double> detPos = det.pos3D( maxX->stripCentroid,-1);
+          if(abs(detPos[1]-yreftr) < dtol){
+            numX++;
+            hNumX->Fill( xreftr, yreftr );
+          }
+      }
+      if(maxY){
+          std::vector<double> detPos = det.pos3D(-1, maxY->stripCentroid);
+          if(abs(detPos[0]-xreftr) < dtol){
+            numY++;
+            hNumY->Fill( xreftr, yreftr );
+          }
+      }
+      if(maxX && maxY){
+          std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
+          double xtr = tr.x0 + tr.mx*detPos[2];
+          double ytr = tr.y0 + tr.my*detPos[2];
+          if(abs(detPos[0]-xreftr) < dtol and abs(detPos[1]-yreftr) < dtol){
+            numXY++;
+            hNumXY->Fill( xreftr, yreftr );
+          }
+      }
     }
+
+    fMM->Close();
+    fbanco->Close();
 
     std::cout<<"\nEfficiency X: "<<numX/denX<<" den:"<<denXY<<std::endl;
     std::cout<<"Efficiency Y: "<<numY/denY<<" den:"<<denXY<<std::endl;
     std::cout<<"Efficiency XY: "<<numXY/denXY<<" den:"<<denXY<<std::endl;
 
+    TH2F *hEffX  = (TH2F*)hNumX->Clone("hEffX"); 
+    TH2F *hEffY  = (TH2F*)hNumY->Clone("hEffY"); 
+    TH2F *hEffXY  = (TH2F*)hNumXY->Clone("hEffXY"); 
+    hEffX->SetDirectory(fout);
+    hEffY->SetDirectory(fout);
+    hEffXY->SetDirectory(fout);
+    hEffX->Divide( hDenXY );
+    hEffY->Divide( hDenXY );
+    hEffXY->Divide( hDenXY );
+   
+    fout->Write();
+    fout->Close();
     // // in efficiency.txt file write run,numX,denX,numY,denY,numXY,denXY
-    // std::ofstream outfile;
-    // outfile.open("efficiency.txt");
-    // outfile << run << "," << numX << "," << denX << "," << numY << "," << denY << "," << numXY << "," << denXY << std::endl;
-    // outfile.close();
-
-    fMM->Close();
-    fbanco->Close();
-
+    std::ofstream outfile;
+    outfile.open( detName+"_efficiency.txt");
+    outfile << run << "," << numX << "," << denX << "," << numY << "," << denY << "," << numXY << "," << denXY << std::endl;
+    outfile.close();
     return 0;
 }

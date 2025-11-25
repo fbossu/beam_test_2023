@@ -112,7 +112,7 @@ int main(int argc, char const *argv[])
 
   TH2F* h2strip = new TH2F("h2test", "strip number test", 200, -0.5, 128.5, 200, -0.5, 128.5);
   // TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 200, -20, 120, 200, -120, 20);
-  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 500, -120, 20, 500, -20, 120);
+  TH2F* h2gerber = new TH2F("h2gerber", "gerber test", 500, -150, 30, 500, -30, 150);
 
   std::map<int, hist> histMap;
 

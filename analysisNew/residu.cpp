@@ -78,7 +78,7 @@ std::vector<double> rotation(double posx, double posy, double posz){
 
 double Xpitch, Xinter, Ypitch, Yinter;
 
-void residue(std::string resName, std::string fnameBanco, std::string fnameMM, StripTable det){
+void residue(std::string resName, std::string fnameBanco, std::string fnameMM, StripTable det, float bancoY){
 
   TFile* res = new TFile((resName).c_str(), "recreate");
 
@@ -117,7 +117,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
 
     auto tr = *std::min_element(tracks->begin(), tracks->end(),
                        [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
-    if(tr.chi2x>1 or tr.chi2y>1) continue;
+    if(tr.chi2x>2 or tr.chi2y>2) continue;
     auto maxX = maxSizeClX(*cls);
     auto maxY = maxSizeClY(*cls);
     
@@ -147,7 +147,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
       // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
 
       double xtrack = tr.x0 + detPos[2]*tr.mx;
-      double ytrack = tr.y0 + detPos[2]*tr.my;
+      double ytrack = tr.y0 + detPos[2]*tr.my + bancoY; 
       
       // for(int i=0; i<hitsY.size(); i++){
       //   // if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
@@ -179,8 +179,8 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   TFile* res = new TFile((resName).c_str(), "open");
   TNtupleD* nt = (TNtupleD*) res->Get("nt");
 
-  double meanxdet = getMean(nt, "xdet",{-200, 200});
-  double meanydet = getMean(nt, "ydet",{-200, 200});
+  double meanxdet = getMean(nt, "xdet",{-300, 300});
+  double meanydet = getMean(nt, "ydet",{-300, 300});
   double stdx = getStdDev(nt, "xres",{-50, 50});
   double stdy = getStdDev(nt, "yres",{-50, 50});
 
@@ -196,8 +196,15 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
     meanresy += 1.5;
     meanresx += 1.5;
   }
+  TH1F htmpx("htmpx","", 200, -200, 200);
+  nt->Project("htmpx","xres");
+  TH1F htmpy("htmpy","", 200, -200, 200);
+  nt->Project("htmpy","yres");
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
+  meanresx = htmpx.GetBinCenter(htmpx.GetMaximumBin());
+  meanresy = htmpy.GetBinCenter(htmpy.GetMaximumBin());
+  avg_std = 3.;
 
   TH1F* hx = new TH1F("hx", "Residue X strips (track - detector)", 300, meanresy-1.5*avg_std, meanresy+1.5*avg_std);
   hx->GetXaxis()->SetTitle("residue [mm]");
@@ -243,13 +250,13 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   // gStyle->SetTextSize(20); // Set the font size to 0.05
 
   TCanvas *c = new TCanvas("c", "c", 1600,1200);
-  // gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
   TLatex latex;
   // latex.SetTextFont(43);
   // latex.SetTextSize(18);
   std::string label;
 
-  c->Divide(2,2);
+  c->Divide(1,2);
   c->cd(1);
   hx->Draw();
   // gPad->SetLogy();
@@ -280,32 +287,33 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   label = "#sigma_{Y}: " + std::to_string(fitFuncY->GetParameter(2)).substr(0, 5); // + "#pm " + std::to_string(fitFuncY->GetParError(2)).substr(0, 6);
   latex.DrawLatexNDC(0.65, 0.72, (label).c_str());
   
-  c->cd(3);
-  TF1 *fpol1 = new TF1("pol1", "pol1", meanydet-1.5, meanydet+1.5);
-  prx->Fit(fpol1, "R");
-  h2x->Draw("colz");
-  prx->Draw("same");
-  gPad->SetLogz();
-  label = "slope="+ std::to_string(fpol1->GetParameter(1)).substr(0, 5);
-  // latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
+  //c->cd(3);
+  //TF1 *fpol1 = new TF1("pol1", "pol1", meanydet-1.5, meanydet+1.5);
+  //prx->Fit(fpol1, "R");
+  //h2x->Draw("colz");
+  //prx->Draw("same");
+  //gPad->SetLogz();
+  //label = "slope="+ std::to_string(fpol1->GetParameter(1)).substr(0, 5);
+  //// latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
 
-  c->cd(4);
-  TF1 *fpoly = new TF1("poly", "pol1", meanxdet-1.5, meanxdet+1.5);
-  pry->Fit(fpoly, "R");
-  h2y->Draw("colz");
-  pry->Draw("same");
-  gPad->SetLogz();
-  label = "slope="+ std::to_string(fpoly->GetParameter(1)).substr(0, 5);
-  // latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
+  //c->cd(4);
+  //TF1 *fpoly = new TF1("poly", "pol1", meanxdet-1.5, meanxdet+1.5);
+  //pry->Fit(fpoly, "R");
+  //h2y->Draw("colz");
+  //pry->Draw("same");
+  //gPad->SetLogz();
+  //label = "slope="+ std::to_string(fpoly->GetParameter(1)).substr(0, 5);
+  //// latex.DrawLatexNDC(0.15, 0.8, (label).c_str());
 
   c->Print(graphname.c_str(), "png");
   res->Close();
 
 
-  double angleXout = atan(fpol1->GetParameter(1));
-  double angleYout = atan(fpoly->GetParameter(1));
+  //double angleXout = atan(fpol1->GetParameter(1));
+  //double angleYout = atan(fpoly->GetParameter(1));
 
-  return { fitFuncX->GetParameter(2), fitFuncY->GetParameter(2), angleXout, angleYout };
+  return { fitFuncX->GetParameter(2), fitFuncY->GetParameter(2), 0,0};
+  //return { fitFuncX->GetParameter(2), fitFuncY->GetParameter(2), angleXout, angleYout };
 }
 
 

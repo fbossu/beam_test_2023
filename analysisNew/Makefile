@@ -27,3 +27,6 @@ spectreP2: spectreP2.cpp ../reco/definitions.h
 
 hitmap: hitmap.cpp analysis.h
 	g++ -o hitmap hitmap.cpp ../reco/Dict.cxx $(DT) $(ROOT)
+
+eff: efficiency.cpp analysis.h
+	g++ -o eff efficiency.cpp ../reco/Dict.cxx ../banco/DictBanco.cxx $(DT) $(ROOT)
