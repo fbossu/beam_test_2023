@@ -460,7 +460,7 @@ double* alignXY(std::string pos, StripTable det, std::vector<banco::track> track
 	double pLow[7] = {pStart[0]-50., pStart[1]-100., pStart[2]-100., pStart[3]-30.*M_PI/180., pStart[4]-30.*M_PI/180., pStart[5]-30.*M_PI/180., pStart[6]-10.*M_PI/180.};
 	double pUp[7]  = {pStart[0]+50., pStart[1]+100., pStart[2]+100., pStart[3]+30.*M_PI/180., pStart[4]+30.*M_PI/180., pStart[5]+30.*M_PI/180., pStart[6]+10.*M_PI/180.};
 	for(int i=0; i<6; i++){
-		minimum->SetVariableLimits(i, pLow[i], pUp[i]);
+		minimum->SetVariableLimits(i, 2*pLow[i], 2*pUp[i]);
 	}
 
 	minimum->Minimize();
@@ -741,7 +741,7 @@ double* globalMinima(StripTable det, std::vector<banco::track> tracks, std::vect
 int main(int argc, char const *argv[])
 {
 	if (argc < 4) {
-		std::cerr << "Usage: " << argv[0] << "<detname> <bancoFile.root> <MMFile.root>" << std::endl;
+		std::cerr << "Usage: " << argv[0] << "<detname> <bancoFile.root> <MMFile.root> <Zpos>" << std::endl;
 		return 1;
 	}
 
@@ -750,11 +750,11 @@ int main(int argc, char const *argv[])
 	std::string detName    = argv[1];
 	std::string fnameBanco = argv[2];
 	std::string fnameMM    = argv[3];
+	float zpos    = std::atof(argv[4]);
 
 	std::string mapName;
 	// double zpos = 0., rotZ = 0., rotY = -0.15, rotX = 0.088;
-	double zpos = 0., rotZ = 0., rotY = 0., rotX = 0.0;
-
+	double rotZ = 0., rotY = 180., rotX = 0.0;
 	if (detName == "asaFEU4") {
 		mapName = "asa_map.txt";
 		zpos = -785.6;
@@ -767,22 +767,24 @@ int main(int argc, char const *argv[])
 	} else if (detName == "interFEU1") {
 		mapName = "inter_map.txt";
 		zpos = -425.6;
+	} else if (detName == "rd5") {
+		mapName = "rd542_map.txt";
 	} else {
 		std::cerr << "Invalid detector name" << std::endl;
 		return 1;
 	}
 	StripTable det(basedir+"../map/"+mapName);
 	
-	std::string run;
-    if(fnameMM.find("POS") != std::string::npos){
-        run = fnameMM.substr(fnameMM.find("POS"), 5);
-    }else if(fnameMM.find("HVS") != std::string::npos){
-        run = fnameMM.substr(fnameMM.find("HVS"), 5);
-    }
-    else{
-        std::cerr << "Invalid run name" << std::endl;
-        return 1;
-    }
+	std::string run ="13";
+    //if(fnameMM.find("POS") != std::string::npos){
+        //run = fnameMM.substr(fnameMM.find("POS"), 5);
+    //}else if(fnameMM.find("HVS") != std::string::npos){
+        //run = fnameMM.substr(fnameMM.find("HVS"), 5);
+    //}
+    //else{
+        //std::cerr << "Invalid run name" << std::endl;
+        //return 1;
+    //}
 	std::cout << "Run: " << run << std::endl;
 
 	TFile *fbanco = TFile::Open(fnameBanco.c_str(), "read");
@@ -793,27 +795,41 @@ int main(int argc, char const *argv[])
 
 	TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
 	TTreeReaderValue< std::vector<banco::track> > tracks( banco, "tracks");
+  TTreeReaderValue< unsigned long > evIdMM( MM, "eventId");
+  TTreeReaderValue< unsigned long > evIdbanco(banco, "eventId");
+
 
 	std::vector<banco::track> tracksFit;
 	std::vector<cluster> XclsFit, YclsFit;
 	double initTx = 0., initTy = 0.;
 	int nev = 0;
 
-  	while( MM.Next() ){
-    	bool isBanco = banco.Next();
-    	if(!isBanco){
-      		std::cout<<"WARNING: Missing banco event"<<std::endl; 
-      		continue;
-    	}
-		if(tracks->size() == 0 or cls->size() == 0) continue;
+  //while( MM.Next() ){
+  for( int iev = 0 ; iev < MM.GetEntries() ; iev++ ){
+    MM.SetEntry(iev);
+    banco.SetEntry(iev);
+    //bool isBanco = banco.Next();
+    //if(!isBanco){
+      //std::cout<<"WARNING: Missing banco event "<< nev <<std::endl; 
+      //continue;
+    //}
+    if( (*evIdMM) != (*evIdbanco) ){
+      std::cout << (*evIdMM) << " " << (*evIdbanco) << std::endl;
+      break;
+    }
+    
 
-    	auto tr = *std::min_element(tracks->begin(), tracks->end(),
+		if(tracks->size() == 0 or cls->size() == 0){
+      continue;
+    }
+    auto tr = *std::min_element(tracks->begin(), tracks->end(),
                        [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
     	
-		if(tr.chi2x>1. or tr.chi2y>1.) continue;
+		if(tr.chi2x>30. or tr.chi2y>30.) continue;
+    std::cout << tracks->size() << " " << cls->size() << std::endl;
     	
 		auto maxX = maxSizeClX(*cls);
-    	auto maxY = maxSizeClY(*cls);
+    auto maxY = maxSizeClY(*cls);
 		if(!maxX or !maxY) continue;
 		// if(maxX->size < 2 or maxY->size < 2) continue;
 		

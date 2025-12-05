@@ -1,18 +1,16 @@
-all: reco reco_det
+ROOT = $(shell root-config --cflags) $(shell root-config --libs) -lEG -lGenVector
+JSON = -I /home/fbossu/software/json/include/
 
-reco: reco.cpp definitions.h linkdef.h ../map/DetectorTable.o ../map/DreamTable.o
-	rootcling -f Dict.cxx definitions.h linkdef.h
-	g++ reco.cpp Dict.cxx -o reco ../map/DetectorTable.o ../map/DreamTable.o $(shell root-config --cflags) $(shell root-config --libs )
+all: reco_det
 
-reco_det: reco_det.cpp definitions.h linkdef.h ../map/DetectorTable.o ../map/DreamTable.o
-	rootcling -f Dict.cxx definitions.h linkdef.h
-	g++ reco_det.cpp Dict.cxx -o reco_det ../map/DetectorTable.o ../map/DreamTable.o $(shell root-config --cflags) $(shell root-config --libs )
+parse_json.o: parse_json.cpp parse_json.h
+	g++ -c parse_json.cpp $(JSON)
 
-# ../map/DetectorTable.o: ../map/DetectorTable.h ../map/DetectorTable.cpp
-# 	g++ -c ../map/DetectorTable.cpp -o ../map/DetectorTable.o
-
-# ../map/DetectorTable.o: ../map/DetectorTable.h ../map/DetectorTable.cpp
-# 	g++ -c ../map/DetectorTable.cpp -o ../map/DetectorTable.o
-
+reco_det: reco_det.cpp parse_json.o ../reco/definitions.h ../reco/linkdef.h ../map/DetectorTable.o ../map/DreamTable.o
+	g++ reco_det.cpp ../reco/Dict.cxx -o reco_det parse_json.o ../map/DetectorTable.o ../map/DreamTable.o $(ROOT) $(JSON)
+	ln -s ../reco/Dict_rdict.pcm
 clean:
-	rm reco Dict*
+	unlink Dict_rdict.pcm
+	rm reco_det
+
+

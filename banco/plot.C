@@ -53,8 +53,10 @@ void plot() {
     c->SaveAs( (s + ".pdf").c_str() );
   }
 
-  // draw slopes
+  // draw slopes and chi2
   TCanvas *cm = new TCanvas("cm","slopes");
+  cm->Divide(2,1);
+  cm->cd(1);
   TLegend *l = new TLegend(.1,0.6,.3,.9);
   auto nt = fin->Get<TTree>("events");
   TH1F *hmx = new TH1F("hmx", "slope", 300, -0.05, 0.05 );
@@ -66,13 +68,20 @@ void plot() {
   nt->Draw("tracks.my>>hmy","","same");
   l->AddEntry(hmy,"l","y");
   l->Draw();
+  cm->cd(2);
+  TH1F *hxchi2 = new TH1F("hxchi2", "chi2", 300, 0, 15 );
+  hxchi2->SetLineColor(kBlack);
+  nt->Draw("tracks.chi2x>>hxchi2");
+  TH1F *hychi2 = new TH1F("hychi2", "chi2", 300, 0, 15 );
+  hychi2->SetLineColor(kRed);
+  nt->Draw("tracks.chi2y>>hychi2","","same");
 
   cout << "mean"  << setw(10) << hmx->GetMean() << setw(10) << hmy->GetMean() << endl;
   cout << "angle" << setw(10) << 
           atan( hmx->GetMean() ) << setw(10) << 
           atan( hmy->GetMean() )<< endl;
 
-
+  return;
  // draw occupancies
   TCanvas *co = new TCanvas("banco occupancies","banco occupancies", 1000,600);
   co->Divide(1,4);

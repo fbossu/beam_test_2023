@@ -25,6 +25,7 @@ struct cluster {
   uint16_t size;
   uint16_t id;
   char     axis;
+  uint32_t ampsum;
   float    stripCentroid;
 };
 #endif
