@@ -41,6 +41,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   double centroidDen = 0.;
   double stripCentroidNum = 0.;
   char axis = hitcl.at(0)->axis;
+  uint32_t totamp = 0;
   // cout << "axis " << axis << endl;
 
   for( auto h : hitcl ){
@@ -49,6 +50,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
     centroidNum += h->channel * (h->maxamp-256);
     stripCentroidNum += h->strip * (h->maxamp-256);
     centroidDen += h->maxamp-256;
+    totamp += h->maxamp-256;
   }
   cluster cl;
   cl.id = clId;
@@ -56,6 +58,7 @@ cluster makeCluster( vector<hit*> &hitcl, int clId){
   cl.centroid = centroidNum / centroidDen;
   cl.stripCentroid = stripCentroidNum / centroidDen;
   cl.axis = axis;
+  cl.ampsum = totamp;
   return cl;
 }
 
