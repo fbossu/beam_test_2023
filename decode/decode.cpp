@@ -148,7 +148,7 @@ int main( int argc, char *argv[]) {
   while( true ){
 
     if( NEVENTS > 0 and i > NEVENTS ) break;
-    //if( i > 574 ) debug = true;
+    //if( i > 58671 ) debug = true;
     //if (debug && (i > 0)) break;
 
     // FEU header
@@ -387,6 +387,11 @@ int main( int argc, char *argv[]) {
             cout.fill(prev);
         }
         if (read16(is, data)) break;
+    }
+    if( debug ) cout << "Is end of file? " << is.eof() << endl;
+    if( is.eof() ){
+      cout << "*** End of file ***" << endl;
+      break;
     }
   }
 
