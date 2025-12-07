@@ -13,7 +13,12 @@ void anres::init( TTreeReader *MM, TTreeReader *banco ){
   cls  = new TTreeReaderValue< std::vector<cluster> >( *MM, "clusters");
   tracks = new TTreeReaderValue< std::vector<banco::track> >( *banco, "tracks");
 
+  std::string oname = "res_" + detname ;
+  fout = TFile::Open( (oname+".root").c_str(),"recreate");
+  if (!fout ){ std::cerr << "*** ERROR res, issues in opening fout\n"; return; }
+
   nt = new TNtuple("nt", "nt", "icl:xtr:ytr:xdet:ydet:xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:stX:stY:stresX:stresY:chX:chY");
+  nt->SetDirectory(fout);
 
 }
 
@@ -57,9 +62,6 @@ void anres::end() {
   hresy->Fit("gaus");
   c->SaveAs( (oname + ".png").c_str() );
 
-  TFile *fout = TFile::Open( (oname+".root").c_str(),"recreate");
-
-  nt->SetDirectory(fout);
   hresx->SetDirectory(fout);
   hresy->SetDirectory(fout);
 

@@ -29,6 +29,8 @@ void anhits::init(  TTreeReader *MM, TTreeReader *banco){
   //anhits = new TTreeReaderValue< std::vector<hit> >( *MM, "hits");
   tracks = new TTreeReaderValue< std::vector<banco::track> >( *banco, "tracks");
 
+  std::string oname = "hitmap_" + detname ;
+  fout = TFile::Open( (oname+".root").c_str(),"recreate");
   axis *axch = createAxis( "channel", 256, 0, 128);
   out_m["hClsX"] = createHisto( "hChX", "Clusters X", axch );
   out_m["hClsY"] = createHisto( "hChY", "Clusters Y", axch );
@@ -65,6 +67,9 @@ void anhits::init(  TTreeReader *MM, TTreeReader *banco){
   //// TH2F *h2clsAmp = 
   //TH2F *h2NclVsClsSizeX = create2DHisto("h2NclVsClsSizeX", "cls vs size X",axnCls, axclssize);
   //TH2F *h2NclVsClsSizeY = create2DHisto("h2NclVsClsSizeY", "cls vs size Y",axnCls, axclssize);
+  for( auto h : out_m ){
+    ((TH1F*)h.second)->SetDirectory(fout);
+  }
 }
 
 void anhits::end(){
@@ -74,10 +79,6 @@ void anhits::end(){
   out_m["hHitMapMax"]->Draw("colz");
   chits->SaveAs( (oname + ".png").c_str()  );
 
-  TFile *fout = TFile::Open( (oname+".root").c_str(),"recreate");
-  for( auto h : out_m ){
-    ((TH1F*)h.second)->SetDirectory(fout);
-  }
   fout->Write();
   fout->Close();
 }

@@ -10,6 +10,10 @@ aneff::aneff( StripTable *d, std::string dn, float by ){
 void aneff::init( TTreeReader *MM, TTreeReader *banco ){
   cls  = new TTreeReaderValue< std::vector<cluster> >( *MM, "clusters");
   tracks = new TTreeReaderValue< std::vector<banco::track> >( *banco, "tracks");
+
+  std::string oname = "eff_" + detname ;
+  fout = TFile::Open( (oname+".root").c_str(),"recreate");
+
   axis *ax_x = createAxis("x", 300, -30, 160);
   axis *ax_y = createAxis("y", 300, -30, 160);
 
@@ -17,6 +21,10 @@ void aneff::init( TTreeReader *MM, TTreeReader *banco ){
   out_m["hNumX"]  = create2DHisto( "hNumX",  "X Num",  ax_x, ax_y);
   out_m["hNumY"]  = create2DHisto( "hNumY",  "Y Num",  ax_x, ax_y);
   out_m["hNumXY"] = create2DHisto( "hNumXY", "XY Num", ax_x, ax_y);
+
+  for( auto h : out_m ){
+    ((TH1F*)h.second)->SetDirectory(fout);
+  }
 }
 
 void aneff::end() {
@@ -35,11 +43,6 @@ void aneff::end() {
     std::cout << " **** WARNING Eff *** No counts\n";
   }
 
-  std::string oname = "eff_" + detname ;
-  TFile *fout = TFile::Open( (oname+".root").c_str(),"recreate");
-  for( auto h : out_m ){
-    ((TH1F*)h.second)->SetDirectory(fout);
-  }
   fout->Write();
   fout->Close();
 }
