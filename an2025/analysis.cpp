@@ -1,3 +1,5 @@
+#include "reco/definitions.h"
+#include "banco/definition_banco.h"
 #include "map/StripTable.h"
 #include <string>
 
@@ -22,6 +24,7 @@
 // end();
 
 #include "eff.h"
+#include "res.h"
 #include "hits.h"
 
 using namespace std;
@@ -123,6 +126,8 @@ int main( int argc, char* argv[]) {
   plugs.push_back(&H);
   aneff E(&det, detName, bancoY );
   plugs.push_back(&E);
+  anres R(&det, detName, bancoY );
+  plugs.push_back(&R);
   // ========== call the inits of the plugins =====
   for( auto p : plugs ) p->init( &MM, &banco);
 
@@ -136,14 +141,10 @@ int main( int argc, char* argv[]) {
 
 
       if( iev%1000 == 0 ) std::cout << std::setw(12) << iev << "\r" << std::flush;
-      //H.run();
-      //E.run();
     for( auto p : plugs ) p->run();
   }
 
   // ========== finalize ==========================
-  //H.end();
-  //E.end();
   for( auto p : plugs ) p->end();
   return 0;
 }
