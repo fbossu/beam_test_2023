@@ -40,6 +40,7 @@ void print_help(){
             << " -B [float] banco y position\n"
             << " -M [string] mapping file\n"
             << " -A [string] alignment direcotry\n"
+            << " -a [string] choose analyses [ehrt]\n"
             << " -n [int] max numer of events\n"
             << " -s [int] skip events\n";
 
@@ -55,11 +56,12 @@ int main( int argc, char* argv[]) {
   string fnameMM;
   string mapName;
   string alignDirName;
+  string anChoice = "ehrt";
   int NEV   = -1;
   int NSKIP = 0;
   float bancoY = 0.;
   int opt;
-  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:" )) != -1 ){
+  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:a:" )) != -1 ){
     switch(opt) { 
       case 'm':
         fnameMM = optarg;
@@ -68,6 +70,10 @@ int main( int argc, char* argv[]) {
       case 'b':
         fnameBanco = optarg;
         cout << " Banco file name " <<  fnameBanco << endl;
+        break;
+      case 'a':
+        anChoice = optarg;
+        cout << " chosen analyses " <<  anChoice << endl;
         break;
       case 'M':
         mapName = optarg;
@@ -121,15 +127,30 @@ int main( int argc, char* argv[]) {
   TTreeReaderValue< unsigned long > MM_evId( MM, "eventId");
 
   // ========== create the plugins =====
-  std::vector<anplug*> plugs;
   anhits H(&det, detName, bancoY );
-  plugs.push_back(&H);
   aneff E(&det, detName, bancoY );
-  plugs.push_back(&E);
   anres R(&det, detName, bancoY );
-  plugs.push_back(&R);
+  std::map<char,anplug*> plugs;
+  for( auto a : anChoice ){
+    switch( a ){
+      case 'h':
+      case 'H':
+        plugs['h'] = &H;
+        break;
+      case 'e':
+      case 'E':
+        plugs['e'] = &E;
+        break;
+      case 'r':
+      case 'R':
+        plugs['r'] = &R;
+        break;
+      default:
+        break;
+    }
+  }
   // ========== call the inits of the plugins =====
-  for( auto p : plugs ) p->init( &MM, &banco);
+  for( auto p : plugs ) p.second->init( &MM, &banco);
 
   // ========== LOOP over events ==================
   for( int iev = NSKIP; iev < MM.GetEntries(); iev++ ){
@@ -141,11 +162,11 @@ int main( int argc, char* argv[]) {
 
 
       if( iev%1000 == 0 ) std::cout << std::setw(12) << iev << "\r" << std::flush;
-    for( auto p : plugs ) p->run();
+    for( auto p : plugs ) p.second->run();
   }
 
   // ========== finalize ==========================
-  for( auto p : plugs ) p->end();
+  for( auto p : plugs ) p.second->end();
   return 0;
 }
 
