@@ -44,7 +44,8 @@ void print_help(){
 // ------------------------------------------
 int main( int argc, char* argv[]) {
 
-  //string basedir = dirname( argv[0] );
+  string basedir = argv[0];
+  basedir = basedir.substr(0, basedir.find_last_of("\\/") + 1);
   //cout << basedir << endl;
   string detName; 
   string fnameBanco;
@@ -101,7 +102,7 @@ int main( int argc, char* argv[]) {
   }
 
   if( mapName == "" )
-    mapName = "/home/fbossu/Data/EIC/TestBeam/code/map/rd542_map.txt";
+    mapName = basedir + "/../map/rd542_map.txt";
   
   string alignName = "alignFiles/" + detName + ".txt";
   if( alignDirName != "" ) alignName = alignDirName + "/" + detName + ".txt";
