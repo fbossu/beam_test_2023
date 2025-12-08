@@ -175,9 +175,9 @@ int main( int argc, char* argv[]) {
   }
 
   // ========== finalize ==========================
+  defStyle();
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1);
-  defStyle();
   for( auto p : plugs ) p.second->end();
   return 0;
 }

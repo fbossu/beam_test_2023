@@ -1,6 +1,8 @@
 #include "res.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TProfile.h"
+#include "TF1.h"
 
 anres::anres( StripTable *d, std::string dn, float by ){
  det = d;
@@ -90,8 +92,8 @@ void anres::end() {
   nt->Project( "hXctime1", "Xtf", "icl==0" );
   nt->Project( "hYctime1", "Ytf", "icl==0" );
 
-  TCanvas *ct = new TCanvas("ct","clusters and time", 1600, 1000);
-  ct->Divide(2,1);
+  TCanvas *ct = new TCanvas("ct","clusters and time", 1600, 1600);
+  ct->Divide(2,2);
   ct->cd(1);
   hXcsize->SetLineColor( kBlue );
   hYcsize->SetLineColor( kOrange + 2 );
@@ -119,6 +121,22 @@ void anres::end() {
   l2->AddEntry( hYctime1, "Y 1st", "l");
   l2->Draw();
 
+  ct->cd(3);
+  TProfile *prx = new TProfile("prx", "xres:xtr", 100, 20, 140, -10., 10.);
+  nt->Draw("xres:xtr");
+  nt->Project("prx","xres:xtr");
+  prx->Fit("pol1","0");
+  prx->Draw("same");
+  auto f1 = prx->GetFunction("pol1");
+  auto p1x = f1->GetParameter(1);
+
+  ct->cd(4);
+  TProfile *pry = new TProfile("pry", "yres:ytr", 100, bancoY-20., bancoY+8., -10., 10.);
+  nt->Draw("yres:ytr");
+  nt->Project("pry","yres:ytr");
+  pry->Draw("same");
+  //pry->Fit("pol1","same");
+
   ct->Update();
   ct->SaveAs( ("time_"+oname+".png").c_str() );
 
@@ -127,6 +145,8 @@ void anres::end() {
 
   fout->Write();
   fout->Close();
+
+  std::cout << p1x << std::endl;
 }
 
 bool anres::run(){
