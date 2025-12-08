@@ -173,6 +173,8 @@ int main( int argc, char* argv[]) {
   }
 
   // ========== finalize ==========================
+  gStyle->SetOptStat(1);
+  gStyle->SetOptFit(1);
   for( auto p : plugs ) p.second->end();
   return 0;
 }
