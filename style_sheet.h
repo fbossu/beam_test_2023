@@ -10,7 +10,7 @@ void defStyle(){
 // Set the font and size for all axis labels
     /*TGaxis::SetMaxDigits(3);*/
     gStyle->SetLabelFont(42, "XYZ"); // Set the font to Helvetica for the labels of the x-axis, y-axis, and z-axis
-    gStyle->SetLabelSize(0.05, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
+    gStyle->SetLabelSize(0.045, "XYZ"); // Set the font size for the labels of the x-axis, y-axis, and z-axis
 
     // Set the font and size for all axis titles
     gStyle->SetTitleFont(42, "XYZ"); // Set the font to Helvetica for the titles of the x-axis, y-axis, and z-axis
@@ -37,5 +37,5 @@ void defStyle(){
     gStyle->SetFrameLineWidth(2);
     // gStyle->SetFuncWidth(2);
     gStyle->SetHistLineWidth(2);
-    gROOT->ForceStyle();
+//    gROOT->ForceStyle();
 }

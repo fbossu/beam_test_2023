@@ -1,5 +1,6 @@
 #include "res.h"
 #include "TCanvas.h"
+#include "TLegend.h"
 
 anres::anres( StripTable *d, std::string dn, float by ){
  det = d;
@@ -22,7 +23,10 @@ void anres::init( TTreeReader *MM, TTreeReader *banco ){
   fout = TFile::Open( (oname+".root").c_str(),"recreate");
   if (!fout ){ std::cerr << "*** ERROR res, issues in opening fout\n"; return; }
 
-  nt = new TNtuple("nt", "nt", "icl:xtr:ytr:xdet:ydet:xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:stX:stY:chX:chY:Xt:stXt:Yt:stYt:Xtf:stXtf:Ytf:stYtf");
+  nt = new TNtuple("nt", "nt", "icl:xtr:ytr:xdet:ydet:"\
+      "xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:"\
+      "stX:stY:chX:chY:"\
+      "Xt:stXt:Yt:stYt:Xtf:stXtf:Ytf:stYtf");
   nt->SetDirectory(fout);
 
 }
@@ -33,8 +37,8 @@ void anres::end() {
     return;
   }
   // find the maxima and rms for plotting
-  axis *ax_x = createAxis("x", 500, -50, 50);
-  axis *ax_y = createAxis("y", 500, -50, 50);
+  axis *ax_x = createAxis("x", 800, -80, 80);
+  axis *ax_y = createAxis("y", 800, -80, 80);
 
   TH1F *htmpx = createHisto( "htmpx","htmpx", ax_x);
   TH1F *htmpy = createHisto( "htmpy","htmpy", ax_y);
@@ -59,13 +63,64 @@ void anres::end() {
 
   std::string oname = "res_" + detname ;
 
-  TCanvas *c = new TCanvas("cres", oname.c_str(), 1000,600);
+  TCanvas *c = new TCanvas("cres", oname.c_str(), 1600,1000);
   c->Divide(2,1);
   c->cd(1);
-  hresx->Fit("gaus");
+  hresx->Fit("gaus","R","", hresx->GetMean() - hresx->GetRMS(), hresx->GetMean() + hresx->GetRMS());
   c->cd(2);
-  hresy->Fit("gaus");
+  hresy->Fit("gaus","R","", hresy->GetMean() - hresy->GetRMS(), hresy->GetMean() + hresy->GetRMS());
+  c->Update();
   c->SaveAs( (oname + ".png").c_str() );
+
+  // some plots about cluster size and time resolution
+
+  axis *axclsize = createAxis( "cluster size", 15, 0, 15);
+  TH1F *hXcsize  = createHisto( "hXcsize", "cluster size", axclsize);
+  TH1F *hYcsize  = createHisto( "hYcsize", "cluster size", axclsize);
+  nt->Project( "hXcsize", "Xclsize", "icl==0" );
+  nt->Project( "hYcsize", "Yclsize", "icl==0" );
+
+  axis *axcltime = createAxis( "cluster time", 300, 150, 750);
+  TH1F *hXctime  = createHisto( "hXctime", "cluster time", axcltime);
+  TH1F *hYctime  = createHisto( "hYctime", "cluster time", axcltime);
+  TH1F *hXctime1  = createHisto( "hXctime1", "cluster time 1st", axcltime);
+  TH1F *hYctime1  = createHisto( "hYctime1", "cluster time 1st", axcltime);
+  nt->Project( "hXctime", "Xt", "icl==0" );
+  nt->Project( "hYctime", "Yt", "icl==0" );
+  nt->Project( "hXctime1", "Xtf", "icl==0" );
+  nt->Project( "hYctime1", "Ytf", "icl==0" );
+
+  TCanvas *ct = new TCanvas("ct","clusters and time", 1600, 1000);
+  ct->Divide(2,1);
+  ct->cd(1);
+  hXcsize->SetLineColor( kBlue );
+  hYcsize->SetLineColor( kOrange + 2 );
+  hXcsize->Draw();
+  hYcsize->Draw("same");
+  TLegend *l1 = new TLegend( 0.6,0.6, 0.9,0.9); 
+  l1->AddEntry( hXcsize, "X", "l");
+  l1->AddEntry( hYcsize, "Y", "l");
+  l1->Draw();
+
+  ct->cd(2);
+  hXctime->SetLineColor( kBlue );
+  hYctime->SetLineColor( kOrange + 2);
+  hXctime->Draw();
+  hYctime->Draw("same");
+  hXctime1->SetLineColor( kViolet );
+  hYctime1->SetLineColor( kGreen+3 );
+  hXctime1->Draw("same");
+  hYctime1->Draw("same");
+
+  TLegend *l2 = new TLegend( 0.6,0.6, 0.9,0.9); 
+  l2->AddEntry( hXctime, "X", "l");
+  l2->AddEntry( hYctime, "Y", "l");
+  l2->AddEntry( hXctime1, "X 1st", "l");
+  l2->AddEntry( hYctime1, "Y 1st", "l");
+  l2->Draw();
+
+  ct->Update();
+  ct->SaveAs( ("time_"+oname+".png").c_str() );
 
   hresx->SetDirectory(fout);
   hresy->SetDirectory(fout);

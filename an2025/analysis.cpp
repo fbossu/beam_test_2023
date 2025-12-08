@@ -17,6 +17,8 @@
 #include <getopt.h>
 #include <libgen.h>
 
+#include "../style_sheet.h"
+
 // this is the main analysis program
 // analysis plugins must have this structure
 // init( TTreeReader MM, TTreeReader *banco);
@@ -175,6 +177,7 @@ int main( int argc, char* argv[]) {
   // ========== finalize ==========================
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1);
+  defStyle();
   for( auto p : plugs ) p.second->end();
   return 0;
 }
