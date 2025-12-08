@@ -41,6 +41,7 @@ void print_help(){
             << " -M [string] mapping file\n"
             << " -A [string] alignment direcotry\n"
             << " -a [string] choose analyses [ehrt]\n"
+            << " -t [float] tolerance for match\n"
             << " -n [int] max numer of events\n"
             << " -s [int] skip events\n";
 
@@ -60,8 +61,9 @@ int main( int argc, char* argv[]) {
   int NEV   = -1;
   int NSKIP = 0;
   float bancoY = 0.;
+  float tolerance = 0.;
   int opt;
-  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:a:" )) != -1 ){
+  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:a:t:" )) != -1 ){
     switch(opt) { 
       case 'm':
         fnameMM = optarg;
@@ -90,6 +92,10 @@ int main( int argc, char* argv[]) {
       case 'B':
         bancoY = atof(optarg);
         cout << " banco position " <<  bancoY << endl;
+        break;
+      case 't':
+        tolerance = atof(optarg);
+        cout << " tolerance " <<  tolerance << endl;
         break;
       case 'n':
         NEV = atoi(optarg);
@@ -130,6 +136,7 @@ int main( int argc, char* argv[]) {
   anhits H(&det, detName, bancoY );
   aneff E(&det, detName, bancoY );
   anres R(&det, detName, bancoY );
+  R.setTolerance(tolerance);
   std::map<char,anplug*> plugs;
   for( auto a : anChoice ){
     switch( a ){

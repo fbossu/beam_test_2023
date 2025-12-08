@@ -5,19 +5,24 @@ anres::anres( StripTable *d, std::string dn, float by ){
  det = d;
  detname = dn;
  bancoY = by;
- dtol = 5.;
+ dtol   = 5.;
+ sr     = 60.;
+ cftst  = 10.;
  nt = 0x0;
 }
 
 void anres::init( TTreeReader *MM, TTreeReader *banco ){
   cls  = new TTreeReaderValue< std::vector<cluster> >( *MM, "clusters");
+  hits  = new TTreeReaderValue< std::vector<hit> >( *MM, "hits");
   tracks = new TTreeReaderValue< std::vector<banco::track> >( *banco, "tracks");
+
+  ftst = new TTreeReaderValue< unsigned short>(*MM,"ftst");
 
   std::string oname = "res_" + detname ;
   fout = TFile::Open( (oname+".root").c_str(),"recreate");
   if (!fout ){ std::cerr << "*** ERROR res, issues in opening fout\n"; return; }
 
-  nt = new TNtuple("nt", "nt", "icl:xtr:ytr:xdet:ydet:xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:stX:stY:stresX:stresY:chX:chY");
+  nt = new TNtuple("nt", "nt", "icl:xtr:ytr:xdet:ydet:xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:stX:stY:chX:chY:Xt:stXt:Yt:stYt:Xtf:stXtf:Ytf:stYtf");
   nt->SetDirectory(fout);
 
 }
@@ -111,9 +116,25 @@ bool anres::run(){
     float yGerber = det->pos3D(clusterX.stripCentroid,-1)[1];
     if( abs( ytr - yGerber ) > dtol ) break; // since cls are sorted, we can break
 
+    // get the time information of the cluster with max amplitude and the strip with the lowest time of max
+    auto Xhits = getHits( clusterX.id ); // select his for the current cluster and sort them by amplitude
+    float Xmatofm = stToTime(Xhits[0].timeofmax);
+    int XmatofmStr = Xhits[0].strip;
+    sortHitsByTime(Xhits);
+    float Xfirsttofm = stToTime(Xhits[0].timeofmax) ;
+    int XfirsttofmStr = Xhits[0].strip;
+
     for( auto clusterY : clsY ){ 
       float xGerber = det->pos3D(-1,clusterY.stripCentroid)[0];
       if( abs(xtr - xGerber ) > dtol ) break;// since cls are sorted, we can break
+
+      // get the time information of the cluster with max amplitude and the strip with the lowest time of max
+      auto Yhits = getHits( clusterY.id ); // select his for the current cluster and sort them by amplitude
+    float Ymatofm = stToTime(Yhits[0].timeofmax);
+    int YmatofmStr = Yhits[0].strip;
+    sortHitsByTime(Yhits);
+    float Yfirsttofm = stToTime(Yhits[0].timeofmax) ;
+    int YfirsttofmStr = Yhits[0].strip;
 
       // get the position of the xy cluster in the lab ref
       std::vector<double> detPos = det->pos3D(clusterX.stripCentroid, clusterY.stripCentroid);
@@ -121,15 +142,18 @@ bool anres::run(){
       float ydet = detPos[1];
 
       // prepare to fill the ntuple
-      float data[17] = { 
+      float data[23] = { 
         (float) icl, 
         xtr, ytr, xdet, ydet, 
         xtr-xdet, ytr-ydet, 
         (float)clusterX.size, (float)clusterY.size, 
         (float)clusterX.ampsum, (float)clusterX.ampsum , 
         clusterX.stripCentroid, clusterY.stripCentroid, 
-        ytr-clusterX.stripCentroid, xtr-clusterY.stripCentroid, 
-        clusterX.centroid, clusterY.centroid
+        clusterX.centroid, clusterY.centroid,
+        Xmatofm, (float)XmatofmStr,
+        Ymatofm, (float)YmatofmStr,
+        Xfirsttofm, (float)XfirsttofmStr,
+        Yfirsttofm, (float)YfirsttofmStr
       };
       
       nt->Fill( data );
@@ -140,3 +164,24 @@ bool anres::run(){
 }
 
 
+std::vector<hit> anres::getHits(int clId){
+  std::vector<hit> h;
+  std::copy_if ((*hits)->begin(), (*hits)->end(), std::back_inserter(h),
+      [clId](const hit& h){return h.clusterId==clId;} );
+  std::sort (h.begin(), h.end(),
+      [](const hit& a, const hit& b) {return a.maxamp > b.maxamp;});
+  return h;
+}
+
+void anres::sortHitsByTime( std::vector<hit> &h ){
+
+  std::sort( h.begin(), h.end(),
+      [](const hit& a, const hit& b) {
+        return a.timeofmax < b.timeofmax;
+      }
+      );
+}
+
+float anres::stToTime( float t ){
+    return t * sr + cftst * (**ftst);
+}

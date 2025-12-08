@@ -22,12 +22,23 @@ class anres : public anplug {
     virtual bool run();
     virtual void end();
 
+    void setTolerance( float d ){ dtol = d; }
+    void setSampleRate( float d ){ sr = d; }
+    void setCftst( float d ){ cftst = d; }
+  protected:
+    virtual std::vector<hit> getHits( int );
+    virtual void sortHitsByTime( std::vector<hit> & );
+    inline float stToTime( float );
   private:
     TTreeReaderValue<std::vector<cluster>> *cls;
+    TTreeReaderValue<std::vector<hit>> *hits;
     TTreeReaderValue< std::vector<banco::track> > *tracks;
+    TTreeReaderValue< unsigned short> *ftst;
     
     std::map<std::string, TH1*> out_m;
     TNtuple *nt;
 
-    float dtol; // tolerance to find a good cluster
+    float dtol;  // tolerance to find a good cluster
+    float sr;    // sample rate
+    float cftst; // ftst factor
 };
