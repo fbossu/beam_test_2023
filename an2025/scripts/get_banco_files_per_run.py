@@ -33,7 +33,7 @@ for sr in subruns:
     print( os.getcwd() )
 
     subprocess.run( [
-        TB+"data2025/run_banco.sh",
+        TB+"code/an2025/scripts/run_banco.sh",
         outdir+"/"+run+"/"+srn,
         "-1"
     ] )
