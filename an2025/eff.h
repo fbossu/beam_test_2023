@@ -27,5 +27,4 @@ class aneff : public anplug {
     
     std::map<std::string, TH2*> out_m;
 
-    float dtol; // tolerance to find a good cluster
 };

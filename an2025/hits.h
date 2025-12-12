@@ -20,12 +20,12 @@ class anhits : public anplug {
     virtual void init( TTreeReader *, TTreeReader* );
     virtual bool run();
     virtual void end();
-
+    
   private:
     TTreeReaderValue<std::vector<cluster>> *cls;
     /*TTreeReaderValue<hit>     *_hits;*/
     /*TTreeReaderValue< std::vector<hit> > *hits;*/
     TTreeReaderValue< std::vector<banco::track> > *tracks;
-    
+
     std::map<std::string, TH1*> out_m;
 };

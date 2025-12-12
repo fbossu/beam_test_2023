@@ -54,7 +54,7 @@ bool aneff::run(){
   // get the best track
   auto tr = *std::min_element((*tracks)->begin(), (*tracks)->end(),
                   [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
-  if(tr.chi2x>4 or tr.chi2y>20) return false;
+  if(tr.chi2x > tchi2 or tr.chi2y > tchi2) return false;
 
   // at this point we have a good track
 

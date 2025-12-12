@@ -22,7 +22,6 @@ class anres : public anplug {
     virtual bool run();
     virtual void end();
 
-    void setTolerance( float d ){ dtol = d; }
     void setSampleRate( float d ){ sr = d; }
     void setCftst( float d ){ cftst = d; }
   protected:
@@ -38,7 +37,6 @@ class anres : public anplug {
     std::map<std::string, TH1*> out_m;
     TNtuple *nt;
 
-    float dtol;  // tolerance to find a good cluster
     float sr;    // sample rate
     float cftst; // ftst factor
 };

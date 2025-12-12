@@ -21,6 +21,7 @@ anhits::anhits( StripTable *d, std::string dn, float by ){
  det = d;
  detname = dn;
  bancoY = by;
+ dtol   = 10.;
 }
 
 void anhits::init(  TTreeReader *MM, TTreeReader *banco){
@@ -173,11 +174,11 @@ bool anhits::run() {
   for( auto clusterX : clsX ){
 
     double yGerber = det->pos3D(clusterX.stripCentroid,-1)[1];
-    if( abs(tr.y0 + det->getZpos()*tr.my + bancoY - yGerber ) > 5. ) break;
+    if( abs(tr.y0 + det->getZpos()*tr.my + bancoY - yGerber ) > dtol ) break;
 
     for( auto clusterY : clsY ){ 
       double xGerber = det->pos3D(-1,clusterY.stripCentroid)[0];
-      if( abs(tr.x0 + det->getZpos()*tr.mx - xGerber ) > 5. ) break;
+      if( abs(tr.x0 + det->getZpos()*tr.mx - xGerber ) > dtol ) break;
 
       hsxsywT->Fill( clusterX.size, clusterY.size );
     }
