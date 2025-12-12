@@ -2,7 +2,9 @@
 
 The general idea is to have analysis code as separate **plugins**. \
 `analysis.cpp` is the main program. You can additional plugins for specific analyses.
+The analysis program runs over the events stored in two separate reconstructed files, one for the detector under study, the other one contains the reference banco tracks (but in principle can also be a second micromegas reconstructed file).
 
+### how to compile and run it
 
 ```bash
 make
@@ -78,3 +80,17 @@ Run it like
 ```bash
 $BEAMTESTCODE/an2025/scripts/analysis.py [detector name] [...run_config.json] [options]
 ```
+## Available analysis plugins
+
+The following analyses are provided:
+
+### Hits
+
+### Efficiency
+
+### Resolution
+
+
+
+
+
