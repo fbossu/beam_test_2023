@@ -4,14 +4,39 @@ The general idea is to have analysis code as separate **plugins**. \
 `analysis.cpp` is the main program. You can additional plugins for specific analyses.
 The analysis program runs over the events stored in two separate reconstructed files, one for the detector under study, the other one contains the reference banco tracks (but in principle can also be a second micromegas reconstructed file).
 
-### how to compile and run it
+### Setup the enviroment
+
+On **feyman** one can use the software provided by LCG via /cvmfs.
+
+_Suggestion_ Create a `setup.sh` that can be sourced or put these lines in your .bashrc (or equivalent)
+```bash
+source /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos8-gcc11-opt/setup.sh
+
+export BEAMTESTCODE=$TESTBEAM/code
+```
+
+### How to compile and run it
+
+Before compiling the analysis code, one need to compile the reconsrtuction of banco and the micromegas. 
 
 ```bash
+cd $BEAMTESTCODE/banco
 make
+cd $BEAMTESTCODE/map
+make
+cd $BEAMTESTCODE/reco
+make
+```
+
+Then you can proceed with the compilation of the analysis code using `make`
+
+#### how to run it
+This is a basic example on how to run the analysis
+```bash
 ./an -d DETNAME -m MMfile.root -b Bancofile.root
 ```
 
-Options
+The program has many flags that can be activated. Use -h to get a full list of options
 ```
 Usage: an -d DETNAME -m MMfile.root -b Bancofile.root
 Options: 
@@ -36,22 +61,14 @@ Then, in `analysis.cpp` the new plugin can be added to the map of plugins.
 
 ## Analysis workflow
 
-### Setup the enviroment
-
-On **feyman** one can use the software provided by LCG via /cvmfs.
-
-_Suggestion_ Create a `setup.sh` that can be sourced or put these lines in your .bashrc (or equivalent)
-```bash
-source /cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-centos8-gcc11-opt/setup.sh
-
-export BEAMTESTCODE=$TESTBEAM/code
-```
+### Source the environment
+See above
 
 ### Prepare the runs
 
 Data are stored on **feynman** here
 ```bash
-/feynman/scratch/dphn/lsn/dn277127/beam_sps_25/Runs
+export DATAEIC25=/feynman/scratch/projets/eic-cymbal/beam_sps_25/Runs
 ```
 
 First of all, in your work directory, you should copy the `run_config.json` files and you should change the internal paths to point to the appropriate directory.
