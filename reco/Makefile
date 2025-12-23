@@ -3,7 +3,7 @@ JSON = -I /home/fbossu/software/json/include/
 
 all: dict reco_det
 
-dict: Dict.cxx definitions.h linkdef.h
+dict: definitions.h linkdef.h
 	rootcling -f Dict.cxx definitions.h linkdef.h
 
 parse_json.o: parse_json.cpp parse_json.h

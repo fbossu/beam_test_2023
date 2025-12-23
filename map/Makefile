@@ -5,7 +5,7 @@ export ROOTSYS := $(ROOTSYS):$(PWD)/../reco
 $(info ROOT_INCLUDE_PATH is $(ROOT_INCLUDE_PATH))
 
 #all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment checkTrlRot paramAlign
-all: inter strip asa DetectorTable.o DreamTable.o StripTable.o alignment 
+all: inter strip asa DetectorTable.o DreamTable.o StripTable.o
 
 asa: factory_asa.cpp
 	g++ factory_asa.cpp -o factory_asa
