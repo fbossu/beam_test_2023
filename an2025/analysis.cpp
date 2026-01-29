@@ -44,6 +44,7 @@ void print_help(){
             << " -A [string] alignment direcotry\n"
             << " -a [string] choose analyses [ehrt]\n"
             << " -t [float] tolerance for match\n"
+            << " -S [float] sample rate\n"
             << " -n [int] max numer of events\n"
             << " -s [int] skip events\n";
 
@@ -63,9 +64,10 @@ int main( int argc, char* argv[]) {
   int NEV   = -1;
   int NSKIP = 0;
   float bancoY = 0.;
-  float tolerance = 0.;
+  float tolerance = 5.;
+  float samplerate = 60.;
   int opt;
-  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:a:t:" )) != -1 ){
+  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:a:t:S:" )) != -1 ){
     switch(opt) { 
       case 'm':
         fnameMM = optarg;
@@ -98,6 +100,10 @@ int main( int argc, char* argv[]) {
       case 't':
         tolerance = atof(optarg);
         cout << " tolerance " <<  tolerance << endl;
+        break;
+      case 'S':
+        samplerate = atof(optarg);
+        cout << " samplerate " <<  samplerate << endl;
         break;
       case 'n':
         NEV = atoi(optarg);
@@ -139,6 +145,7 @@ int main( int argc, char* argv[]) {
   aneff E(&det, detName, bancoY );
   anres R(&det, detName, bancoY );
   R.setTolerance(tolerance);
+  R.setSampleRate(samplerate);
   std::map<char,anplug*> plugs;
   for( auto a : anChoice ){
     switch( a ){

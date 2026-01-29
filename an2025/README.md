@@ -39,16 +39,21 @@ This is a basic example on how to run the analysis
 The program has many flags that can be activated. Use -h to get a full list of options
 ```
 Usage: an -d DETNAME -m MMfile.root -b Bancofile.root
-Options: 
+Options:
  -d [string] detector name
  -m [string] MM root file
  -b [string] banco root file
  -B [float] banco y position
  -M [string] mapping file
  -A [string] alignment direcotry
+ -a [string] choose analyses [ehrt]
+ -t [float] tolerance for match
+ -S [float] sample rate
  -n [int] max numer of events
  -s [int] skip events
 ```
+
+*Tip:* check out the scripts directory! (see below)
 
 ## Adding a plugin
 
