@@ -11,6 +11,8 @@ public:
 	DreamTable() = default;
 	~DreamTable() = default;
 	DreamTable(std::string idetFile, int dreamConnect0, int dreamConnect1, int dreamConnect2, int dreamConnect3);
+  /*DreamTable(std::string idetFile, int dreamConnectors );*/
+	DreamTable(std::string idetFile, std::string dreamConnectors );
 
 	void setInversion(bool iC0, bool iC1, bool iC2, bool iC3);
 	void setFlip(bool iC0, bool iC1, bool iC2, bool iC3);

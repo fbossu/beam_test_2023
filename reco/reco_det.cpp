@@ -320,7 +320,8 @@ int main( int argc, char **argv ){
   string jsonPath   = "";
   string detName    = "";
   string localPath  = "";
-  int connectors=4567;
+  std::string connectors="4567";
+
 
   int opt;
   while((opt = getopt(argc, argv, "j:d:n:s:m:vfHS:l:c:")) != -1) { 
@@ -354,7 +355,8 @@ int main( int argc, char **argv ){
         cout << " number of samples " <<  nbSample << endl;
         break;
       case 'c':
-        connectors = atoi(optarg);
+        //connectors = atoi(optarg);
+        connectors = optarg;
         cout << " connectors " <<  connectors << endl;
         break;
       case 'l':
@@ -374,7 +376,8 @@ int main( int argc, char **argv ){
   // local use
   if( localPath != "" ){
     DreamTable det;
-    det = DreamTable( detName, connectors/1000, (connectors%1000)/100, (connectors%100)/10, connectors%10  );
+   // det = DreamTable( detName, connectors/1000, (connectors%1000)/100, (connectors%100)/10, connectors%10  );
+    det = DreamTable( detName, connectors );
     det.setInversion(false, false, false, false); // if cables are plugged in the wrong direction
     det.setFlip(false, false, false, false); // if connectors are slodered flipped
     if( UseFlips )det.setFlip(true, true, false, false); // if connectors are slodered flipped

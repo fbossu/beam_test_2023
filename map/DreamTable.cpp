@@ -8,6 +8,23 @@ DreamTable::DreamTable(std::string idetFile, int dreamConnect0, int dreamConnect
 	this->buildTable();
 }
 
+DreamTable::DreamTable(std::string idetFile, std::string dreamConnects ) : DetectorTable(idetFile) {
+
+  //while( dreamConnects > 0 ){
+    //dreamConnect.push_back( dreamConnects%10 );
+    //dreamConnects /=10;
+  //}
+  char* p_end{};
+  for( auto a : dreamConnects ){
+    dreamConnect.push_back( std::strtol( &a, &p_end, 16 ) );
+  }
+  inv.clear();
+  inv.resize( dreamConnects.size(), false );
+  flip.clear();
+  flip.resize( dreamConnects.size(), false );
+	this->buildTable();
+}
+
 void DreamTable::setInversion(bool iC0, bool iC1, bool iC2, bool iC3){
 	inv[0] = iC0;
 	inv[1] = iC1;

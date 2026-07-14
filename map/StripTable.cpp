@@ -18,6 +18,10 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 		zonePitch = { {1.2f, 1.f} };
 		zoneInter = { {0.125f, 0.7f} };
 	}
+	else if(idetFile.find("geic0") != std::string::npos){
+		zonePitch = { {1.766f, 1.021f} };
+		zoneInter = { {1.066f, 0.121f} };
+	}
 	else{
 		// throw std::runtime_error("Error: zones not recognized");
 		std::cout<<"Warning: detector zones not found, setting default pitch and inter values"<<std::endl;
@@ -98,13 +102,14 @@ std::vector<double> StripTable::pos(double sn, char axis){
 	int snmax = snmin + 1;
 	int GBchmin = this->toGB(snmin, axis);	
 	int GBchmax = this->toGB(snmax, axis);
-	if(GBchmin<0 or GBchmax<0) return {-9999., -9999.};
+  if(GBchmin<0 ) return {-9999., -9999.};
 	// std::cout<<axis<<" PosX "<<this->getPosx(GBchmin)<<" "<<this->getPosx(GBchmax)<<std::endl;
 	// std::cout<<axis<<" PosY "<<this->getPosy(GBchmin)<<" "<<this->getPosy(GBchmax)<<std::endl;
 	// std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*abs(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
 							  // this->getPosy(GBchmin) + (sn - snmin)*abs(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
-	std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
-							  this->getPosy(GBchmin) + (sn - snmin)*(this->getPosy(GBchmax) - this->getPosy(GBchmin)) };
+                //std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*(this->getPosx(GBchmax) - this->getPosx(GBchmin)),
+	std::vector<double> v = { this->getPosx(GBchmin) + (sn - snmin)*(this->pitch(sn,axis)),
+							  this->getPosy(GBchmin) + (sn - snmin)*(this->pitch(sn,axis)) };
 	// std::cout<<axis<<" vxy "<<v[0]<<" "<<v[1]<<std::endl;
 
 	// a translation form the 0,0 origin of the gerber axis to the center of the active region of the detector
@@ -134,6 +139,19 @@ std::vector<double> StripTable::pos3D(double snx, double sny){
 	ROOT::Math::XYZPoint pr = trans(pdet);
 	return {pr.x(), pr.y(), pr.z()};
 }
+
+std::vector<double> StripTable::pos3DG(double snx, double sny){
+	double xpos, ypos;
+	if(sny<0) ypos = -50.;
+	else ypos = this->pos(sny, 'y')[1];
+	if(snx<0) xpos = 990.;
+	else xpos = this->pos(snx, 'x')[0];
+
+	ROOT::Math::XYZPoint pdet(xpos, ypos, 0.);
+	ROOT::Math::XYZPoint pr = trans(pdet);
+	return {pr.x(), pr.y(), pr.z()};
+}
+
 
 float StripTable::interY(int sn, int snPerp){
 	int GBch = this->toGB(sn, 'y');
