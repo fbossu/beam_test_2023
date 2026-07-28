@@ -44,6 +44,7 @@ void print_help(){
             << " -A [string] alignment direcotry\n"
             << " -a [string] choose analyses [ehrt]\n"
             << " -t [float] tolerance for match\n"
+            << " -c [float] chi2track cut for match\n"
             << " -S [float] sample rate\n"
             << " -n [int] max numer of events\n"
             << " -s [int] skip events\n";
@@ -65,9 +66,10 @@ int main( int argc, char* argv[]) {
   int NSKIP = 0;
   float bancoY = 0.;
   float tolerance = 5.;
+  float chi2track = 2.;
   float samplerate = 60.;
   int opt;
-  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:a:t:S:" )) != -1 ){
+  while( (opt = getopt( argc, argv, "d:m:b:B:M:A:n:s:a:t:S:c:" )) != -1 ){
     switch(opt) { 
       case 'm':
         fnameMM = optarg;
@@ -100,6 +102,10 @@ int main( int argc, char* argv[]) {
       case 't':
         tolerance = atof(optarg);
         cout << " tolerance " <<  tolerance << endl;
+        break;
+      case 'c':
+        chi2track = atof(optarg);
+        cout << " chi2track " <<  chi2track << endl;
         break;
       case 'S':
         samplerate = atof(optarg);
@@ -144,7 +150,6 @@ int main( int argc, char* argv[]) {
   anhits H(&det, detName, bancoY );
   aneff E(&det, detName, bancoY );
   anres R(&det, detName, bancoY );
-  R.setTolerance(tolerance);
   R.setSampleRate(samplerate);
   std::map<char,anplug*> plugs;
   for( auto a : anChoice ){
@@ -165,6 +170,11 @@ int main( int argc, char* argv[]) {
         break;
     }
   }
+  for( auto p : plugs ) {
+    p.second->setTolerance(tolerance);
+    p.second->setTrackChi2Cut(chi2track);
+  };
+
   // ========== call the inits of the plugins =====
   for( auto p : plugs ) p.second->init( &MM, &banco);
 
