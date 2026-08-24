@@ -26,21 +26,34 @@ int main(int argc, char* argv[]){
   string basedir = argv[0];
   basedir = basedir.substr(0, basedir.find_last_of("\\/") + 1);
 
+  
+  // load the detector geometry 
+  // ==========================
   StripTable det( 
-      basedir + "../map/geic0_map.txt" ,
-      basedir + "geic0_align.txt"
+      basedir + "../map/geic0_map.txt" , // mapping (in the map folder)
+      basedir + "geic0_align.txt"        // alignment (in the anGeic0 folder)
       );
 
 
+  // prepare histograms 
+  // ==================
+
+  // cluster xy map
+  axis *aStrx = createAxis( "strip x", 200 , 0, 200 ); 
+  axis *aStry = createAxis( "strip y", 600 , 0, 600 ); 
   axis *ax = createAxis( "x [mm]", 800 , -100, 400 ); 
-  axis *ay = createAxis( "y [mm]", 800 , -100, 700 ); 
-  TH2F *hHitmap = create2DHisto( "hHitmap","hitmap", ax, ay );
-  TH1F *hHitx = createHisto( "hHitx", "x", ax );
-  TH1F *hHity = createHisto( "hHity", "y", ay );
+  axis *ay = createAxis( "y [mm]", 900 , -100, 900 ); 
+  TH2F *hHitmap    = create2DHisto( "hHitmap","cluster map", ax, ay );
+  TH2F *hHitmapStr = create2DHisto( "hHitmapStr","cluster map - strips", aStrx, aStry );
+
+  // hit distributions
+  TH1F *hHitx = createHisto( "hHitx", "x", aStrx );
+  TH1F *hHity = createHisto( "hHity", "y", aStry );
 
   TFile* fMM = TFile::Open( argv[1], "read");
   TTreeReader MM("events", fMM);
   TTreeReaderValue< std::vector<cluster> > cls( MM, "clusters");
+  TTreeReaderValue< std::vector<hit> > hits( MM, "hits");
 
   while( MM.Next() ){
 
@@ -59,12 +72,18 @@ int main(int argc, char* argv[]){
         auto x = v[0];
         auto y = v[1];
         hHitmap->Fill( x, y);
+        hHitmapStr->Fill( cx.centroid, cy.centroid);
       }
   }
 
-  auto c = new TCanvas();
+  auto c = new TCanvas("c","",1000,900);
+  c->Divide(2,1);
+  c->cd(1);
+  hHitmap->SetStats(0);
   hHitmap->Draw("colz");
-  //hHity->Draw("colz");
+  c->cd(2);
+  hHitmapStr->SetStats(0);
+  hHitmapStr->Draw("colz");
   c->SaveAs("map.png");
   return 0;
 

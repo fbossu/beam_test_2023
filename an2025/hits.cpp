@@ -32,7 +32,7 @@ void anhits::init(  TTreeReader *MM, TTreeReader *banco){
 
   std::string oname = "hitmap_" + detname ;
   fout = TFile::Open( (oname+".root").c_str(),"recreate");
-  axis *axch = createAxis( "channel", 256, 0, 128);
+  axis *axch = createAxis( "channel", 512, 0, 128);
   out_m["hClsX"] = createHisto( "hChX", "Clusters X", axch );
   out_m["hClsY"] = createHisto( "hChY", "Clusters Y", axch );
   out_m["hClsXwT"] = createHisto( "hChXwT", "Clusters X with Tracks", axch );

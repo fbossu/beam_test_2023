@@ -321,10 +321,10 @@ int main( int argc, char **argv ){
   string detName    = "";
   string localPath  = "";
   std::string connectors="4567";
-
+  std::string killChannels = "";
 
   int opt;
-  while((opt = getopt(argc, argv, "j:d:n:s:m:vfHS:l:c:")) != -1) { 
+  while((opt = getopt(argc, argv, "j:d:n:s:m:vfHS:l:c:k:")) != -1) { 
     switch(opt) { 
       case 'j':
         jsonPath = optarg;
@@ -367,10 +367,22 @@ int main( int argc, char **argv ){
         UseFlips = true;
         cout << " flips " << endl;
         break;
+      case 'k':
+        killChannels = optarg;
+        cout << "channels to kill " << killChannels << endl;
+        break;
       default:
         print_help();
         return 1;
     }
+  }
+
+  // are there channels to kill
+  std::vector<int> kch;
+  std::stringstream sstmp( killChannels );
+  std::string token;
+  while ( std::getline(sstmp, token, ':') ){
+    kch.push_back( atoi( token.c_str() ) );
   }
 
   // local use
@@ -381,6 +393,12 @@ int main( int argc, char **argv ){
     det.setInversion(false, false, false, false); // if cables are plugged in the wrong direction
     det.setFlip(false, false, false, false); // if connectors are slodered flipped
     if( UseFlips )det.setFlip(true, true, false, false); // if connectors are slodered flipped
+
+    for( auto k : kch ){
+     det.killChannel( k );
+     cout << k << endl;
+    }
+
   
     cout << "connectors read " << det.getConnectors() << endl;
     string outFile = "reco_" + localPath;

@@ -81,7 +81,6 @@ void reco( string name, DreamTable det) {
   nt->SetBranchAddress( "timestamp", &timestamp );
   nt->SetBranchAddress( "delta_timestamp", &delta_timestamp);
   nt->SetBranchAddress( "ftst", &ftst );
-
   //
   // name = name.substr( name.rfind('/')+1  ).insert( 0, "rec_");
   TFile *fout  = TFile::Open( "frec.root", "recreate");
@@ -109,6 +108,7 @@ void reco( string name, DreamTable det) {
     if( iev%100 == 0 ) niceBar( nt->GetEntries(), iev );
 
     nt->GetEntry(iev);
+cout << "AAAAAA " << iev << endl;
 
     // add empty events for those that have been lost
     while( tmp_evId < eventId ){
@@ -132,6 +132,7 @@ void reco( string name, DreamTable det) {
     unordered_map<uint16_t,float> tmax;
     unordered_map<uint16_t,vector<uint16_t>> amplitudes;
 
+cout << "BBBBB " << iev << endl;
     // make hits
     // ---------
 
@@ -152,6 +153,7 @@ void reco( string name, DreamTable det) {
       }
     }
 
+cout << "CCCCC " << iev << endl;
     // find the absissa of the line passing by the two samples with the larger amp diff
     for( auto &a : amplitudes ){
       int dmax = 0;
@@ -183,9 +185,11 @@ void reco( string name, DreamTable det) {
       else flex[a.first] = 999.;
     }
 
+cout << "DDDDD " << iev << endl;
     // find the time of max with a parabolic fit of the three bins around the sampmax
     for( auto &sm : sampmax){
       auto amp = amplitudes[sm.first];
+cout << "DDDDD --- " << iev << " " << amp.size()<< " " << sm.first << " " << sm.second << endl;
       if( sm.second == 0 || sm.second==15 ) { tmax[sm.first] = sm.second; continue; } // TODO fix max
 
       float x0 = (float) (sm.second - 1.);
@@ -201,6 +205,7 @@ void reco( string name, DreamTable det) {
 
     }
     
+cout << "EEEEE " << iev << endl;
 
     // fill a vector of hits
     hits->clear();
@@ -217,6 +222,7 @@ void reco( string name, DreamTable det) {
     }
 
 
+cout << "FFFFF " << iev << endl;
     // make clusters
     // -------------
     // a cluster is a sequence of contiguous hits
@@ -227,6 +233,7 @@ void reco( string name, DreamTable det) {
     
     sort( hits->begin(), hits->end(), compareHits );
     
+cout << "GGGGG " << iev << endl;
     cls->clear();
     std::vector<hit*> hitCl;
     int clId = 1;
@@ -327,15 +334,19 @@ int main( int argc, char **argv ){
     det.setInversion(false, false, true, true);
     det.killChannel(384);
   }
-  else if(nbFeu == 3){
-    det = DreamTable(basedir + "../map/strip_map.txt", 4, 5, 6, 7);
-    det.setInversion(true, true, false, false);
-  }
+  //else if(nbFeu == 3){
+    //det = DreamTable(basedir + "../map/strip_map.txt", 4, 5, 6, 7);
+    //det.setInversion(true, true, false, false);
+  //}
   else if(nbFeu == 4){
     det = DreamTable(basedir + "../map/asa_map.txt", 4, 5, 6, 7);
     det.setInversion(false, false, true, true);
   }
   else if(nbFeu == 5) {cout << "WARNING: P2 map not yet implemented, just making hits \n"; JustHits = true; }
+  else if(nbFeu == 3){
+    det = DreamTable(basedir + "../map/rd542_map.txt", 4, 5, 6, 7);
+    det.setInversion(false, false, true, true);
+  }
   else {cerr << "Feu number is invalid \n"; return 1;}
   reco( fname, det );
 

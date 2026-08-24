@@ -22,6 +22,14 @@ void aneff::init( TTreeReader *MM, TTreeReader *banco ){
   out_m["hNumY"]  = create2DHisto( "hNumY",  "Y Num",  ax_x, ax_y);
   out_m["hNumXY"] = create2DHisto( "hNumXY", "XY Num", ax_x, ax_y);
 
+  axis *ax_x_loc = createAxis("x", 300, -120, 80) ;
+  axis *ax_y_loc = createAxis("y", 300, -50, 150);
+
+  out_m["hLocDenXY"] = create2DHisto( "hLocDenXY", "XY Den", ax_x_loc, ax_y_loc);
+  out_m["hLocNumX"]  = create2DHisto( "hLocNumX",  "X Num",  ax_x_loc, ax_y_loc);
+  out_m["hLocNumY"]  = create2DHisto( "hLocNumY",  "Y Num",  ax_x_loc, ax_y_loc);
+  out_m["hLocNumXY"] = create2DHisto( "hLocNumXY", "XY Num", ax_x_loc, ax_y_loc);
+
   for( auto h : out_m ){
     ((TH1F*)h.second)->SetDirectory(fout);
   }
@@ -82,9 +90,16 @@ bool aneff::run(){
 
 
   // fill the histograms
+  // -------------------
+
+  // get the position of the track in the local frame
+  auto tr_loc = det->globToLoc( xtr, ytr );
+  float xtr_loc = tr_loc[0];
+  float ytr_loc = tr_loc[1];
   
   // denominator
   out_m["hDenXY"]->Fill( xtr, ytr );
+  out_m["hLocDenXY"]->Fill( xtr_loc, ytr_loc );
 
   // numerators
   bool xfound=false;
@@ -93,14 +108,17 @@ bool aneff::run(){
   //cls are ordered, so I look at the first one
   if( clsX.size() > 0 and abs(det->pos3D(clsX[0].stripCentroid,-1)[1]-ytr) < dtol ){
     out_m["hNumX"]->Fill( xtr, ytr );
+    out_m["hLocNumX"]->Fill( xtr_loc, ytr_loc );
     xfound=true;
   }
   if( clsY.size() > 0 and  abs(det->pos3D(-1,clsY[0].stripCentroid)[0]-xtr) < dtol ){
     out_m["hNumY"]->Fill( xtr, ytr );
+    out_m["hLocNumY"]->Fill( xtr_loc, ytr_loc );
     yfound=true;
   }
   if( xfound and yfound ){
     out_m["hNumXY"]->Fill( xtr, ytr );
+    out_m["hLocNumXY"]->Fill( xtr_loc, ytr_loc );
   }
 
   return true;

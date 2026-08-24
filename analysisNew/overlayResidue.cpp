@@ -1,7 +1,7 @@
 #include "TNtupleD.h"
 #include "analysis.h"
 #include "TF1.h"
-#include "../../../CLAS12/style_sheet.h"
+//#include "../../../CLAS12/style_sheet.h"
 
 
 void plotResGeant(std::string fnamegeant, std::string fnameMM, std::string det, std::string layer){
@@ -131,7 +131,7 @@ void plotG4(std::string fnameG4, std::string layer, std::string det){
 
 
 int main(int argc, char* argv[]) {
-    defStyle();
+    //defStyle();
     // TFile* fgeant = new TFile("../geant4BeamTest/plots/beamTestGeant4_p0.00_i0.00_t0.00_s0.00.root", "READ");
     // TFile* fmm = new TFile("stripFEU1_POS08_z6_residues_residueFile.root", "READ");
     // TFile* fmm = new TFile("interFEU1_POS13_z1_residues_residueFile.root", "READ");

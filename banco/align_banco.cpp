@@ -218,8 +218,8 @@ void alignBanco(std::vector<std::string> fnamesIn){
         double ex = 0.028*0.028/12 + ehy ;
         double ey = 0.028*0.028/12 + ehy ;
         //d2 += dx*dx/ex + dy*dy/ey;
-        d2 += dx*dx + dy*dy;
-        //d2 += dx*dx ;
+        //d2 += dx*dx + dy*dy;
+        d2 += dy*dy ;
       }
     }
     return d2;
@@ -235,10 +235,10 @@ void alignBanco(std::vector<std::string> fnamesIn){
   double pStart[8] = {0.};
   fitter.SetFCN(fcn, pStart);
 
-  fitter.Config().ParSettings( 2*posname["ladder162"] ).Fix();
-  fitter.Config().ParSettings( 2*posname["ladder162"]+1 ).Fix();
-  fitter.Config().ParSettings( 2*posname["ladder162"] ).SetValue(0);
-  fitter.Config().ParSettings( 2*posname["ladder162"]+1 ).SetValue(0);
+  //fitter.Config().ParSettings( 2*posname["ladder162"] ).Fix();
+  //fitter.Config().ParSettings( 2*posname["ladder162"]+1 ).Fix();
+  //fitter.Config().ParSettings( 2*posname["ladder162"] ).SetValue(0);
+  //fitter.Config().ParSettings( 2*posname["ladder162"]+1 ).SetValue(0);
 
   //fitter.Config().ParSettings( 2*posname["ladder157"] ).SetValue(0.05);
   //fitter.Config().ParSettings( 2*posname["ladder157"]+1 ).SetValue(1.5);
@@ -246,8 +246,10 @@ void alignBanco(std::vector<std::string> fnamesIn){
   //fitter.Config().ParSettings( 2*posname["ladder163"] ).SetValue(-0.04);
   //fitter.Config().ParSettings( 2*posname["ladder163"]+1 ).SetValue(-0.8);
 
-  //fitter.Config().ParSettings( 2*posname["ladder160"] ).SetValue(0.04);
-  //fitter.Config().ParSettings( 2*posname["ladder160"]+1 ).SetValue(0.8);
+  fitter.Config().ParSettings( 2*posname["ladder160"] ).SetValue(0);
+  fitter.Config().ParSettings( 2*posname["ladder160"]+1 ).SetValue(0);
+  fitter.Config().ParSettings( 2*posname["ladder160"] ).Fix();
+  fitter.Config().ParSettings( 2*posname["ladder160"]+1 ).Fix();
 
   for( int i=0; i<tnames.size(); i++){
     fitter.Config().ParSettings(2*i).SetName(Form("x%d_%s",i,tnames[i].c_str()));

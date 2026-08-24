@@ -1,4 +1,4 @@
-# Beam test 2023
+# Beam test CyMBaL prototype analysis
 
 All the decoding and reconstruction software uses the logic that at each step the output file is recreated in the same directory than the code with a standard name. Then a script can be used to move and rename the final files to be kept.
 

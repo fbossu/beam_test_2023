@@ -26,6 +26,7 @@ namespace banco {
       void SetPitchX( float p ) { pitchx = p; }
       void SetPitchY( float p ) { pitchy = p; }
 
+      void SetDeltaSensors( float r ){ deltasensors = r; }
       void SetRotation( Rotation3D r ){ rotation = r; }
       void SetTranslation( XYZVectorF t ){ translation = t; }
       void SetReference( XYZVectorF r ){ reference = r; }

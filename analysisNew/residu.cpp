@@ -82,7 +82,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
 
   TFile* res = new TFile((resName).c_str(), "recreate");
 
-  TNtupleD *nt = new TNtupleD("nt", "nt", "xtrack:ytrack:xdet:ydet:xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:stX:stY:stresX:stresY:chX:chY:chresX:chresY");
+  TNtupleD *nt = new TNtupleD("nt", "nt", "icl:xtrack:ytrack:xdet:ydet:xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:stX:stY:stresX:stresY:chX:chY:chresX:chresY");
   nt->SetDirectory(res);
 
   TFile* fMM = TFile::Open(fnameMM.c_str(), "read");
@@ -101,6 +101,7 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
 
   double avgxdet = 0;
 
+  int icl = 0;
   while( MM.Next() ){
     // if(n>3000) break;
     // if(n==1000){
@@ -115,49 +116,77 @@ void residue(std::string resName, std::string fnameBanco, std::string fnameMM, S
     }
     if(tracks->size() == 0 or cls->size() == 0) continue;
 
+    icl=0;
+
     auto tr = *std::min_element(tracks->begin(), tracks->end(),
                        [](const banco::track& a,const banco::track& b) { return a.chi2x+a.chi2y < b.chi2x+b.chi2y; });
-    if(tr.chi2x>2 or tr.chi2y>2) continue;
-    auto maxX = maxSizeClX(*cls);
-    auto maxY = maxSizeClY(*cls);
-    
-    if(maxX && maxY){
-      // if(maxY->size != 3) continue;
-      n++; stX += maxX->stripCentroid; stY += maxY->stripCentroid;
-      auto hitsX = getHits(&(*hits), maxX->id);
-      auto hitsY = getHits(&(*hits), maxY->id);
-      if(hitsX.size() == 0 or hitsY.size() == 0){
-              std::cout<<"aaaaaaaahhhhhhhhhhhhhhhhhhhh"<<std::endl;
-        continue;
+    if(tr.chi2x>3 or tr.chi2y>30) continue;
+
+    double xtrack = tr.x0 + det.getZpos()*tr.mx;
+    double ytrack = tr.y0 + det.getZpos()*tr.my + bancoY; 
+
+    // separate the clusts in X and Y
+    std::vector<cluster> clsX;
+    std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsX),
+             [](const cluster& c){return c.axis=='x';} );
+    std::vector<cluster> clsY;
+    std::copy_if (cls->begin(), cls->end(), std::back_inserter(clsY),
+             [](const cluster& c){return c.axis=='y';} );
+ 
+    // sort cluster from the closest
+    std::sort( clsX.begin(), clsX.end(), 
+        [ytrack,&det]( const cluster& a, const cluster& b){ 
+          return det.pos3D(a.stripCentroid,-1)[1]-ytrack > det.pos3D(b.stripCentroid,-1)[1]-ytrack; 
+        });
+
+    std::sort( clsY.begin(), clsY.end(), 
+        [xtrack,&det]( const cluster& a, const cluster& b){ 
+          return det.pos3D(-1,a.stripCentroid)[0]-xtrack > det.pos3D(-1,b.stripCentroid)[0]-xtrack; 
+          });
+
+    // do the combinatorics, but cut on the distance to the track
+    for( auto clusterX : clsX ){
+
+      double yGerber = det.pos3D(clusterX.stripCentroid,-1)[1];
+      if( abs(tr.y0 + det.getZpos()*tr.my + bancoY - yGerber ) > 5. ) continue;
+
+      for( auto clusterY : clsY ){ 
+        double xGerber = det.pos3D(-1,clusterY.stripCentroid)[0];
+        if( abs(tr.x0 + det.getZpos()*tr.mx - xGerber ) > 5. ) continue;
+
+
+        n++; 
+        stX += clusterX.stripCentroid; stY += clusterY.stripCentroid;
+        auto hitsX = getHits(&(*hits), clusterX.id);
+        auto hitsY = getHits(&(*hits), clusterY.id);
+        if(hitsX.size() == 0 or hitsY.size() == 0){
+                std::cout<<"aaaaaaaahhhhhhhhhhhhhhhhhhhh"<<std::endl;
+          continue;
+        }
+        float totMaxAmpX =0.; 
+        float totMaxAmpY =0.; 
+        for( auto h : hitsX ) totMaxAmpX += h.maxamp;
+        for( auto h : hitsY ) totMaxAmpY += h.maxamp;
+
+        std::vector<double> detPos = det.pos3D(clusterX.stripCentroid, clusterY.stripCentroid);
+        // detPos = rotation(detPos[0], detPos[1], detPos[2]);
+        double xdet = detPos[0];
+        double ydet = detPos[1];
+        // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
+
+        
+        // for(int i=0; i<hitsY.size(); i++){
+        //   // if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
+        // }
+        avgxdet += xdet;
+
+        //double data[18] = {xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, clusterX.size, clusterY.size, hitsX[0].maxamp, hitsY[0].maxamp, 
+        double data[19] = { (float) icl, xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, (double)clusterX.size, (double)clusterY.size, totMaxAmpX, totMaxAmpY, 
+            clusterX.stripCentroid, clusterY.stripCentroid, ytrack-clusterX.stripCentroid, xtrack-clusterY.stripCentroid, clusterX.centroid, clusterY.centroid, ytrack-clusterX.centroid, xtrack-clusterY.centroid};
+
+        nt->Fill(data);
+        icl++;
       }
-
-      double yGerber = det.posX(maxX->stripCentroid)[1];
-      double xGerber = det.posY(maxY->stripCentroid)[0];
-      // if(xGerber<-75) continue; // POS11
-      // if(yGerber>44) continue; // POS06
-      // if(yGerber<-48) continue; // POS12
-      // if(yGerber<18) continue; // asaFEU2
-      // if(yGerber > 15 || xGerber > -75) continue; // asaFEU4 POS02
-      // if(yGerber<100) continue; // stripFEU1 5mm x region
-
-      std::vector<double> detPos = det.pos3D(maxX->stripCentroid, maxY->stripCentroid);
-      // detPos = rotation(detPos[0], detPos[1], detPos[2]);
-      double xdet = detPos[0];
-      double ydet = detPos[1];
-      // std::cout<<"xdet: "<<xdet<<" ydet: "<<ydet<<" zdet: "<<detPos[2]<<std::endl;
-
-      double xtrack = tr.x0 + detPos[2]*tr.mx;
-      double ytrack = tr.y0 + detPos[2]*tr.my + bancoY; 
-      
-      // for(int i=0; i<hitsY.size(); i++){
-      //   // if(hitsY[i].strip==64) std::cout<<"hitY: "<<hitsY[i].strip<<" "<<hitsY[i].channel<<std::endl;
-      // }
-      avgxdet += xdet;
-
-      double data[18] = {xtrack, ytrack, xdet, ydet, xtrack-xdet, ytrack-ydet, maxX->size, maxY->size, hitsX[0].maxamp, hitsY[0].maxamp, 
-          maxX->stripCentroid, maxY->stripCentroid, ytrack-maxX->stripCentroid, xtrack-maxY->stripCentroid, maxX->centroid, maxY->centroid, ytrack-maxX->centroid, xtrack-maxY->centroid};
-
-      nt->Fill(data);
     }
   }
   if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
@@ -196,9 +225,9 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
     meanresy += 1.5;
     meanresx += 1.5;
   }
-  TH1F htmpx("htmpx","", 200, -200, 200);
+  TH1F htmpx("htmpx","", 200, -20, 20);
   nt->Project("htmpx","xres");
-  TH1F htmpy("htmpy","", 200, -200, 200);
+  TH1F htmpy("htmpy","", 200, -20, 20);
   nt->Project("htmpy","yres");
 
   std::cout<<"meanxdet: "<<meanxdet<<" stdx: "<<stdx<<std::endl;
@@ -218,12 +247,12 @@ std::vector<double> plotResidue(std::string resName, std::string graphname, doub
   nt->Draw(Form("cos(%f)*xres+sin(%f)*xdet>>hy", angleY, angleY));
 
   // Fit hx with a Gaussian function
-  TF1* fitFuncX = new TF1("fitFuncX", "gaus", meanresy-2.*avg_std, meanresy+2.*avg_std);
+  TF1* fitFuncX = new TF1("fitFuncX", "gaus", meanresy-1.*avg_std, meanresy+1.*avg_std);
   fitFuncX->SetParameters(0, stdy);
   hx->Fit(fitFuncX, "R");
 
   // Fit hy with a Gaussian function
-  TF1* fitFuncY = new TF1("fitFuncY", "gaus", meanresx-2.*avg_std, meanresx+2.*avg_std);
+  TF1* fitFuncY = new TF1("fitFuncY", "gaus", meanresx-1.*avg_std, meanresx+1.*avg_std);
   fitFuncY->SetParameters(0, stdx);
   hy->Fit(fitFuncY, "R");
 

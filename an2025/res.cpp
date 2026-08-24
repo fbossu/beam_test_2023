@@ -21,11 +21,12 @@ void anres::init( TTreeReader *MM, TTreeReader *banco ){
 
   ftst = new TTreeReaderValue< unsigned short>(*MM,"ftst");
 
+  eventId = new TTreeReaderValue< unsigned long>( *MM, "eventId");
   std::string oname = "res_" + detname ;
   fout = TFile::Open( (oname+".root").c_str(),"recreate");
   if (!fout ){ std::cerr << "*** ERROR res, issues in opening fout\n"; return; }
 
-  nt = new TNtuple("nt", "nt", "icl:xtr:ytr:xdet:ydet:"\
+  nt = new TNtuple("nt", "nt", "eid:iclX:iclY:xtr:ytr:xdet:ydet:"\
       "xres:yres:Xclsize:Yclsize:Xmaxamp:Ymaxamp:"\
       "stX:stY:chX:chY:"\
       "Xt:stXt:Yt:stYt:Xtf:stXtf:Ytf:stYtf");
@@ -185,7 +186,6 @@ bool anres::run(){
   // now, compute the resolution for all the clusters 
   // do the combinatorics, but cut on the distance to the track
 
-  int icl=0; // this counts the "accepted" xy clusters in this event: remember, they are sorted, so the 0th is the closest to the track
   for( auto clusterX : clsX ){
 
     float yGerber = det->pos3D(clusterX.stripCentroid,-1)[1];
@@ -217,8 +217,9 @@ bool anres::run(){
       float ydet = detPos[1];
 
       // prepare to fill the ntuple
-      float data[23] = { 
-        (float) icl, 
+      float data[25] = { 
+        (float) (**eventId),
+        (float) clusterX.id , (float) clusterY.id,
         xtr, ytr, xdet, ydet, 
         xtr-xdet, ytr-ydet, 
         (float)clusterX.size, (float)clusterY.size, 

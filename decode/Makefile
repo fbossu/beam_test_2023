@@ -5,3 +5,5 @@ all: decode
 	g++ convert_vec_tree_to_array.cpp -o convert_vec_tree_to_array $(shell root-config --cflags) $(shell root-config --libs )
 	g++ convert_array_tree_to_vec.cpp -o convert_array_tree_to_vec $(shell root-config --cflags) $(shell root-config --libs )
 	g++ subtract_pedestals.cpp -o subtract_pedestals $(shell root-config --cflags) $(shell root-config --libs )
+merge: merge_feu.cpp
+	g++ merge_feu.cpp -o merge_feu $(shell root-config --cflags) $(shell root-config --libs )

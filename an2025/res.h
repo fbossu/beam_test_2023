@@ -33,6 +33,7 @@ class anres : public anplug {
     TTreeReaderValue<std::vector<hit>> *hits;
     TTreeReaderValue< std::vector<banco::track> > *tracks;
     TTreeReaderValue< unsigned short> *ftst;
+    TTreeReaderValue< unsigned long> *eventId;
     
     std::map<std::string, TH1*> out_m;
     TNtuple *nt;

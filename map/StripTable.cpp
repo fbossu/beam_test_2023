@@ -22,6 +22,10 @@ StripTable::StripTable(std::string idetFile) : DetectorTable(idetFile) {
 		zonePitch = { {1.766f, 1.021f} };
 		zoneInter = { {1.066f, 0.121f} };
 	}
+	else if(idetFile.find("cr6z") != std::string::npos){
+		zonePitch = { {1.766f, 1.021f} };
+		zoneInter = { {1.066f, 0.121f} };
+	}
 	else{
 		// throw std::runtime_error("Error: zones not recognized");
 		std::cout<<"Warning: detector zones not found, setting default pitch and inter values"<<std::endl;
@@ -149,6 +153,13 @@ std::vector<double> StripTable::pos3DG(double snx, double sny){
 
 	ROOT::Math::XYZPoint pdet(xpos, ypos, 0.);
 	ROOT::Math::XYZPoint pr = trans(pdet);
+	return {pr.x(), pr.y(), pr.z()};
+}
+
+std::vector<double> StripTable::globToLoc(double xpos, double ypos){
+
+	ROOT::Math::XYZPoint pdet(xpos, ypos, getZpos() );
+	ROOT::Math::XYZPoint pr = trans.Inverse()(pdet);
 	return {pr.x(), pr.y(), pr.z()};
 }
 

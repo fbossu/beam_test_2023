@@ -315,10 +315,11 @@ double* align(std::string pos, StripTable det, std::vector<banco::track> tracks,
 	minimum->SetVariable(5,"rotX", pStart[5], step[5]);
 	// minimum->FixVariable(0); 
 	if(fixVars){
-		minimum->FixVariable(0);
-		minimum->FixVariable(3);
-		minimum->FixVariable(4);
-		minimum->FixVariable(5);
+		minimum->FixVariable(0);  // z 
+		minimum->FixVariable(2);  // y
+		minimum->FixVariable(3);  // rot z
+                              //minimum->FixVariable(4);  // rot y
+		minimum->FixVariable(5);  // rot x
 	}
 	// if(stdOpt){
 	// 	minimum->FixVariable(1);
@@ -741,7 +742,7 @@ double* globalMinima(StripTable det, std::vector<banco::track> tracks, std::vect
 int main(int argc, char const *argv[])
 {
 	if (argc < 4) {
-		std::cerr << "Usage: " << argv[0] << "<detname> <bancoFile.root> <MMFile.root> <Zpos>" << std::endl;
+		std::cerr << "Usage: " << argv[0] << "<detname> <bancoFile.root> <MMFile.root> <Zpos> <bancoY" << std::endl;
 		return 1;
 	}
 
@@ -750,11 +751,12 @@ int main(int argc, char const *argv[])
 	std::string detName    = argv[1];
 	std::string fnameBanco = argv[2];
 	std::string fnameMM    = argv[3];
-	float zpos    = std::atof(argv[4]);
+	float zpos      = std::atof(argv[4]);
+	float bancoY    = std::atof(argv[5]);
 
 	std::string mapName;
 	// double zpos = 0., rotZ = 0., rotY = -0.15, rotX = 0.088;
-	double rotZ = 0., rotY = 180., rotX = 0.0;
+	double rotZ = 0., rotY = 3.849, rotX = 0.0;
 	if (detName == "asaFEU4") {
 		mapName = "asa_map.txt";
 		zpos = -785.6;
@@ -839,7 +841,7 @@ int main(int argc, char const *argv[])
 
 		nev++;
 		initTx += tr.x0 + zpos*tr.mx - det.posY(maxY->stripCentroid)[0];
-		initTy += tr.y0 + zpos*tr.my - det.posX(maxX->stripCentroid)[1];
+		initTy += tr.y0 + zpos*tr.my + bancoY - det.posX(maxX->stripCentroid)[1];
 		if(nev>100000) break;
 	}
 	if(banco.Next()) std::cout<<"WARNING: Missing MM event"<<std::endl;
@@ -871,8 +873,10 @@ int main(int argc, char const *argv[])
 	double pStart[6] = {zpos, initTx/nev, initTy/nev, rotZ, rotY, rotX};
 	// double z0 = zAlign(Form("zAlign_z0_%s_%s.png", detName.c_str(), run.c_str()), det, tracksFit, XclsFit, YclsFit, pStart);
 	// pStart[0] = -305.6;
+  pStart[1] = 33.6672;
+  pStart[2] = -9.138;
 	// pStart[3] = -M_PI/2.;
-	// pStart[4] = M_PI;
+	 pStart[4] = M_PI + M_PI/4;
 	// pStart[5] = 0.;
 	std::cout<<"Initial parameters: "<<pStart[0]<<" "<<pStart[1]<<" "<<pStart[2]<<" "<<pStart[3]<<" "<<pStart[4]<<" "<<pStart[5]<<std::endl;
 	// double* pTrl = align(run, det, tracksFit, XclsFit, YclsFit, pStart, false, true);

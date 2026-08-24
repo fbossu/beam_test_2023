@@ -39,6 +39,7 @@ public:
 	std::vector<double> pos3D(double snx, double sny);
 	std::vector<double> pos3DG(double snx, double sny);
 	double getZpos(); // z on the center of the active area of the detector
+	std::vector<double> globToLoc(double xpos, double ypos);
 
 	int zone(int snx, int sny);
 	int nbZone(){return zonePitch.size();};

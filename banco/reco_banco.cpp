@@ -138,6 +138,7 @@ int NEVENTS = -1;
 int SKIPEV  = -1;
 bool DoRES = false;
 float MaxR = 1.;
+float DeltaSens = 0.015;
 int NLADDERS  = 3;
 
 // =================================================================
@@ -184,6 +185,7 @@ void recoBanco(std::vector<std::string> fnamesIn){
     geom[s];
     geom[s].LoadGeometry(s,(basedir+"/"+geofname).c_str()); 
 
+    geom[s].SetDeltaSensors(DeltaSens);
     geom[s].PrintGeometry();
   }
 
@@ -379,6 +381,7 @@ void print_help(){
             << " -R [string] sets the global rotation\n"
             << " -r activates the computation of the residuals\n"
             << " -m [float] sets the limits for the residuals histograms\n"
+            << " -D [float] sets the distance between chips\n"
             << " -l [int] sets the minimum number of ladders used for tracking\n"
             << " -n [int] sets the max number of events\n"
             << " -s [int] skip s events\n";
@@ -395,7 +398,7 @@ int main(int argc, char *argv[])
 
   // reading some options
   int opt;
-  while((opt = getopt(argc, argv, "hrn:m:d:g:R:s:l:")) != -1) { 
+  while((opt = getopt(argc, argv, "hrn:m:d:g:R:s:l:D:")) != -1) { 
     switch(opt) { 
       case 'd':
         basedir = optarg;
@@ -416,6 +419,10 @@ int main(int argc, char *argv[])
       case 'm':
         MaxR=std::atof(optarg);
         std::cout << "limits res hists "<< MaxR << std::endl;
+        break;
+      case 'D':
+        DeltaSens=std::atof(optarg);
+        std::cout << "delta sensors "<< DeltaSens << std::endl;
         break;
       case 'n':
         NEVENTS=std::atoi(optarg);
