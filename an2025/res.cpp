@@ -80,18 +80,18 @@ void anres::end() {
   axis *axclsize = createAxis( "cluster size", 15, 0, 15);
   TH1F *hXcsize  = createHisto( "hXcsize", "cluster size", axclsize);
   TH1F *hYcsize  = createHisto( "hYcsize", "cluster size", axclsize);
-  nt->Project( "hXcsize", "Xclsize", "icl==0" );
-  nt->Project( "hYcsize", "Yclsize", "icl==0" );
+  nt->Project( "hXcsize", "Xclsize", "" );
+  nt->Project( "hYcsize", "Yclsize", "" );
 
   axis *axcltime = createAxis( "cluster time", 300, 150, 750);
   TH1F *hXctime  = createHisto( "hXctime", "cluster time", axcltime);
   TH1F *hYctime  = createHisto( "hYctime", "cluster time", axcltime);
   TH1F *hXctime1  = createHisto( "hXctime1", "cluster time 1st", axcltime);
   TH1F *hYctime1  = createHisto( "hYctime1", "cluster time 1st", axcltime);
-  nt->Project( "hXctime", "Xt", "icl==0" );
-  nt->Project( "hYctime", "Yt", "icl==0" );
-  nt->Project( "hXctime1", "Xtf", "icl==0" );
-  nt->Project( "hYctime1", "Ytf", "icl==0" );
+  nt->Project( "hXctime", "Xt", "" );
+  nt->Project( "hYctime", "Yt", "" );
+  nt->Project( "hXctime1", "Xtf", "" );
+  nt->Project( "hYctime1", "Ytf", "" );
 
   TCanvas *ct = new TCanvas("ct","clusters and time", 1600, 1600);
   ct->Divide(2,2);
