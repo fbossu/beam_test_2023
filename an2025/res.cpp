@@ -223,7 +223,7 @@ bool anres::run(){
         xtr, ytr, xdet, ydet, 
         xtr-xdet, ytr-ydet, 
         (float)clusterX.size, (float)clusterY.size, 
-        (float)clusterX.ampsum, (float)clusterX.ampsum , 
+        (float)clusterX.ampsum, (float)clusterY.ampsum , 
         clusterX.stripCentroid, clusterY.stripCentroid, 
         clusterX.centroid, clusterY.centroid,
         Xmatofm, (float)XmatofmStr,
